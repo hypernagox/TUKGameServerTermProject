@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(SolutionDir)TermProjectGameFrameWork\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(SolutionDir)TermProjectGameFrameWork\;$(SolutionDir)ClientNetwork\;$(SolutionDir)ClientNetwork\inc\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)ClientNetwork\libs\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(SolutionDir)TermProjectGameFrameWork\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)Output\bin_Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(SolutionDir)TermProjectGameFrameWork\;$(SolutionDir)ClientNetwork\;$(SolutionDir)ClientNetwork\inc\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)ClientNetwork\libs\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -239,6 +239,9 @@
     <Image Include="Terraria-Replica.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ClientNetwork\ClientNetwork.vcxproj">
+      <Project>{7ce04002-f924-48ae-a29a-ab30be842f2c}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\TermProjectGameFrameWork\TermProjectGameFrameWork.vcxproj">
       <Project>{345c1379-33db-40db-ad25-321d16cc43a7}</Project>
     </ProjectReference>

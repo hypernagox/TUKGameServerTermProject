@@ -1,0 +1,97 @@
+#pragma once
+#include "ClientNetworkPch.h"
+#include "Protocol.pb.h"
+
+namespace NetHelper
+{
+	template<typename T>requires std::is_enum_v<T>
+	static inline constexpr const uint16 net_etoi(const T eType_)noexcept { return static_cast<const uint16>(eType_); }
+
+	enum class PKT_ID: uint16
+	{
+	{%- for pkt in parser.total_pkt %}
+		{{pkt.name}} = {{pkt.id}},
+	{%- endfor %}
+	};
+	
+	class PacketSession;
+	class Session;
+	class SendBuffer;
+	class SessionManageable;
+	
+	const bool Handle_Invalid(const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_);
+	
+	{%- for pkt in parser.recv_pkt %}
+	const bool Handle_{{pkt.name}}(const S_ptr<PacketSession>& pSession_, const Protocol::{{pkt.name}}& pkt_);
+	{%- endfor %}
+	
+	class {{output}}
+	{
+		using PacketHandlerFunc = const bool (*)(const S_ptr<PacketSession>&, BYTE* const, c_int32);
+		static inline PacketHandlerFunc g_fpPacketHandler[UINT16_MAX] = {};
+	public:
+		static void Init() noexcept
+		{
+	{%- for pkt in parser.recv_pkt %}
+			g_fpPacketHandler[net_etoi(PKT_ID::{{pkt.name}})] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::{{pkt.name}}>(Handle_{{pkt.name}}, pSession_, pBuff_, len_); };
+	{%- endfor %}
+			for (auto& fpHandlerFunc : g_fpPacketHandler) 
+			{
+				if (nullptr == fpHandlerFunc)
+					fpHandlerFunc = Handle_Invalid;
+			}
+		}
+		
+		static const PacketHandlerFunc* const GetPacketHandlerList()noexcept { return g_fpPacketHandler; }
+
+		static void AddProtocol(const uint16 pktID_, const PacketHandlerFunc fpPacketHandler_)noexcept
+		{
+			NET_NAGOX_ASSERT(nullptr == g_fpPacketHandler[pktID_] || Handle_Invalid == g_fpPacketHandler[pktID_]);
+			g_fpPacketHandler[pktID_] = fpPacketHandler_;
+		}
+
+		static const bool HandlePacket(const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)
+		{
+			const PacketHeader* const header = reinterpret_cast<const PacketHeader* const>(pBuff_);
+			return g_fpPacketHandler[header->id](pSession_, pBuff_, len_);
+		}
+	
+	{%- for pkt in parser.send_pkt %}
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::{{pkt.name}}& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::{{pkt.name}}); }
+	{%- endfor %}
+	
+	private:
+		template<typename PacketType, typename ProcessFunc>
+		static const bool HandlePacket(ProcessFunc&& func, const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)
+		{
+			PacketType pkt;
+			if (pkt.ParseFromArray(pBuff_ + sizeof(PacketHeader), len_ - sizeof(PacketHeader)) == false) [[unlikely]]
+				return false;
+	
+			return func(pSession_, pkt);
+		}
+	
+		template<typename T>
+		static S_ptr<SendBuffer> MakeSendBuffer(T& pkt, const PKT_ID pktId)noexcept
+		{
+			const int32 dataSize = static_cast<c_int32>(pkt.ByteSizeLong());
+			const int32 packetSize = dataSize + static_cast<c_int32>(sizeof(PacketHeader));
+	
+			S_ptr<SendBuffer> sendBuffer = Mgr(SendBufferMgr)->Open(packetSize);
+			PacketHeader* const header = reinterpret_cast<PacketHeader*const>(sendBuffer->Buffer());
+			header->size = packetSize;
+			header->id = static_cast<c_int32>(pktId);
+			NAGOX_ASSERT(pkt.SerializeToArray(header + 1, dataSize));
+			sendBuffer->Close(packetSize);
+	
+			return sendBuffer;
+		}
+	public:
+		{{output}}() = delete;                 
+		{{output}}(const {{output}}&) = delete;
+		{{output}}({{output}}&&) = delete;
+		{{output}}& operator=(const {{output}}&) = delete;
+		{{output}}& operator=({{output}}&&) = delete;
+		~{{output}}() = delete;
+	};
+}
