@@ -1,0 +1,45 @@
+#pragma once
+
+#include "pch.h"
+
+class TRTile;
+class TRTileWall;
+class TRTileMapShade;
+class CTileLayer;
+
+class TRTileMap
+{
+private:
+	int tile_width;
+	int tile_height;
+
+	TRTile** tile_map;
+	TRTileWall** tile_wall_map;
+
+	//TRTileMapShade* tile_map_shade;
+
+	CTileLayer* renderer;
+	CTileLayer* renderer_shade;
+	HBRUSH m_hTileMapBrush;
+
+public:
+	TRTileMap(int width, int height);
+	~TRTileMap();
+
+	TRTile* GetTile(int x, int y) const;
+	TRTile* SetTile(int x, int y, TRTile* new_tile, bool render = false);
+
+	TRTileWall* GetTileWall(int x, int y) const;
+	TRTileWall* SetTileWall(int x, int y, TRTileWall* new_tile, bool render = false);
+
+	void OnSceneCreate(CScene* scene);
+	void UpdateTileRenderer(int x, int y);
+
+	int GetTopYpos(int x) const;
+
+private:
+	int GetTileNeighborMask(int x, int y) const;
+	int GetTileWallNeighborMask(int x, int y) const;
+	TRTile** GetTileReference(int x, int y) const;
+	TRTileWall** GetTileWallReference(int x, int y) const;
+};

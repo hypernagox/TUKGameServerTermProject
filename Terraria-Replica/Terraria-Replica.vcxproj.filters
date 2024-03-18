@@ -1,0 +1,343 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Terraria-Replica">
+      <UniqueIdentifier>{92e7f279-4b6e-4ca3-a57d-ab0d7540fb13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Terraria-Replica\Utilities">
+      <UniqueIdentifier>{844b91dd-3ebf-49fd-aade-2dc2af5e2f5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pch">
+      <UniqueIdentifier>{b87f2319-97c8-4c04-b7ee-44926361726b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CScene">
+      <UniqueIdentifier>{4657ebc1-8bca-4657-ba94-99101cefcbe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject">
+      <UniqueIdentifier>{f6d80af0-dfe2-4ca2-bddf-ab73282b3aee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CScene\Scene_Start">
+      <UniqueIdentifier>{09852513-8bc4-4af9-8d02-c957150b35b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\Player">
+      <UniqueIdentifier>{4501b799-b9b7-4e63-961d-3ef5901f2802}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Terraria-Replica\Weapon">
+      <UniqueIdentifier>{4dec4fa3-33a8-4343-9e18-8dcc35a060b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\ItemContainerVisualizer">
+      <UniqueIdentifier>{255c3c2a-8129-4953-bf7b-4402afab907a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\Monster">
+      <UniqueIdentifier>{49451fee-7f97-4847-b6d9-4c584e61af76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\Monster\CZombie">
+      <UniqueIdentifier>{d8a6f69a-08ec-40d9-afed-ba96d3044dfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\Monster\CSlime">
+      <UniqueIdentifier>{ce8177a2-3344-4f0a-b551-da53afc1fa1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\Monster\CEyeMonster">
+      <UniqueIdentifier>{b6fda34a-8617-4c5b-9d0c-b59fc51c87f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\HealthIndicator">
+      <UniqueIdentifier>{54e3b887-4a57-4393-8832-2a94994b3a6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\QuickBarVisualizer">
+      <UniqueIdentifier>{3c225038-1b73-429f-a296-1775ae31c55b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Terraria-Replica\TRMonGenerator">
+      <UniqueIdentifier>{f4a67f20-5d3e-49e3-87b0-ad6ce6d0bd53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\CMiniMap">
+      <UniqueIdentifier>{9d537fbe-4b99-4c88-8a98-bfb7f189625e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\InventoryVisualizer">
+      <UniqueIdentifier>{e7efbb6a-5f22-449a-9d29-42eee09598f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\DropItem">
+      <UniqueIdentifier>{02e3a9bd-25fd-47fe-af24-e08dd42f34b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CScene\Scene_Intro">
+      <UniqueIdentifier>{695b6a86-6e77-471e-bb0d-659eeae7e458}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\Monster\CCthulhuEye">
+      <UniqueIdentifier>{c2d96831-20f9-423b-9bc7-5c0b683a39d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\CAcquireItemText">
+      <UniqueIdentifier>{41435c51-77d3-41e4-8b3c-e46f10d6c5b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CObject\Monster\CCthulhuEye\CBossHealthBar">
+      <UniqueIdentifier>{8dba2b82-15f9-4e59-999b-791af5dc4932}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CParticleMgr">
+      <UniqueIdentifier>{47ccec1f-739f-4808-928b-89164bb086a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CParticleMgr\Particle">
+      <UniqueIdentifier>{cfb6e3b1-3b22-47d6-885f-2e4bb3044702}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Terraria-Replica.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3D.hpp">
+      <Filter>Terraria-Replica\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2D.hpp">
+      <Filter>Terraria-Replica\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomMath.hpp">
+      <Filter>Terraria-Replica\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="TRMain.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTile.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTileManager.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTileMap.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorld.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorldGeneration.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorldGenerationProcess.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="Registry.hpp">
+      <Filter>Terraria-Replica\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="PerlinNoise.hpp">
+      <Filter>Terraria-Replica\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>pch</Filter>
+    </ClInclude>
+    <ClInclude Include="TRItem.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="TRItemManager.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTileWall.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="CScene_Start.h">
+      <Filter>CScene\Scene_Start</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayer.h">
+      <Filter>CObject\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="CWeapon.h">
+      <Filter>Terraria-Replica\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="TRItemContainer.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="TRItemStack.h">
+      <Filter>Terraria-Replica</Filter>
+    </ClInclude>
+    <ClInclude Include="CMonster.h">
+      <Filter>CObject\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="CZombie.h">
+      <Filter>CObject\Monster\CZombie</Filter>
+    </ClInclude>
+    <ClInclude Include="CSlime.h">
+      <Filter>CObject\Monster\CSlime</Filter>
+    </ClInclude>
+    <ClInclude Include="CEyeMonster.h">
+      <Filter>CObject\Monster\CEyeMonster</Filter>
+    </ClInclude>
+    <ClInclude Include="CItemContainerVisualizer.h">
+      <Filter>CObject\ItemContainerVisualizer</Filter>
+    </ClInclude>
+    <ClInclude Include="CHealthIndicator.h">
+      <Filter>CObject\HealthIndicator</Filter>
+    </ClInclude>
+    <ClInclude Include="CQuickBarVisualizer.h">
+      <Filter>CObject\QuickBarVisualizer</Filter>
+    </ClInclude>
+    <ClInclude Include="TRMonGenerator.h">
+      <Filter>Terraria-Replica\TRMonGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="CMiniMap.h">
+      <Filter>CObject\CMiniMap</Filter>
+    </ClInclude>
+    <ClInclude Include="CInventoryVisualizer.h">
+      <Filter>CObject\InventoryVisualizer</Filter>
+    </ClInclude>
+    <ClInclude Include="CDropItem.h">
+      <Filter>CObject\DropItem</Filter>
+    </ClInclude>
+    <ClInclude Include="CScene_Intro.h">
+      <Filter>CScene\Scene_Intro</Filter>
+    </ClInclude>
+    <ClInclude Include="CCthulhuEye.h">
+      <Filter>CObject\Monster\CCthulhuEye</Filter>
+    </ClInclude>
+    <ClInclude Include="CAcquireItemText.h">
+      <Filter>CObject\CAcquireItemText</Filter>
+    </ClInclude>
+    <ClInclude Include="CBossHealthBar.h">
+      <Filter>CObject\Monster\CCthulhuEye\CBossHealthBar</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTileMapShade.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CParticleMgr.h">
+      <Filter>CParticleMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="CParticle.h">
+      <Filter>CParticleMgr\Particle</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TRMain.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="TRTile.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="TRTileManager.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="TRTileMap.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="TRWorld.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="TRWorldGeneration.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="TRWorldGenerationProcess.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="Terraria-Replica.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>pch</Filter>
+    </ClCompile>
+    <ClCompile Include="TRItem.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="TRItemManager.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="TRTileWall.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="CScene_Start.cpp">
+      <Filter>CScene\Scene_Start</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlayer.cpp">
+      <Filter>CObject\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="CWeapon.cpp">
+      <Filter>Terraria-Replica\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="TRItemContainer.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="TRItemStack.cpp">
+      <Filter>Terraria-Replica</Filter>
+    </ClCompile>
+    <ClCompile Include="CMonster.cpp">
+      <Filter>CObject\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="CZombie.cpp">
+      <Filter>CObject\Monster\CZombie</Filter>
+    </ClCompile>
+    <ClCompile Include="CSlime.cpp">
+      <Filter>CObject\Monster\CSlime</Filter>
+    </ClCompile>
+    <ClCompile Include="CEyeMonster.cpp">
+      <Filter>CObject\Monster\CEyeMonster</Filter>
+    </ClCompile>
+    <ClCompile Include="CItemContainerVisualizer.cpp">
+      <Filter>CObject\ItemContainerVisualizer</Filter>
+    </ClCompile>
+    <ClCompile Include="CHealthIndicator.cpp">
+      <Filter>CObject\HealthIndicator</Filter>
+    </ClCompile>
+    <ClCompile Include="CQuickBarVisualizer.cpp">
+      <Filter>CObject\QuickBarVisualizer</Filter>
+    </ClCompile>
+    <ClCompile Include="TRMonGenerator.cpp">
+      <Filter>Terraria-Replica\TRMonGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="CMiniMap.cpp">
+      <Filter>CObject\CMiniMap</Filter>
+    </ClCompile>
+    <ClCompile Include="CInventoryVisualizer.cpp">
+      <Filter>CObject\InventoryVisualizer</Filter>
+    </ClCompile>
+    <ClCompile Include="CDropItem.cpp">
+      <Filter>CObject\DropItem</Filter>
+    </ClCompile>
+    <ClCompile Include="CScene_Intro.cpp">
+      <Filter>CScene\Scene_Intro</Filter>
+    </ClCompile>
+    <ClCompile Include="CCthulhuEye.cpp">
+      <Filter>CObject\Monster\CCthulhuEye</Filter>
+    </ClCompile>
+    <ClCompile Include="CAcquireItemText.cpp">
+      <Filter>CObject\CAcquireItemText</Filter>
+    </ClCompile>
+    <ClCompile Include="CBossHealthBar.cpp">
+      <Filter>CObject\Monster\CCthulhuEye\CBossHealthBar</Filter>
+    </ClCompile>
+    <ClCompile Include="TRTileMapShade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CParticleMgr.cpp">
+      <Filter>CParticleMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CParticle.cpp">
+      <Filter>CParticleMgr\Particle</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Terraria-Replica.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Terraria-Replica.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
