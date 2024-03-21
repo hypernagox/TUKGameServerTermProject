@@ -55,7 +55,7 @@ public:
 	bool PlaceTile(int x, int y, TRTile* new_tile);
 	bool BreakTile(int x, int y);
 	bool PlaceTileWall(int x, int y, TRTileWall* new_tile);
-	void BreakTileWall(int x, int y);
+	bool BreakTileWall(int x, int y);
 
 	//void DropItem(Vec2 world_pos, TRItemStack item);
 

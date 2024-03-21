@@ -12,6 +12,7 @@ class TRItem
 protected:
 	std::wstring name;
 	std::wstring k_element;
+	std::wstring m_KeyName;
 
 	int max_stacksize;
 
@@ -22,6 +23,7 @@ public:
 	virtual ~TRItem();
 
 	void CreateAtlasElements();
+	const std::wstring& GetKeyName()const noexcept { return m_KeyName; }
 	std::wstring GetName() const;
 	int GetMaxStacksize() const;
 	CImage* GetItemElement() const;

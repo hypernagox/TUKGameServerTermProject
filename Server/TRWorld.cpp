@@ -289,12 +289,12 @@ bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 
 bool TRWorld::BreakTile(int x, int y)
 {
-	TRTile* tile = tile_map->GetTile(x, y);
+	const TRTile* const tile = tile_map->GetTile(x, y);
 
 	if (tile == nullptr)
 		return false;
 
-	TRTile* air_tile = TRTileManager::GetInst()->TileAir();
+	TRTile* const air_tile = TRTileManager::GetInst()->TileAir();
 
 	if (tile == air_tile)
 		return false;
@@ -309,7 +309,7 @@ bool TRWorld::BreakTile(int x, int y)
 	//CAtlasElement* pImg = tile->GetTileImg();
 	//Mgr(CParticleMgr)->SetParticles(vParticlePos, pImg);
 
-	std::wstring k_dropitem = tile->DropItem();
+	const std::wstring k_dropitem = tile->DropItem();
 	if (k_dropitem == L"")
 		return true;
 
@@ -364,17 +364,17 @@ bool TRWorld::PlaceTileWall(int x, int y, TRTileWall* new_tile)
 	return true;
 }
 
-void TRWorld::BreakTileWall(int x, int y)
+bool TRWorld::BreakTileWall(int x, int y)
 {
-	TRTileWall* tile = tile_map->GetTileWall(x, y);
+	const TRTileWall* const tile = tile_map->GetTileWall(x, y);
 
 	if (tile == nullptr)
-		return;
+		return false;
 
-	TRTileWall* air_tile = TRMgr(TRTileManager)->TileWallAir();
+	TRTileWall* const air_tile = TRMgr(TRTileManager)->TileWallAir();
 
 	if (tile == air_tile)
-		return;
+		return false;
 
 	//char buffer[16];
 	//sprintf_s(buffer, "%s_%d.wav", "Dig", uidDig(randDigSound));
@@ -382,12 +382,13 @@ void TRWorld::BreakTileWall(int x, int y)
 
 	tile_map->SetTileWall(x, y, air_tile, true);
 
-	std::wstring k_dropitem = tile->DropItem();
+	const std::wstring k_dropitem = tile->DropItem();
 	if (k_dropitem == L"")
-		return;
+		return true;
 
 	//TRItem* p_dropitem = Mgr(TRItemManager)->GetItemByKey(k_dropitem);
 	//DropItem(Vec2(x + 0.5f, y + 0.5f), TRItemStack(p_dropitem, 1));
+	return true;
 }
 
 //void TRWorld::DropItem(Vec2 world_pos, TRItemStack item)

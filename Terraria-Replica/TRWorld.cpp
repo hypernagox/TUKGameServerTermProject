@@ -38,6 +38,23 @@ extern bool g_bStopToken;
 static std::mt19937 randDigSound{std::random_device{}()};
 static std::uniform_int_distribution<> uidDig{0, 2};
 
+void TRWorld::FindAndModifyItemStack(std::string_view itemName, const int mount_) noexcept
+{
+	const auto targetName = Utf8ToWide(itemName);
+	const auto iter = std::find_if(player_inventory.begin(),player_inventory.end(), [targetName](const TRItemContainer* const pItemContainer)
+		{
+			if (const auto item = pItemContainer->GetItemStack().GetItem())
+			{
+				return item->GetKeyName() == targetName;
+			}
+			return false;
+		});
+	if (player_inventory.end() != iter)
+	{
+		(*iter)->Apply(-1);
+	}
+}
+
 TRWorld::TRWorld()
 {
 	g_TRWorld = this;
@@ -50,10 +67,10 @@ TRWorld::TRWorld()
 	for (int i = 0; i < 10; ++i)
 		quick_bar[i] = player_inventory[i];
 
-	quick_bar_visualizer = new CQuickBarVisualizer(quick_bar);
+	quick_bar_visualizer = new CQuickBarVisualizer(quick_bar.data());
 	quick_bar_visualizer->SetPos(Vec2Int(10, 24));
 
-	inventory_visualizer = new CInventoryVisualizer(player_inventory, player_armor);
+	inventory_visualizer = new CInventoryVisualizer(player_inventory.data(), player_armor);
 	inventory_visualizer->SetPos(Vec2Int(10, 24));
 
 	health_indicator = new CHealthIndicator();
@@ -132,11 +149,11 @@ void TRWorld::Update()
 		}
 		else if (!quick_bar[quick_bar_index]->Blank())
 		{
-			Vec2 mouse_world_pos = TRWorld::GlobalToWorld(Mgr(CCamera)->GetRealPos(Mgr(CKeyMgr)->GetMousePos()));
+			const Vec2 mouse_world_pos = TRWorld::GlobalToWorld(Mgr(CCamera)->GetRealPos(Mgr(CKeyMgr)->GetMousePos()));
 			player->UseItem();
-			bool use_item = quick_bar[quick_bar_index]->GetItemStack().GetItem()->OnUseItem(player, this, mouse_world_pos);
-			if (use_item)
-				quick_bar[quick_bar_index]->Apply(-1);
+			const bool use_item = quick_bar[quick_bar_index]->GetItemStack().GetItem()->OnUseItem(player, this, mouse_world_pos);
+			//if (use_item)
+			//	quick_bar[quick_bar_index]->Apply(-1);
 		}
 	}
 

@@ -403,13 +403,14 @@ void CPlayer::dmg_render(HDC _dc)
 
 		const auto [vLT, vScale] = Mgr(CCamera)->GetRenderPos(this);
 
-		static 	BLENDFUNCTION bf = {
+		const BLENDFUNCTION bf = {
 			.BlendOp = AC_SRC_OVER,
 			.BlendFlags = 0,
+			.SourceConstantAlpha = (BYTE)iAlpha,
 			.AlphaFormat = 0,
 		};
 
-		bf.SourceConstantAlpha = iAlpha;
+		
 
 		AlphaBlend(_dc
 			, (int)vLT.x + 15

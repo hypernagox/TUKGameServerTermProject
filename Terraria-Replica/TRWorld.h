@@ -25,9 +25,11 @@ private:
 	CPlayer* player;
 	CScene* m_pScene;
 
-	TRItemContainer* player_inventory[50];
+	std::array<TRItemContainer*,50> player_inventory;
+
 	TRItemContainer* player_armor[3];
-	TRItemContainer* quick_bar[10];
+
+	std::array<TRItemContainer*,10> quick_bar;
 
 	CQuickBarVisualizer* quick_bar_visualizer;
 	CInventoryVisualizer* inventory_visualizer;
@@ -37,11 +39,14 @@ private:
 	bool toggle_inventory;
 
 public:
+	void FindAndModifyItemStack(std::string_view itemName, const int mount_)noexcept;
+public:
 	TRWorld();
 	~TRWorld();
 
 	void Update();
 
+	
 	void CreateWorld(int seed);
 	void OnSceneCreate(CScene* scene);
 

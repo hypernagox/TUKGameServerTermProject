@@ -3,6 +3,7 @@
 #include "ServerCorePch.h"
 
 #include <random>
+#include "func.h"
 #include "SimpleMath.hpp"
 #include "CustomMath.hpp"
 #include "Vec2.hpp"

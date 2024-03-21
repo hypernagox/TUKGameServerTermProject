@@ -2,6 +2,11 @@
 #include "c2s_PacketHandler.h"
 #include "../ClientSession.h"
 #include "../TRWorld.h"
+#include "../TRTileManager.h"
+
+static ClientSession* const GetClientSession(const std::shared_ptr<ServerCore::PacketSession>& pSession_)noexcept {
+    return static_cast<ClientSession* const>(pSession_.get());
+}
 
 namespace ServerCore
 {
@@ -30,6 +35,41 @@ namespace ServerCore
             pkt.set_success(true);
             pkt.set_tile_x(x);
             pkt.set_tile_y(y);
+
+            pSession_ << pkt;
+        }
+        return true;
+    }
+
+    const bool Handle_c2s_BREAK_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE_WALL& pkt_)
+    {
+        const int x = pkt_.tile_x();
+        const int y = pkt_.tile_y();
+        if (TRMgr(TRWorld)->BreakTileWall(x, y))
+        {
+            Protocol::s2c_BREAK_TILE_WALL pkt;
+            pkt.set_success(true);
+            pkt.set_tile_x(x);
+            pkt.set_tile_y(y);
+
+            pSession_ << pkt;
+        }
+        return true;
+    }
+
+    const bool Handle_c2s_PLACE_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE& pkt_)
+    {
+        const int x = pkt_.tile_x();
+        const int y = pkt_.tile_y();
+        const auto key = ::Utf8ToWide(pkt_.tile_key());
+
+        if (TRMgr(TRWorld)->PlaceTile(x,y,TRMgr(TRTileManager)->GetTileByKey(key)))
+        {
+            Protocol::s2c_PLACE_TILE pkt;
+            pkt.set_success(true);
+            pkt.set_tile_x(x);
+            pkt.set_tile_y(y);
+            pkt.set_tile_key(pkt_.tile_key());
 
             pSession_ << pkt;
         }
