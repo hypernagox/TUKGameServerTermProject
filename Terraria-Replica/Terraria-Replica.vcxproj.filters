@@ -97,6 +97,12 @@
     <Filter Include="NetContents\ServerSession">
       <UniqueIdentifier>{48014ad3-225d-4d05-931d-f3cfaaae97e7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NetContents\Protocol\Protos">
+      <UniqueIdentifier>{f87d7b29-8233-4326-ae98-8da6b19e611c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\Protocol\Protocols">
+      <UniqueIdentifier>{c1d84e42-9e52-4fcf-971b-700b91be1ad1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -228,6 +234,18 @@
     <ClInclude Include="CParticle.h">
       <Filter>CParticleMgr\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="..\ClientNetwork\inc\Protocols\Enum.pb.h">
+      <Filter>NetContents\Protocol\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ClientNetwork\inc\Protocols\Protocol.pb.h">
+      <Filter>NetContents\Protocol\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ClientNetwork\inc\Protocols\Struct.pb.h">
+      <Filter>NetContents\Protocol\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ClientNetwork\inc\Protocols\s2c_PacketHandler.h">
+      <Filter>NetContents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TRMain.cpp">
@@ -335,6 +353,18 @@
     <ClCompile Include="CParticle.cpp">
       <Filter>CParticleMgr\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="..\ClientNetwork\inc\Protocols\Enum.pb.cc">
+      <Filter>NetContents\Protocol\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ClientNetwork\inc\Protocols\Protocol.pb.cc">
+      <Filter>NetContents\Protocol\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ClientNetwork\inc\Protocols\Struct.pb.cc">
+      <Filter>NetContents\Protocol\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ClientNetwork\inc\Protocols\s2c_PacketHandler.cpp">
+      <Filter>NetContents</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -348,5 +378,16 @@
     <ResourceCompile Include="Terraria-Replica.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\ClientNetwork\GenPackets\Enum.proto">
+      <Filter>NetContents\Protocol\Protos</Filter>
+    </None>
+    <None Include="..\ClientNetwork\GenPackets\Protocol.proto">
+      <Filter>NetContents\Protocol\Protos</Filter>
+    </None>
+    <None Include="..\ClientNetwork\GenPackets\Struct.proto">
+      <Filter>NetContents\Protocol\Protos</Filter>
+    </None>
   </ItemGroup>
 </Project>

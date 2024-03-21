@@ -52,7 +52,7 @@ namespace ServerCore
 	
 		static const bool HandlePacket(const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)noexcept
 		{
-			const PacketHeader* const header = reinterpret_cast<const PacketHeader* const>(pBuff_);
+			const PacketHeader* const __restrict header = reinterpret_cast<const PacketHeader* const>(pBuff_);
 			return g_fpPacketHandler[header->pkt_id](pSession_, pBuff_, len_);
 		}
 	
@@ -78,7 +78,7 @@ namespace ServerCore
 			const uint16 packetSize = dataSize + static_cast<c_uint16>(sizeof(PacketHeader));
 	
 			S_ptr<SendBuffer> sendBuffer = Mgr(SendBufferMgr)->Open(packetSize);
-			PacketHeader* const header = reinterpret_cast<PacketHeader*const>(sendBuffer->Buffer());
+			PacketHeader* const __restrict header = reinterpret_cast<PacketHeader*const>(sendBuffer->Buffer());
 			header->pkt_size = packetSize;
 			header->pkt_id = static_cast<c_uint16>(pktId);
 			NAGOX_ASSERT(pkt.SerializeToArray(header + 1, dataSize));

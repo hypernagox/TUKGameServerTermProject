@@ -44,6 +44,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -51,6 +52,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -71,11 +73,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(SolutionDir)TermProjectGameFrameWork\;$(SolutionDir)ClientNetwork\;$(SolutionDir)ClientNetwork\inc\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(SolutionDir)TermProjectGameFrameWork\;$(SolutionDir)ClientNetwork\;$(SolutionDir)ClientNetwork\inc\;$(SolutionDir)ClientNetwork\inc\Protocols\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)ClientNetwork\libs\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(SolutionDir)TermProjectGameFrameWork\;$(SolutionDir)ClientNetwork\;$(SolutionDir)ClientNetwork\inc\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(SolutionDir)TermProjectGameFrameWork\;$(SolutionDir)ClientNetwork\;$(SolutionDir)ClientNetwork\inc\;$(SolutionDir)ClientNetwork\inc\Protocols\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64;$(SolutionDir)ClientNetwork\libs\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -117,6 +119,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(ProjectDir)\Unity\PCH.pch</PrecompiledHeaderOutputFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -137,6 +140,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(ProjectDir)\UnityRelease\PCH.pch</PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>$(SolutionDir)TermProjectGameFrameWork\</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -147,6 +151,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\ClientNetwork\inc\Protocols\Enum.pb.h" />
+    <ClInclude Include="..\ClientNetwork\inc\Protocols\Protocol.pb.h" />
+    <ClInclude Include="..\ClientNetwork\inc\Protocols\s2c_PacketHandler.h" />
+    <ClInclude Include="..\ClientNetwork\inc\Protocols\Struct.pb.h" />
     <ClInclude Include="CAcquireItemText.h" />
     <ClInclude Include="CBossHealthBar.h" />
     <ClInclude Include="CCthulhuEye.h" />
@@ -192,6 +200,25 @@
     <ClInclude Include="Vector3D.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ClientNetwork\inc\Protocols\Enum.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+    </ClCompile>
+    <ClCompile Include="..\ClientNetwork\inc\Protocols\Protocol.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+    </ClCompile>
+    <ClCompile Include="..\ClientNetwork\inc\Protocols\s2c_PacketHandler.cpp" />
+    <ClCompile Include="..\ClientNetwork\inc\Protocols\Struct.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+    </ClCompile>
     <ClCompile Include="CAcquireItemText.cpp" />
     <ClCompile Include="CBossHealthBar.cpp" />
     <ClCompile Include="CCthulhuEye.cpp" />
@@ -245,6 +272,11 @@
     <ProjectReference Include="..\TermProjectGameFrameWork\TermProjectGameFrameWork.vcxproj">
       <Project>{345c1379-33db-40db-ad25-321d16cc43a7}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\ClientNetwork\GenPackets\Enum.proto" />
+    <None Include="..\ClientNetwork\GenPackets\Protocol.proto" />
+    <None Include="..\ClientNetwork\GenPackets\Struct.proto" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

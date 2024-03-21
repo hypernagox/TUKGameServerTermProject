@@ -25,7 +25,7 @@ namespace NetHelper
 			c_int32 packetSize = header->pkt_size;
 			c_uint16 packetId = header->pkt_id;
 
-			if (dataSize < static_cast<c_int32>(packetSize))
+			if (dataSize < packetSize)
 				break;
 
 

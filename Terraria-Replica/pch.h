@@ -1,5 +1,7 @@
 #pragma once
-#pragma once
+
+#include "ClientNetHelper.h"
+
 #include <thread>
 #include <Windows.h>
 #include <iostream>

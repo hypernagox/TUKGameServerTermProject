@@ -54,8 +54,8 @@ namespace NetHelper
 
 		static const bool HandlePacket(const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)
 		{
-			const PacketHeader* const header = reinterpret_cast<const PacketHeader* const>(pBuff_);
-			return g_fpPacketHandler[header->id](pSession_, pBuff_, len_);
+			const PacketHeader* const __restrict header = reinterpret_cast<const PacketHeader* const>(pBuff_);
+			return g_fpPacketHandler[header->pkt_id](pSession_, pBuff_, len_);
 		}
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_LOGIN& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_LOGIN); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_ENTER_GAME& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_ENTER_GAME); }
@@ -75,13 +75,13 @@ namespace NetHelper
 		template<typename T>
 		static S_ptr<SendBuffer> MakeSendBuffer(T& pkt, const PKT_ID pktId)noexcept
 		{
-			const int32 dataSize = static_cast<c_int32>(pkt.ByteSizeLong());
-			const int32 packetSize = dataSize + static_cast<c_int32>(sizeof(PacketHeader));
+			const uint16 dataSize = static_cast<c_uint16>(pkt.ByteSizeLong());
+			const uint16 packetSize = dataSize + static_cast<c_uint16>(sizeof(PacketHeader));
 	
 			S_ptr<SendBuffer> sendBuffer = NetMgr(SendBufferMgr)->Open(packetSize);
-			PacketHeader* const header = reinterpret_cast<PacketHeader*const>(sendBuffer->Buffer());
-			header->size = packetSize;
-			header->id = static_cast<c_int32>(pktId);
+			PacketHeader* const __restrict header = reinterpret_cast<PacketHeader*const>(sendBuffer->Buffer());
+			header->pkt_size = packetSize;
+			header->pkt_id = static_cast<c_int32>(pktId);
 			NET_NAGOX_ASSERT(pkt.SerializeToArray(header + 1, dataSize));
 			sendBuffer->Close(packetSize);
 	

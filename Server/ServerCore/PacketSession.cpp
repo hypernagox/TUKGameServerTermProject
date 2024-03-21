@@ -24,15 +24,15 @@ namespace ServerCore
 				break;
 
 			const PacketHeader* const __restrict header = reinterpret_cast<const PacketHeader* const>(buffer + processLen);
-			c_int32 packetSize = header->size;
-			c_int32 packetId = header->id;
+			c_int32 packetSize = header->pkt_size;
+			c_uint16 packetId = header->pkt_id;
 			// 헤더에 기록된 패킷크기를 파싱할수있나?
 			if (dataSize < packetSize)
 				break;
 
 			// 일단 오긴다옴, 조립성공
 
-			if (static_cast<c_int32>(HEART_BEAT::c2s_HEART_BEAT) == packetId)
+			if (static_cast<c_uint16>(HEART_BEAT::c2s_HEART_BEAT) == packetId)
 			{
 				SetHeartBeat(true);
 			}

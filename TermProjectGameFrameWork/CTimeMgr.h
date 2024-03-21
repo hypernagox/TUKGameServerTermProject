@@ -10,11 +10,17 @@ private:
 private:
 	std::chrono::steady_clock::time_point m_PrevTime;
 	std::chrono::duration<float> m_DeltaTime;
-	float m_fAccTime = 0.;
-	float m_fCheckDT = 1.;
+	float m_fAccTime = 0.f;
+	float m_fCheckDT = 1.f;
 public:
 	void init();
 	void update();
-	float GetDT()const { return min(0.016f,m_DeltaTime.count()); }
+	float GetDT()const {
+		const auto dt = m_DeltaTime.count();
+		if (0.016f > dt) [[likely]]
+			return dt;
+		else [[unlikely]]
+			return 0.016f;
+	}
 };
 
