@@ -67,5 +67,6 @@ using std::pair;
 #include "Singleton.hpp"
 #include "define.h"
 #include "Vec2.hpp"
+#include "../TermProjectGameFrameWork/func.h"
 #include "func.h"
 #include <queue>

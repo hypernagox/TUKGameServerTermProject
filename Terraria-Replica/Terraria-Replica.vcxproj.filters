@@ -103,6 +103,9 @@
     <Filter Include="NetContents\Protocol\Protocols">
       <UniqueIdentifier>{c1d84e42-9e52-4fcf-971b-700b91be1ad1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pch\func">
+      <UniqueIdentifier>{4faa20ee-143d-44ea-acbe-0b378d6e3517}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -246,6 +249,12 @@
     <ClInclude Include="..\ClientNetwork\inc\Protocols\s2c_PacketHandler.h">
       <Filter>NetContents</Filter>
     </ClInclude>
+    <ClInclude Include="ServerSession.h">
+      <Filter>NetContents\ServerSession</Filter>
+    </ClInclude>
+    <ClInclude Include="func.h">
+      <Filter>pch\func</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TRMain.cpp">
@@ -364,6 +373,12 @@
     </ClCompile>
     <ClCompile Include="..\ClientNetwork\inc\Protocols\s2c_PacketHandler.cpp">
       <Filter>NetContents</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerSession.cpp">
+      <Filter>NetContents\ServerSession</Filter>
+    </ClCompile>
+    <ClCompile Include="func.cpp">
+      <Filter>pch\func</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -20,18 +20,18 @@ namespace NetHelper
 			if (numOfBytes > DataSize()) [[unlikely]]
 				return false;
 
-			m_readPos += numOfBytes;
+				m_readPos += numOfBytes;
 
-			return true;
+				return true;
 		}
 		bool OnWrite(c_int32 numOfBytes)noexcept
 		{
 			if (numOfBytes > FreeSize()) [[unlikely]]
 				return false;
 
-			m_writePos += numOfBytes;
+				m_writePos += numOfBytes;
 
-			return true;
+				return true;
 		}
 
 		BYTE* const ReadPos() noexcept { return m_buffer + m_readPos; }

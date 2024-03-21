@@ -24,7 +24,7 @@
     do { \
         if (!(condition)) [[unlikely]] { \
             std::cerr << "Activate NagOx Assertion !" << '\n'; \
-			LogStackTrace(); \
+			NetHelper::LogStackTrace(); \
             *(int*)nullptr = 0; \
         } \
     } while (0)

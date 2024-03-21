@@ -19,10 +19,16 @@
 #include "TRTileManager.h"
 #include "CCthulhuEye.h"
 
+#include "s2c_PacketHandler.h"
+#include "ServerSession.h"
+//#include "../ClientNetwork/func.h"
+
 void updateTileCollision(CObject* const _pObj, TRWorld* const _pTRWorld);
 extern bool g_bStopToken;
 extern jthread g_LoadThread;
 extern std::atomic<bool> g_bLoadMainStage;
+
+extern int g_TR_SEED;
 
 HHOOK hHook;
 #define MAX_LOADSTRING 100
@@ -69,7 +75,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         MessageBox(nullptr, L"게임 실행 실패", L"ERROR", MB_OK);
     }
     
+    NetMgr(NetworkMgr)->Init();
+    NetHelper::s2c_PacketHandler::Init();
 
+    NET_NAGOX_ASSERT(NetMgr(NetworkMgr)->Connect<ServerSession>(L"127.0.0.1", 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
+
+    Protocol::c2s_LOGIN pkt;
+    Send(pkt);
+    while (0 == g_TR_SEED)
+    {
+        NetMgr(NetworkMgr)->DoNetworkIO();
+    }
     // 씬 생성
 
     Mgr(TRTileManager)->LoadTiles();
@@ -87,7 +103,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TERMPROJECTGAMEFRAMEWORK));
 
     MSG msg;
-    hHook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, NULL, 0);
+   // hHook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, NULL, 0);
     while (true)
     {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -106,11 +122,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
         else
         {
+            NetMgr(NetworkMgr)->DoNetworkIO();
             CCore::GetInst()->progress();
         }
     }
     Mgr(CEventMgr)->ResetTRupdate();
-    UnhookWindowsHookEx(hHook);
+   // UnhookWindowsHookEx(hHook);
     if (g_LoadThread.joinable())
         g_LoadThread.join();
     return (int)msg.wParam;

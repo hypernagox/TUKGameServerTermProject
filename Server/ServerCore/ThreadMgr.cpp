@@ -63,7 +63,7 @@ namespace ServerCore
 
 						LEndTickCount = ::GetTickCount64() + WORKER_TICK;
 
-						pIocpCore->Dispatch(10);
+						pIocpCore->Dispatch(0);
 
 						taskTimer->DistributeTask();
 

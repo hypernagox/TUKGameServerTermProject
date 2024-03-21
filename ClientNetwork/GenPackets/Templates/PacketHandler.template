@@ -81,7 +81,7 @@ namespace NetHelper
 			PacketHeader* const __restrict header = reinterpret_cast<PacketHeader*const>(sendBuffer->Buffer());
 			header->pkt_size = packetSize;
 			header->pkt_id = static_cast<c_uint16>(pktId);
-			NAGOX_ASSERT(pkt.SerializeToArray(header + 1, dataSize));
+			NET_NAGOX_ASSERT(pkt.SerializeToArray(header + 1, dataSize));
 			sendBuffer->Close(packetSize);
 	
 			return sendBuffer;

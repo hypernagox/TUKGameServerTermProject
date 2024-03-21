@@ -32,7 +32,7 @@ public:
 	TRTileWall* GetTileWall(int x, int y) const;
 	TRTileWall* SetTileWall(int x, int y, TRTileWall* new_tile, bool render = false);
 
-	void OnSceneCreate(CScene* scene);
+	void OnSceneCreate(class CScene* scene);
 	void UpdateTileRenderer(int x, int y);
 
 	int GetTopYpos(int x) const;

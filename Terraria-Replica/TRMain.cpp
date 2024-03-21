@@ -8,6 +8,8 @@
 #include <random>
 #include <time.h>
 
+int g_TR_SEED = 0;
+
 TRMain::TRMain()
 {
 	std::default_random_engine dre((unsigned int)time(NULL));
@@ -17,7 +19,7 @@ TRMain::TRMain()
 	Mgr(TRItemManager)->LoadItems();
 
 	active_world = new TRWorld();
-	active_world->CreateWorld(uid(dre));
+	active_world->CreateWorld(g_TR_SEED);
 
 	scene_agent = Mgr(CSceneMgr)->GetScene(SCENE_TYPE::START);
 	active_world->OnSceneCreate(scene_agent);

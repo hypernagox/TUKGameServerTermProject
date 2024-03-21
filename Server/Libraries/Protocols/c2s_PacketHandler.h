@@ -11,10 +11,6 @@ namespace ServerCore
 	{
 		c2s_LOGIN = 1000,
 		s2c_LOGIN = 1001,
-		c2s_ENTER_GAME = 1002,
-		s2c_ENTER_GAME = 1003,
-		c2s_CHAT = 1004,
-		s2c_CHAT = 1005,
 	};
 	
 	class PacketSession;
@@ -23,9 +19,7 @@ namespace ServerCore
 	class SessionManageable;
 	
 	const bool Handle_Invalid(const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_);
-	//const bool Handle_c2s_LOGIN(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_LOGIN& pkt_);
-	//const bool Handle_c2s_ENTER_GAME(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_ENTER_GAME& pkt_);
-	//const bool Handle_c2s_CHAT(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CHAT& pkt_);
+	const bool Handle_c2s_LOGIN(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_LOGIN& pkt_);
 	
 	class c2s_PacketHandler
 	{
@@ -34,9 +28,7 @@ namespace ServerCore
 	public:
 		static void Init() noexcept
 		{
-			//g_fpPacketHandler[net_etoi(PKT_ID::c2s_LOGIN)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_LOGIN>(Handle_c2s_LOGIN, pSession_, pBuff_, len_); };
-			//g_fpPacketHandler[net_etoi(PKT_ID::c2s_ENTER_GAME)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_ENTER_GAME>(Handle_c2s_ENTER_GAME, pSession_, pBuff_, len_); };
-			//g_fpPacketHandler[net_etoi(PKT_ID::c2s_CHAT)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_CHAT>(Handle_c2s_CHAT, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_LOGIN)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_LOGIN>(Handle_c2s_LOGIN, pSession_, pBuff_, len_); };
 			for (auto& fpHandlerFunc : g_fpPacketHandler) 
 			{
 				if (nullptr == fpHandlerFunc)
@@ -58,8 +50,6 @@ namespace ServerCore
 			return g_fpPacketHandler[header->pkt_id](pSession_, pBuff_, len_);
 		}
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_LOGIN& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_LOGIN); }
-		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_ENTER_GAME& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_ENTER_GAME); }
-		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_CHAT& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_CHAT); }
 	
 	private:
 		template<typename PacketType, typename ProcessFunc>
