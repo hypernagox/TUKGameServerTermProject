@@ -11,6 +11,8 @@ namespace ServerCore
 	{
 		c2s_LOGIN = 1000,
 		s2c_LOGIN = 1001,
+		c2s_BREAK_TILE = 1002,
+		s2c_BREAK_TILE = 1003,
 	};
 	
 	class PacketSession;
@@ -20,6 +22,7 @@ namespace ServerCore
 	
 	const bool Handle_Invalid(const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_);
 	const bool Handle_c2s_LOGIN(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_LOGIN& pkt_);
+	const bool Handle_c2s_BREAK_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE& pkt_);
 	
 	class c2s_PacketHandler
 	{
@@ -29,6 +32,7 @@ namespace ServerCore
 		static void Init() noexcept
 		{
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_LOGIN)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_LOGIN>(Handle_c2s_LOGIN, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_BREAK_TILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_BREAK_TILE>(Handle_c2s_BREAK_TILE, pSession_, pBuff_, len_); };
 			for (auto& fpHandlerFunc : g_fpPacketHandler) 
 			{
 				if (nullptr == fpHandlerFunc)
@@ -50,6 +54,7 @@ namespace ServerCore
 			return g_fpPacketHandler[header->pkt_id](pSession_, pBuff_, len_);
 		}
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_LOGIN& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_LOGIN); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_BREAK_TILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_BREAK_TILE); }
 	
 	private:
 		template<typename PacketType, typename ProcessFunc>

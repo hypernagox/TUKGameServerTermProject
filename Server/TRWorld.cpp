@@ -41,6 +41,7 @@ static std::uniform_int_distribution<> uidDig{0, 2};
 TRWorld::TRWorld()
 {
 	g_TRWorld = this;
+	TRMgr(TRTileManager)->LoadTiles();
 	tile_map = new TRTileMap(TRWorld::WORLD_WIDTH, TRWorld::WORLD_HEIGHT);
 	
 	//for (int i = 0; i < 50; ++i)
@@ -286,20 +287,20 @@ bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 	return true;
 }
 
-void TRWorld::BreakTile(int x, int y)
+bool TRWorld::BreakTile(int x, int y)
 {
 	TRTile* tile = tile_map->GetTile(x, y);
 
 	if (tile == nullptr)
-		return;
+		return false;
 
 	TRTile* air_tile = TRTileManager::GetInst()->TileAir();
 
 	if (tile == air_tile)
-		return;
+		return false;
 
-	char buffer[16];
-	sprintf_s(buffer, "%s_%d.wav", tile->Rocky() ? "Tink" : "Dig", uidDig(randDigSound));
+	//char buffer[16];
+	//sprintf_s(buffer, "%s_%d.wav", tile->Rocky() ? "Tink" : "Dig", uidDig(randDigSound));
 	//Mgr(CSoundMgr)->PlayEffect(buffer, 0.5f);
 
 	tile_map->SetTile(x, y, air_tile, true);
@@ -310,10 +311,11 @@ void TRWorld::BreakTile(int x, int y)
 
 	std::wstring k_dropitem = tile->DropItem();
 	if (k_dropitem == L"")
-		return;
+		return true;
 
 	//TRItem* p_dropitem = Mgr(TRItemManager)->GetItemByKey(k_dropitem);
 	//DropItem(Vec2(x + 0.5f, y + 0.5f), TRItemStack(p_dropitem, 1));
+	return true;
 }
 
 bool TRWorld::PlaceTileWall(int x, int y, TRTileWall* new_tile)
@@ -465,7 +467,7 @@ int TRWorld::GetArmorPoint() const
 	//		armor_point += armor->GetArmorPoint();
 	//}
 	//
-	//return armor_point;
+	return 0;
 }
 
 void TRWorld::FloatDamageText(int value, Vec2 vPos, COLORREF color)

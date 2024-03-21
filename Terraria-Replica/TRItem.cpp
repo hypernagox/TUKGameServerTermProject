@@ -4,6 +4,7 @@
 #include "TRTileManager.h"
 #include "CustomMath.hpp"
 #include "CSoundMgr.h"
+#include "Protocol.pb.h"
 
 TRItem::TRItem(std::wstring name, std::wstring k_element)
 {
@@ -113,8 +114,12 @@ bool TRItemPickaxe::OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target_
 
 	int x = FloorToInt(target_pos.x);
 	int y = FloorToInt(target_pos.y);
-	world->BreakTile(x, y);
-	
+	//world->BreakTile(x, y);
+	Protocol::c2s_BREAK_TILE pkt;
+	pkt.set_tile_x(x);
+	pkt.set_tile_y(y);
+	Send(pkt);
+
 	return false;
 }
 

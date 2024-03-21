@@ -11,6 +11,8 @@ namespace NetHelper
 	{
 		c2s_LOGIN = 1000,
 		s2c_LOGIN = 1001,
+		c2s_BREAK_TILE = 1002,
+		s2c_BREAK_TILE = 1003,
 	};
 	
 	class PacketSession;
@@ -20,6 +22,7 @@ namespace NetHelper
 	
 	const bool Handle_Invalid(const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_);
 	const bool Handle_s2c_LOGIN(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_LOGIN& pkt_);
+	const bool Handle_s2c_BREAK_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_BREAK_TILE& pkt_);
 	
 	class s2c_PacketHandler
 	{
@@ -29,6 +32,7 @@ namespace NetHelper
 		static void Init() noexcept
 		{
 			g_fpPacketHandler[net_etoi(PKT_ID::s2c_LOGIN)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_LOGIN>(Handle_s2c_LOGIN, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::s2c_BREAK_TILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_BREAK_TILE>(Handle_s2c_BREAK_TILE, pSession_, pBuff_, len_); };
 			for (auto& fpHandlerFunc : g_fpPacketHandler) 
 			{
 				if (nullptr == fpHandlerFunc)
@@ -50,6 +54,7 @@ namespace NetHelper
 			return g_fpPacketHandler[header->pkt_id](pSession_, pBuff_, len_);
 		}
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_LOGIN& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_LOGIN); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_BREAK_TILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_BREAK_TILE); }
 	
 	private:
 		template<typename PacketType, typename ProcessFunc>
@@ -68,7 +73,7 @@ namespace NetHelper
 			const uint16 dataSize = static_cast<c_uint16>(pkt.ByteSizeLong());
 			const uint16 packetSize = dataSize + static_cast<c_uint16>(sizeof(PacketHeader));
 	
-			S_ptr<SendBuffer> sendBuffer = NetMgr(SendBufferMgr)->Open(packetSize);
+			S_ptr<SendBuffer> sendBuffer = Mgr(SendBufferMgr)->Open(packetSize);
 			PacketHeader* const __restrict header = reinterpret_cast<PacketHeader*const>(sendBuffer->Buffer());
 			header->pkt_size = packetSize;
 			header->pkt_id = static_cast<c_uint16>(pktId);

@@ -15,6 +15,7 @@ class CHealthIndicator;
 class CInventoryVisualizer;
 
 class TRWorld
+	:public ServerCore::Singleton<TRWorld>
 {
 public:
 	static constexpr int WORLD_WIDTH = 512;
@@ -52,7 +53,7 @@ public:
 	//CPlayer* GetPlayer() const;
 
 	bool PlaceTile(int x, int y, TRTile* new_tile);
-	void BreakTile(int x, int y);
+	bool BreakTile(int x, int y);
 	bool PlaceTileWall(int x, int y, TRTileWall* new_tile);
 	void BreakTileWall(int x, int y);
 

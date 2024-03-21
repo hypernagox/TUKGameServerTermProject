@@ -48,15 +48,23 @@ struct TableStruct_Protocol_2eproto {
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Protocol_2eproto;
 namespace Protocol {
+class c2s_BREAK_TILE;
+struct c2s_BREAK_TILEDefaultTypeInternal;
+extern c2s_BREAK_TILEDefaultTypeInternal _c2s_BREAK_TILE_default_instance_;
 class c2s_LOGIN;
 struct c2s_LOGINDefaultTypeInternal;
 extern c2s_LOGINDefaultTypeInternal _c2s_LOGIN_default_instance_;
+class s2c_BREAK_TILE;
+struct s2c_BREAK_TILEDefaultTypeInternal;
+extern s2c_BREAK_TILEDefaultTypeInternal _s2c_BREAK_TILE_default_instance_;
 class s2c_LOGIN;
 struct s2c_LOGINDefaultTypeInternal;
 extern s2c_LOGINDefaultTypeInternal _s2c_LOGIN_default_instance_;
 }  // namespace Protocol
 PROTOBUF_NAMESPACE_OPEN
+template<> ::Protocol::c2s_BREAK_TILE* Arena::CreateMaybeMessage<::Protocol::c2s_BREAK_TILE>(Arena*);
 template<> ::Protocol::c2s_LOGIN* Arena::CreateMaybeMessage<::Protocol::c2s_LOGIN>(Arena*);
+template<> ::Protocol::s2c_BREAK_TILE* Arena::CreateMaybeMessage<::Protocol::s2c_BREAK_TILE>(Arena*);
 template<> ::Protocol::s2c_LOGIN* Arena::CreateMaybeMessage<::Protocol::s2c_LOGIN>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Protocol {
@@ -327,6 +335,335 @@ class s2c_LOGIN final :
   union { Impl_ _impl_; };
   friend struct ::TableStruct_Protocol_2eproto;
 };
+// -------------------------------------------------------------------
+
+class c2s_BREAK_TILE final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.c2s_BREAK_TILE) */ {
+ public:
+  inline c2s_BREAK_TILE() : c2s_BREAK_TILE(nullptr) {}
+  ~c2s_BREAK_TILE() override;
+  explicit PROTOBUF_CONSTEXPR c2s_BREAK_TILE(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  c2s_BREAK_TILE(const c2s_BREAK_TILE& from);
+  c2s_BREAK_TILE(c2s_BREAK_TILE&& from) noexcept
+    : c2s_BREAK_TILE() {
+    *this = ::std::move(from);
+  }
+
+  inline c2s_BREAK_TILE& operator=(const c2s_BREAK_TILE& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline c2s_BREAK_TILE& operator=(c2s_BREAK_TILE&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const c2s_BREAK_TILE& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const c2s_BREAK_TILE* internal_default_instance() {
+    return reinterpret_cast<const c2s_BREAK_TILE*>(
+               &_c2s_BREAK_TILE_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(c2s_BREAK_TILE& a, c2s_BREAK_TILE& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(c2s_BREAK_TILE* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(c2s_BREAK_TILE* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  c2s_BREAK_TILE* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<c2s_BREAK_TILE>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const c2s_BREAK_TILE& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const c2s_BREAK_TILE& from) {
+    c2s_BREAK_TILE::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(c2s_BREAK_TILE* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Protocol.c2s_BREAK_TILE";
+  }
+  protected:
+  explicit c2s_BREAK_TILE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTileXFieldNumber = 1,
+    kTileYFieldNumber = 2,
+  };
+  // int32 tile_x = 1;
+  void clear_tile_x();
+  int32_t tile_x() const;
+  void set_tile_x(int32_t value);
+  private:
+  int32_t _internal_tile_x() const;
+  void _internal_set_tile_x(int32_t value);
+  public:
+
+  // int32 tile_y = 2;
+  void clear_tile_y();
+  int32_t tile_y() const;
+  void set_tile_y(int32_t value);
+  private:
+  int32_t _internal_tile_y() const;
+  void _internal_set_tile_y(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Protocol.c2s_BREAK_TILE)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t tile_x_;
+    int32_t tile_y_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_Protocol_2eproto;
+};
+// -------------------------------------------------------------------
+
+class s2c_BREAK_TILE final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.s2c_BREAK_TILE) */ {
+ public:
+  inline s2c_BREAK_TILE() : s2c_BREAK_TILE(nullptr) {}
+  ~s2c_BREAK_TILE() override;
+  explicit PROTOBUF_CONSTEXPR s2c_BREAK_TILE(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  s2c_BREAK_TILE(const s2c_BREAK_TILE& from);
+  s2c_BREAK_TILE(s2c_BREAK_TILE&& from) noexcept
+    : s2c_BREAK_TILE() {
+    *this = ::std::move(from);
+  }
+
+  inline s2c_BREAK_TILE& operator=(const s2c_BREAK_TILE& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline s2c_BREAK_TILE& operator=(s2c_BREAK_TILE&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const s2c_BREAK_TILE& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const s2c_BREAK_TILE* internal_default_instance() {
+    return reinterpret_cast<const s2c_BREAK_TILE*>(
+               &_s2c_BREAK_TILE_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(s2c_BREAK_TILE& a, s2c_BREAK_TILE& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(s2c_BREAK_TILE* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(s2c_BREAK_TILE* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  s2c_BREAK_TILE* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<s2c_BREAK_TILE>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const s2c_BREAK_TILE& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const s2c_BREAK_TILE& from) {
+    s2c_BREAK_TILE::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(s2c_BREAK_TILE* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Protocol.s2c_BREAK_TILE";
+  }
+  protected:
+  explicit s2c_BREAK_TILE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kSuccessFieldNumber = 1,
+    kTileXFieldNumber = 2,
+    kTileYFieldNumber = 3,
+  };
+  // bool success = 1;
+  void clear_success();
+  bool success() const;
+  void set_success(bool value);
+  private:
+  bool _internal_success() const;
+  void _internal_set_success(bool value);
+  public:
+
+  // int32 tile_x = 2;
+  void clear_tile_x();
+  int32_t tile_x() const;
+  void set_tile_x(int32_t value);
+  private:
+  int32_t _internal_tile_x() const;
+  void _internal_set_tile_x(int32_t value);
+  public:
+
+  // int32 tile_y = 3;
+  void clear_tile_y();
+  int32_t tile_y() const;
+  void set_tile_y(int32_t value);
+  private:
+  int32_t _internal_tile_y() const;
+  void _internal_set_tile_y(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Protocol.s2c_BREAK_TILE)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    bool success_;
+    int32_t tile_x_;
+    int32_t tile_y_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_Protocol_2eproto;
+};
 // ===================================================================
 
 
@@ -362,9 +699,121 @@ inline void s2c_LOGIN::set_seed(int32_t value) {
   // @@protoc_insertion_point(field_set:Protocol.s2c_LOGIN.seed)
 }
 
+// -------------------------------------------------------------------
+
+// c2s_BREAK_TILE
+
+// int32 tile_x = 1;
+inline void c2s_BREAK_TILE::clear_tile_x() {
+  _impl_.tile_x_ = 0;
+}
+inline int32_t c2s_BREAK_TILE::_internal_tile_x() const {
+  return _impl_.tile_x_;
+}
+inline int32_t c2s_BREAK_TILE::tile_x() const {
+  // @@protoc_insertion_point(field_get:Protocol.c2s_BREAK_TILE.tile_x)
+  return _internal_tile_x();
+}
+inline void c2s_BREAK_TILE::_internal_set_tile_x(int32_t value) {
+  
+  _impl_.tile_x_ = value;
+}
+inline void c2s_BREAK_TILE::set_tile_x(int32_t value) {
+  _internal_set_tile_x(value);
+  // @@protoc_insertion_point(field_set:Protocol.c2s_BREAK_TILE.tile_x)
+}
+
+// int32 tile_y = 2;
+inline void c2s_BREAK_TILE::clear_tile_y() {
+  _impl_.tile_y_ = 0;
+}
+inline int32_t c2s_BREAK_TILE::_internal_tile_y() const {
+  return _impl_.tile_y_;
+}
+inline int32_t c2s_BREAK_TILE::tile_y() const {
+  // @@protoc_insertion_point(field_get:Protocol.c2s_BREAK_TILE.tile_y)
+  return _internal_tile_y();
+}
+inline void c2s_BREAK_TILE::_internal_set_tile_y(int32_t value) {
+  
+  _impl_.tile_y_ = value;
+}
+inline void c2s_BREAK_TILE::set_tile_y(int32_t value) {
+  _internal_set_tile_y(value);
+  // @@protoc_insertion_point(field_set:Protocol.c2s_BREAK_TILE.tile_y)
+}
+
+// -------------------------------------------------------------------
+
+// s2c_BREAK_TILE
+
+// bool success = 1;
+inline void s2c_BREAK_TILE::clear_success() {
+  _impl_.success_ = false;
+}
+inline bool s2c_BREAK_TILE::_internal_success() const {
+  return _impl_.success_;
+}
+inline bool s2c_BREAK_TILE::success() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_BREAK_TILE.success)
+  return _internal_success();
+}
+inline void s2c_BREAK_TILE::_internal_set_success(bool value) {
+  
+  _impl_.success_ = value;
+}
+inline void s2c_BREAK_TILE::set_success(bool value) {
+  _internal_set_success(value);
+  // @@protoc_insertion_point(field_set:Protocol.s2c_BREAK_TILE.success)
+}
+
+// int32 tile_x = 2;
+inline void s2c_BREAK_TILE::clear_tile_x() {
+  _impl_.tile_x_ = 0;
+}
+inline int32_t s2c_BREAK_TILE::_internal_tile_x() const {
+  return _impl_.tile_x_;
+}
+inline int32_t s2c_BREAK_TILE::tile_x() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_BREAK_TILE.tile_x)
+  return _internal_tile_x();
+}
+inline void s2c_BREAK_TILE::_internal_set_tile_x(int32_t value) {
+  
+  _impl_.tile_x_ = value;
+}
+inline void s2c_BREAK_TILE::set_tile_x(int32_t value) {
+  _internal_set_tile_x(value);
+  // @@protoc_insertion_point(field_set:Protocol.s2c_BREAK_TILE.tile_x)
+}
+
+// int32 tile_y = 3;
+inline void s2c_BREAK_TILE::clear_tile_y() {
+  _impl_.tile_y_ = 0;
+}
+inline int32_t s2c_BREAK_TILE::_internal_tile_y() const {
+  return _impl_.tile_y_;
+}
+inline int32_t s2c_BREAK_TILE::tile_y() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_BREAK_TILE.tile_y)
+  return _internal_tile_y();
+}
+inline void s2c_BREAK_TILE::_internal_set_tile_y(int32_t value) {
+  
+  _impl_.tile_y_ = value;
+}
+inline void s2c_BREAK_TILE::set_tile_y(int32_t value) {
+  _internal_set_tile_y(value);
+  // @@protoc_insertion_point(field_set:Protocol.s2c_BREAK_TILE.tile_y)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 
