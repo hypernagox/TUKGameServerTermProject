@@ -22,14 +22,14 @@ namespace NetHelper
 				break;
 
 			const PacketHeader* const __restrict header = reinterpret_cast<const PacketHeader* const>(buffer + processLen);
-			c_int32 packetSize = header->size;
-			c_int32 packetId = header->id;
+			c_int32 packetSize = header->pkt_size;
+			c_uint16 packetId = header->pkt_id;
 
-			if (dataSize < packetSize)
+			if (dataSize < static_cast<c_int32>(packetSize))
 				break;
 
 
-			if (static_cast<c_int32>(HEART_BEAT::s2c_HEART_BEAT) == packetId)
+			if (static_cast<c_uint16>(HEART_BEAT::s2c_HEART_BEAT) == packetId)
 			{
 				Send(CreateHeartBeatSendBuffer(HEART_BEAT::c2s_HEART_BEAT));
 			}

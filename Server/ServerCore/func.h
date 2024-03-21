@@ -1,0 +1,110 @@
+#pragma once
+
+namespace ServerCore
+{
+	class SendBuffer;
+	class SessionManageable;
+	class Session;
+	class PacketSession;
+	class c2s_PacketHandler;
+	struct PacketHeader;
+
+	template<typename T>requires std::is_enum_v<T>
+	constexpr const uint16 etoi(const T eType_)noexcept { return static_cast<const uint16>(eType_); }
+
+	void PrintError(const char* const msg, const int err_no)noexcept;
+	
+	void LogStackTrace()noexcept;
+
+	template<typename T>
+	class AllocateSharedSizeTrait
+	{
+	public:
+		std::size_t* actual_size_ptr = nullptr;
+
+		using value_type = T;
+
+		constexpr AllocateSharedSizeTrait()noexcept {}
+
+		template<typename Other>
+		AllocateSharedSizeTrait(const AllocateSharedSizeTrait<Other>& al) :actual_size_ptr{ al.actual_size_ptr } {}
+
+		constexpr T* const allocate(const size_t size)noexcept
+		{
+			NAGOX_ASSERT(actual_size_ptr);
+			(*actual_size_ptr) = size * sizeof(T);
+			return static_cast<T* const>(::malloc(size * sizeof(T)));
+		}
+
+		constexpr void deallocate(T* const ptr, const size_t count)noexcept
+		{
+			::free(ptr);
+		}
+	};
+
+	template <typename T>
+	constexpr const std::size_t AllocateSharedActualSize()noexcept
+	{
+		std::size_t temp = 0;
+		AllocateSharedSizeTrait<T> dummyAllocator;
+		dummyAllocator.actual_size_ptr = &temp;
+		const auto dummy = std::allocate_shared<T>(dummyAllocator);
+		ASSERT_CRASH(0 != temp);
+		return temp;
+	}
+
+	constexpr static inline const uint64_t GetTimeStampMilliseconds() noexcept {
+		return std::chrono::duration_cast<std::chrono::duration<uint64_t, std::milli>>(
+			std::chrono::steady_clock::now().time_since_epoch()
+		).count();
+	}
+
+	constexpr static inline const float GetTimeStampSeconds()noexcept {
+		return static_cast<const float>(GetTimeStampMilliseconds()) / 1000.f;
+	}
+
+	S_ptr<SendBuffer> CreateHeartBeatSendBuffer(const HEART_BEAT eHeartBeatType_) noexcept;
+
+	template <typename T, typename U>
+	struct SendPairData
+	{
+		T first;
+		U second;
+	};
+
+	template<typename T> requires !std::derived_from<T, PacketHeader>
+	static constexpr SendPairData<S_ptr<PacketSession>, S_ptr<SendBuffer>> operator + (S_ptr<PacketSession> pSendSession_, T& pkt_)noexcept
+	{
+		return { std::move(pSendSession_), c2s_PacketHandler::MakeSendBuffer(pkt_) };
+	}
+
+	template<typename T> requires !std::derived_from<T, PacketHeader>
+	static constexpr SendPairData<S_ptr<SendBuffer>, uint64> operator - (T& pkt_, const S_ptr<PacketSession>& pSendSession_)noexcept
+	{
+		return { c2s_PacketHandler::MakeSendBuffer(pkt_),ServerCore::Session::GetID(pSendSession_) };
+	}
+
+	template<typename RoomPtr> requires std::convertible_to<RoomPtr, S_ptr<SessionManageable>> || std::convertible_to<RoomPtr, SessionManageable*>
+	static constexpr void operator<<(RoomPtr&& pRoom_, SendPairData<S_ptr<PacketSession>, S_ptr<SendBuffer>>&& session_msg)noexcept
+	{
+		pRoom_->SendEnqueue(std::move(session_msg.first), std::move(session_msg.second));
+	}
+
+	template<typename RoomPtr> requires std::convertible_to<RoomPtr, S_ptr<SessionManageable>> || std::convertible_to<RoomPtr, SessionManageable*>
+	static constexpr void operator<<(RoomPtr&& pRoom_, SendPairData<S_ptr<SendBuffer>, uint64>&& msg_exceptNum)noexcept
+	{
+		pRoom_->BroadCastEnqueue(std::move(msg_exceptNum.first), std::move(msg_exceptNum.second));
+	}
+
+	template<typename RoomPtr, typename T> requires (std::convertible_to<RoomPtr, S_ptr<SessionManageable>> || std::convertible_to<RoomPtr, SessionManageable*>) && !std::derived_from<T, PacketHeader>
+	static constexpr void operator<<(RoomPtr&& pRoom_, T& pkt_)noexcept
+	{
+		pRoom_->BroadCastEnqueue(c2s_PacketHandler::MakeSendBuffer(pkt_));
+	}
+
+	template<typename SessionPtr, typename T> requires (std::convertible_to<SessionPtr, S_ptr<Session>> || std::convertible_to<SessionPtr, Session*>) && !std::derived_from<T, PacketHeader>
+	static constexpr void operator<<(SessionPtr&& pSession_, T& pkt_)noexcept
+	{
+		pSession_->SendAsync(c2s_PacketHandler::MakeSendBuffer(pkt_));
+	}
+}

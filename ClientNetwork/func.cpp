@@ -30,8 +30,8 @@ namespace NetHelper
 	{
 		S_ptr<SendBuffer> sendBuffer = NetMgr(SendBufferMgr)->Open(sizeof(PacketHeader));
 		PacketHeader* const header = reinterpret_cast<PacketHeader*>(sendBuffer->Buffer());
-		header->size = sizeof(PacketHeader);
-		header->id = etoi(eHeartBeatType_);
+		header->pkt_size = sizeof(PacketHeader);
+		header->pkt_id = etoi(eHeartBeatType_);
 		sendBuffer->Close(sizeof(PacketHeader));
 		return sendBuffer;
 	}

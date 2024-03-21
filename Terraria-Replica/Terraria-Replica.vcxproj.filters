@@ -88,6 +88,15 @@
     <Filter Include="CParticleMgr\Particle">
       <UniqueIdentifier>{cfb6e3b1-3b22-47d6-885f-2e4bb3044702}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NetContents">
+      <UniqueIdentifier>{94079b8c-8fb4-4a49-9fce-c887d65a9157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\Protocol">
+      <UniqueIdentifier>{39aa0f5d-469d-4642-8781-9f432cde4c20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\ServerSession">
+      <UniqueIdentifier>{48014ad3-225d-4d05-931d-f3cfaaae97e7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">

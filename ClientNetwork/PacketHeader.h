@@ -2,9 +2,11 @@
 
 namespace NetHelper
 {
+#pragma pack (push, 1)
 	struct PacketHeader
 	{
-		int32 size;
-		int32 id;
+		uint16 pkt_size;
+		uint16 pkt_id;
 	};
+#pragma pack (pop)
 }

@@ -1,0 +1,41 @@
+syntax = "proto3";
+package Protocol;
+
+import "Enum.proto";
+import "Struct.proto";
+
+message c2s_LOGIN
+{
+	
+}//클라가 로그인요청
+
+message s2c_LOGIN
+{
+	bool bSuccess=1;
+	repeated Player players=2; // 유저의 플레이어블 캐릭터 목록
+}// 서버가 클라의 로그인 요청 처리
+
+//
+
+message c2s_ENTER_GAME
+{
+	uint64 playerIdx=1; // 입장할 캐릭터 인덱스
+}// 게임 입장요청
+
+message s2c_ENTER_GAME
+{
+	bool bSuccess=1;
+}// 게임 입장요청을 받아서 체크
+
+//
+
+message c2s_CHAT
+{
+	string msg=1;
+}//클라가 채팅입력
+
+message s2c_CHAT
+{
+	uint64 playerId=1; // 채팅한놈 아이디
+	string msg=2; // 메세지
+}
