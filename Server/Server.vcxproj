@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ClientSession.cpp" />
+    <ClCompile Include="func.cpp" />
     <ClCompile Include="Libraries\Protocols\c2s_PacketHandler.cpp" />
     <ClCompile Include="Libraries\Protocols\Enum.pb.cc">
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
@@ -175,6 +176,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TRTile.cpp" />
+    <ClCompile Include="TRTileManager.cpp" />
+    <ClCompile Include="TRTileMap.cpp" />
+    <ClCompile Include="TRTileWall.cpp" />
+    <ClCompile Include="TRWorld.cpp" />
+    <ClCompile Include="TRWorldGeneration.cpp" />
+    <ClCompile Include="TRWorldGenerationProcess.cpp" />
+    <ClCompile Include="Vec2.cpp" />
+    <ClCompile Include="Vec2Int.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ServerCore\GenPackets\Enum.proto" />
@@ -183,11 +193,28 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientSession.h" />
+    <ClInclude Include="CustomMath.hpp" />
+    <ClInclude Include="define.h" />
+    <ClInclude Include="func.h" />
     <ClInclude Include="Libraries\Protocols\c2s_PacketHandler.h" />
     <ClInclude Include="Libraries\Protocols\Enum.pb.h" />
     <ClInclude Include="Libraries\Protocols\Protocol.pb.h" />
     <ClInclude Include="Libraries\Protocols\Struct.pb.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PerlinNoise.hpp" />
+    <ClInclude Include="Registry.hpp" />
+    <ClInclude Include="SimpleMath.hpp" />
+    <ClInclude Include="TRTile.h" />
+    <ClInclude Include="TRTileManager.h" />
+    <ClInclude Include="TRTileMap.h" />
+    <ClInclude Include="TRTileWall.h" />
+    <ClInclude Include="TRWorld.h" />
+    <ClInclude Include="TRWorldGeneration.h" />
+    <ClInclude Include="TRWorldGenerationProcess.h" />
+    <ClInclude Include="Vec2.hpp" />
+    <ClInclude Include="Vec2Int.hpp" />
+    <ClInclude Include="Vector2D.hpp" />
+    <ClInclude Include="Vector3D.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

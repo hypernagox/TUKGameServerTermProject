@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 
 #include <string>
 #include <vector>
@@ -8,15 +9,15 @@ template <typename T>
 class Registry
 {
 private:
-	std::vector<shared_ptr<T>> id_container;
-	std::unordered_map<std::wstring, shared_ptr<T>> key_container;
+	std::vector<std::shared_ptr<T>> id_container;
+	std::unordered_map<std::wstring, std::shared_ptr<T>> key_container;
 
 public:
 	Registry();
 	~Registry();
 
 	size_t Insert(const std::wstring& key, T* item);
-	size_t Insert(const std::wstring& key, shared_ptr<T>item);
+	size_t Insert(const std::wstring& key, std::shared_ptr<T>item);
 
 	T* operator[](const int index) const;
 	T* operator[](std::wstring_view key) const;
@@ -37,7 +38,7 @@ inline Registry<T>::~Registry()
 template<typename T>
 inline size_t Registry<T>::Insert(const std::wstring& key, T* item)
 {
-	shared_ptr<T> wrapper{item};
+	std::shared_ptr<T> wrapper{item};
 	id_container.push_back(wrapper);
 	key_container.insert(make_pair(key, wrapper));
 
@@ -45,7 +46,7 @@ inline size_t Registry<T>::Insert(const std::wstring& key, T* item)
 }
 
 template<typename T>
-inline size_t Registry<T>::Insert(const std::wstring& key, shared_ptr<T> item)
+inline size_t Registry<T>::Insert(const std::wstring& key, std::shared_ptr<T> item)
 {
 	id_container.push_back(item);
 	key_container.insert(make_pair(key, item));

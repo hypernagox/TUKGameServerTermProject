@@ -34,6 +34,15 @@
     <Filter Include="Utils\pch">
       <UniqueIdentifier>{cfe6c2f2-8c94-4ac4-a178-ffa2ba3424c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TRContents">
+      <UniqueIdentifier>{856a4b7a-e90f-4b7e-aa20-247c691a4219}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\struct">
+      <UniqueIdentifier>{233c5a94-d5fc-437e-a038-6d5c177fe8cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\func">
+      <UniqueIdentifier>{5f4bc1c9-956c-434f-9f75-b0fdcf9dd701}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -56,6 +65,36 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Utils\pch</Filter>
+    </ClCompile>
+    <ClCompile Include="TRTile.cpp">
+      <Filter>TRContents</Filter>
+    </ClCompile>
+    <ClCompile Include="TRTileManager.cpp">
+      <Filter>TRContents</Filter>
+    </ClCompile>
+    <ClCompile Include="TRTileMap.cpp">
+      <Filter>TRContents</Filter>
+    </ClCompile>
+    <ClCompile Include="TRTileWall.cpp">
+      <Filter>TRContents</Filter>
+    </ClCompile>
+    <ClCompile Include="TRWorld.cpp">
+      <Filter>TRContents</Filter>
+    </ClCompile>
+    <ClCompile Include="TRWorldGeneration.cpp">
+      <Filter>TRContents</Filter>
+    </ClCompile>
+    <ClCompile Include="TRWorldGenerationProcess.cpp">
+      <Filter>TRContents</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec2.cpp">
+      <Filter>Utils\struct</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec2Int.cpp">
+      <Filter>Utils\struct</Filter>
+    </ClCompile>
+    <ClCompile Include="func.cpp">
+      <Filter>Utils\func</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +126,57 @@
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Utils\pch</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTile.h">
+      <Filter>TRContents</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTileManager.h">
+      <Filter>TRContents</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTileMap.h">
+      <Filter>TRContents</Filter>
+    </ClInclude>
+    <ClInclude Include="TRTileWall.h">
+      <Filter>TRContents</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorld.h">
+      <Filter>TRContents</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorldGeneration.h">
+      <Filter>TRContents</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorldGenerationProcess.h">
+      <Filter>TRContents</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec2.hpp">
+      <Filter>Utils\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec2Int.hpp">
+      <Filter>Utils\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="Registry.hpp">
+      <Filter>Utils\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleMath.hpp">
+      <Filter>Utils\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomMath.hpp">
+      <Filter>Utils\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="PerlinNoise.hpp">
+      <Filter>Utils\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2D.hpp">
+      <Filter>Utils\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3D.hpp">
+      <Filter>Utils\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="func.h">
+      <Filter>Utils\func</Filter>
+    </ClInclude>
+    <ClInclude Include="define.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
