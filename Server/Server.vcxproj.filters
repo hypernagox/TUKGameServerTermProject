@@ -28,6 +28,12 @@
     <Filter Include="Protocols\Protocol">
       <UniqueIdentifier>{90fca81f-fa59-4af9-bcc4-7c5273f65241}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{8842f407-ee83-4109-aee4-8771a71db2c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\pch">
+      <UniqueIdentifier>{cfe6c2f2-8c94-4ac4-a178-ffa2ba3424c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -44,6 +50,12 @@
     </ClCompile>
     <ClCompile Include="Libraries\Protocols\c2s_PacketHandler.cpp">
       <Filter>Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientSession.cpp">
+      <Filter>ClientSession</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Utils\pch</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +81,12 @@
     </ClInclude>
     <ClInclude Include="Libraries\Protocols\c2s_PacketHandler.h">
       <Filter>Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientSession.h">
+      <Filter>ClientSession</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Utils\pch</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
