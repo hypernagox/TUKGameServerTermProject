@@ -31,6 +31,7 @@
 #include "CSoundMgr.h"
 
 #include "CParticleMgr.h"
+#include "CSceneMgr.h"
 
 TRWorld* g_TRWorld = nullptr;
 extern bool g_bStopToken;
@@ -38,14 +39,18 @@ extern bool g_bStopToken;
 static std::mt19937 randDigSound{std::random_device{}()};
 static std::uniform_int_distribution<> uidDig{0, 2};
 
-void TRWorld::FindAndModifyItemStack(std::string_view itemName, const int mount_) noexcept
+void TRWorld::FindAndModifyItemStack(std::string_view itemName, const int mount_, const bool bIsWall) noexcept
 {
 	const auto targetName = Utf8ToWide(itemName);
-	const auto iter = std::find_if(player_inventory.begin(),player_inventory.end(), [targetName](const TRItemContainer* const pItemContainer)
+	const auto iter = std::find_if(player_inventory.begin(),player_inventory.end(), [&targetName,bIsWall](const TRItemContainer* const pItemContainer)noexcept
 		{
 			if (const auto item = pItemContainer->GetItemStack().GetItem())
 			{
-				return item->GetKeyName() == targetName;
+				if (bIsWall)
+				{
+					return item->GetKeyName() == targetName && std::string::npos != item->GetName().rfind(L"Wall");
+				}
+				return item->GetKeyName() == targetName || item->GetName() == targetName;
 			}
 			return false;
 		});
@@ -195,8 +200,8 @@ void TRWorld::OnSceneCreate(CScene* scene)
 
 	m_pScene = scene;
 	Mgr(CCollisionMgr)->Reset();
-	player = new CPlayer(this);
-	int x = TRWorld::WORLD_WIDTH / 2;
+	player = new Hero(this);
+	const int x = TRWorld::WORLD_WIDTH / 2;
 	player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x, tile_map->GetTopYpos(x))) - Vec2(20.0f, 28.0f));
 	player->SetScale(Vec2{ 40.f, 56.f });
 	scene->AddObject(player, GROUP_TYPE::PLAYER);
@@ -510,4 +515,15 @@ void TRWorld::SpawnBoss()
 	Mgr(CCamera)->FadeIn(1.f);
 
 	StartCoEvent(Mgr(CCamera)->ZoomInBoss(pMon->GetPos()));
+}
+
+void TRWorld::AddNewPlayer(const uint64_t id)
+{
+	const auto player = new CPlayer{ this };
+	const int x = TRWorld::WORLD_WIDTH / 2;
+	player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x, tile_map->GetTopYpos(x))) - Vec2(20.0f, 28.0f));
+	player->SetScale(Vec2{ 40.f, 56.f });
+	//Mgr(CSceneMgr)->GetCurScene()->AddObject(player, GROUP_TYPE::PLAYER);
+	m_pScene->AddObject(player, GROUP_TYPE::PLAYER);
+	m_mapOtherPlayer.emplace(id, player);
 }

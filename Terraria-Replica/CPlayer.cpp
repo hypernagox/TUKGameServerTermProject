@@ -22,7 +22,11 @@
 #include "CDropItem.h"
 #include "TRItem.h"
 #include "CSoundMgr.h"
+#include "Protocol.pb.h"
+#include "s2c_PacketHandler.h"
+#include "Enum.pb.h"
 
+extern void updateTileCollision(CObject* const _pObj, TRWorld* const _pTRWorld);
 
 CPlayer::CPlayer(TRWorld* const _trWorld)
 {
@@ -71,18 +75,30 @@ void CPlayer::update()
 	}
 
 	CObject::update();
-	auto pAnim = GetComp<CAnimator>();
+	const auto pRigid = GetComp<CRigidBody>();
+	//if (bitwise_absf(pRigid->GetVelocity().y) > FLT_EPSILON && PLAYER_STATE::ATTACK != m_eCurState)
+	//{
+	//	m_eCurState = PLAYER_STATE::JUMP;
+	//	m_bIsIDLE = false;
+	//}
+
+	//auto pAnim = GetComp<CAnimator>();
+	//
+	//m_ePrevState = m_eCurState;
+	//
+	//updateDmgCoolDown();
+	//
+	//updateQuickBarState(m_pTRWolrd->GetQuickBarIdx());
+	//
+	//updateMove();
+	//
+	//updateState();
 	
-	m_ePrevState = m_eCurState;
+	const auto moveData = m_interpolator.GetInterPolatedData();
+	SetWillPos(moveData.will_pos);
+	SetPos(moveData.pos);
+	pRigid->SetVelocity(moveData.vel);
 
-	updateDmgCoolDown();
-
-	updateQuickBarState(m_pTRWolrd->GetQuickBarIdx());
-
-	updateMove();
-
-	updateState();
-	
 	updateAnimation();
 	
 	if (PLAYER_STATE::ATTACK == m_eCurState)
@@ -93,7 +109,6 @@ void CPlayer::update()
 	{
 		m_vecWeapon[m_iCurQuickBarIdx]->ReForm();
 	}
-	
 }
 
 
@@ -112,6 +127,7 @@ void CPlayer::render(HDC _dc)const
 	//m_pWeapon->render(_dc);
 	CObject::component_render(_dc);
 	m_pAnimLeg->component_render(_dc);
+
 	if (PLAYER_STATE::ATTACK == m_eCurState)
 	{
 		m_vecWeapon[m_iCurQuickBarIdx]->render_weapon(_dc);
@@ -123,99 +139,7 @@ void CPlayer::render(HDC _dc)const
 	
 }
 
-void CPlayer::updateState()
-{
-	m_bIsIDLE = true;
-	auto pAnim = GetComp<CAnimator>();
-	auto pRigid = GetComp<CRigidBody>();
-	
-	if (KEY_TAP(KEY::SPACE) && IsFloatZero(pRigid->GetVelocity().y))
-	{
-		pRigid->SetIsGround(false);
 
-		pRigid->AddVelocity(Vec2::down * 720.0f);
-		//pRigid->SetForce(Vec2{ 0, -1000.0f });
-		m_eCurState = PLAYER_STATE::JUMP;
-		m_bIsIDLE = false;
-
-	}
-
-	if (m_ePrevState == PLAYER_STATE::ATTACK && pAnim->IsFinish())
-	{
-		m_eCurState = PLAYER_STATE::IDLE;
-		m_bIsAtk = false;
-	}
-
-	if (KEY_HOLD(KEY::A))
-	{
-		pAnim->SetAnimLeft();
-		m_pAnimLeg->SetAnimLeft();
-		m_eCurState = PLAYER_STATE::WALK;
-		m_bIsIDLE = false;
-	}
-
-	if (KEY_HOLD(KEY::D))
-	{
-		pAnim->SetAnimRight();
-		m_pAnimLeg->SetAnimRight();
-		m_eCurState = PLAYER_STATE::WALK;
-		m_bIsIDLE = false;
-	}
-
-	if (m_bRequestAttack)
-	{
-		m_eCurState = PLAYER_STATE::ATTACK;
-		m_bIsIDLE = false;
-		m_bRequestAttack = false;
-		Mgr(CSoundMgr)->PlayEffect("Item_1.wav", 1.f);
-	}
-
-	if (m_bIsAtk)
-	{
-		m_eCurState = PLAYER_STATE::ATTACK;
-		m_bIsIDLE = false;
-	}
-
-	if (m_bIsIDLE)
-	{
-		m_eCurState = PLAYER_STATE::IDLE;
-	}
-
-	if (bitwise_absf(pRigid->GetVelocity().y) > 0 && PLAYER_STATE::ATTACK != m_eCurState)
-	{
-		m_eCurState = PLAYER_STATE::JUMP;
-		m_bIsIDLE = false;
-	}
-}
-
-void CPlayer::updateMove()
-{
-	auto pRigid = GetComp<CRigidBody>();
-	auto vPos = GetPos();
-	
-	if (KEY_HOLD(KEY::A))
-	{
-		pRigid->AddVelocity(Vec2{ -20.0f, 0.0f });
-	}
-
-	if (KEY_HOLD(KEY::D))
-	{
-		pRigid->AddVelocity(Vec2{ 20.0f, 0.0f });
-	}
-
-	/*if (KEY_HOLD(KEY::W))
-	{
-		SetPos({ GetPos().x,GetPos().y - 5.f });
-		pRigid->AddVelocity(Vec2{ 0,-300 });
-		pRigid->AddForce(Vec2{ 0,-300 });
-	}
-	if (KEY_HOLD(KEY::S))
-	{
-		SetPos({ GetPos().x,GetPos().y + 5.f });
-		pRigid->AddVelocity(Vec2{ 0,300 });
-		pRigid->AddForce(Vec2{ 0,300 });
-	}*/
-}
 
 void CPlayer::updateAnimation()
 {
@@ -279,6 +203,19 @@ void CPlayer::component_update()
 	}
 	CObject::component_update();
 	m_pAnimLeg->component_update();
+	
+	if (PLAYER_STATE::JUMP == m_eCurState && !m_bDirtyFlag)
+	{
+		::updateTileCollision(this, m_pTRWolrd);
+		const auto pRigid = GetComp<CRigidBody>();
+		
+		if (bitwise_absf(pRigid->GetVelocity().y) < FLT_EPSILON)
+		{
+			pRigid->SetIsGround(true);
+		}
+	}
+	//else
+	//	SendMoveData();
 }
 
 void CPlayer::OnCollision(CCollider* const _pOther)
@@ -315,52 +252,6 @@ void CPlayer::OnCollisionExit(CCollider* const _pOther)
 	
 }
 
-void CPlayer::updateQuickBarState(const int _idx)
-{
-	m_iCurQuickBarIdx = _idx;
-	auto& quick_bar_list = m_pTRWolrd->GetQuickBarList();
-	static const wstring wstrItem = L"Weapon_";
-	for (int i = 0; i < 10; ++i)
-	{
-		if (quick_bar_list[i]->Blank())
-		{
-			m_vecWeapon[i]->SetActivate(false);
-			m_vecWeapon[i]->SetDmg(1);
-		}
-		else
-		{
-			if (m_iCurQuickBarIdx != i)
-			{
-				m_vecWeapon[i]->SetActivate(false);
-				m_vecWeapon[i]->ReForm();
-			}
-			else
-			{
-				m_vecWeapon[i]->SetActivate(true);
-			}
-			static size_t strPos = 0;
-			if (wstring::npos != quick_bar_list[i]->GetItemStack().GetItem()->GetName().find(L' '))
-			{
-				strPos = quick_bar_list[i]->GetItemStack().GetItem()->GetName().find(L' ') + 1;
-			}
-			else
-			{
-				strPos = 0;
-			}
-			wstring tempName = std::move(quick_bar_list[i]->GetItemStack().GetItem()->GetName().substr(strPos));
-			m_vecWeapon[i]->SetWeaponState(quick_bar_list[i]->GetItemStack().GetItem()->GetItemElement(), std::move(wstrItem + tempName));
-		}
-		
-	}
-}
-
-void CPlayer::UseItem()
-{
-	if (m_bIsAtk)
-		return;
-
-	m_bRequestAttack = true;
-}
 
 CoRoutine CPlayer::PlayerRebirthProcess()
 {
@@ -423,5 +314,70 @@ void CPlayer::dmg_render(HDC _dc)
 			, 40 - 22
 			, 56 - 10
 			, bf);
+	}
+}
+
+void CPlayer::SetMoveData(const Protocol::s2c_MOVE& movePkt_) noexcept
+{
+	if (m_bIsHero)
+	{
+		const auto pRigid = GetComp<CRigidBody>();
+		SetPos(ToOriginVec2(movePkt_.obj_pos()));
+		pRigid->SetVelocity(ToOriginVec2(movePkt_.vel()));
+
+		pRigid->SetIsGround(movePkt_.ground());
+		SetState((PLAYER_STATE)movePkt_.state());
+	}
+	else
+	{
+		MoveData moveData
+		{
+			.pos = ToOriginVec2(movePkt_.obj_pos()),
+			.will_pos = ToOriginVec2(movePkt_.wiil_pos()),
+			.vel = ToOriginVec2(movePkt_.vel())
+		};
+
+		m_interpolator.UpdateNewData(moveData, movePkt_.time_stamp());
+		SetState((PLAYER_STATE)movePkt_.state());
+		GetComp<CAnimator>()->SetAnimDir(movePkt_.anim_dir());
+	}
+}
+
+void CPlayer::updateQuickBarState(const int _idx)
+{
+	m_iCurQuickBarIdx = _idx;
+	auto& quick_bar_list = m_pTRWolrd->GetQuickBarList();
+	static const wstring wstrItem = L"Weapon_";
+	for (int i = 0; i < 10; ++i)
+	{
+		if (quick_bar_list[i]->Blank())
+		{
+			m_vecWeapon[i]->SetActivate(false);
+			m_vecWeapon[i]->SetDmg(1);
+		}
+		else
+		{
+			if (m_iCurQuickBarIdx != i)
+			{
+				m_vecWeapon[i]->SetActivate(false);
+				m_vecWeapon[i]->ReForm();
+			}
+			else
+			{
+				m_vecWeapon[i]->SetActivate(true);
+			}
+			static size_t strPos = 0;
+			if (wstring::npos != quick_bar_list[i]->GetItemStack().GetItem()->GetName().find(L' '))
+			{
+				strPos = quick_bar_list[i]->GetItemStack().GetItem()->GetName().find(L' ') + 1;
+			}
+			else
+			{
+				strPos = 0;
+			}
+			wstring tempName = std::move(quick_bar_list[i]->GetItemStack().GetItem()->GetName().substr(strPos));
+			m_vecWeapon[i]->SetWeaponState(quick_bar_list[i]->GetItemStack().GetItem()->GetItemElement(), std::move(wstrItem + std::move(tempName)));
+		}
+
 	}
 }

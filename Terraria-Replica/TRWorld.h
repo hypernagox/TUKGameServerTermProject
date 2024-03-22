@@ -3,11 +3,12 @@
 #include "TRTile.h"
 #include "TRTileMap.h"
 #include "TRWorldGeneration.h"
-#include "CPlayer.h"
+#include "Hero.h"
 #include "CScene.h"
 
 #include "TRItemContainer.h"
 #include "TRItemStack.h"
+
 
 class TRItemContainer;
 class CQuickBarVisualizer;
@@ -22,7 +23,7 @@ public:
 
 private:
 	TRTileMap* tile_map;
-	CPlayer* player;
+	Hero* player;
 	CScene* m_pScene;
 
 	std::array<TRItemContainer*,50> player_inventory;
@@ -38,8 +39,9 @@ private:
 	int quick_bar_index;
 	bool toggle_inventory;
 
+	std::unordered_map<uint64_t, CPlayer*> m_mapOtherPlayer;
 public:
-	void FindAndModifyItemStack(std::string_view itemName, const int mount_)noexcept;
+	void FindAndModifyItemStack(std::string_view itemName, const int mount_,const bool bIsWall = false)noexcept;
 public:
 	TRWorld();
 	~TRWorld();
@@ -73,4 +75,7 @@ public:
 
 	void FloatDamageText(int value, Vec2 vPos, COLORREF color);
 	void SpawnBoss();
+public:
+	void AddNewPlayer(const uint64_t id);
+	CPlayer* GetOtherPlayer(const uint64_t id)noexcept { return m_mapOtherPlayer[id]; }
 };

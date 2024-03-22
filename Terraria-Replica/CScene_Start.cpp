@@ -19,7 +19,9 @@
 #include "TRWorld.h"
 #include "TRTileManager.h"
 #include "TRItemManager.h"
-
+#include "Protocol.pb.h"
+#include "NetworkMgr.h"
+#include "s2c_PacketHandler.h"
 
 extern std::atomic<bool> g_bLoadMainStage;
 
@@ -39,6 +41,8 @@ void CScene_Start::Enter()
 	Mgr(CEventMgr)->SetTRupdate(&TRMain::Update, m_pTRMain);
 	g_bLoadMainStage = false;
 	Mgr(CSoundMgr)->PlayEffect("Menu_Close.wav", 1.f);
+	Protocol::c2s_ENTER pkt;
+	Send(pkt);
 }
 
 void CScene_Start::Exit()

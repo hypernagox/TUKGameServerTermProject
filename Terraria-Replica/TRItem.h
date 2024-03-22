@@ -24,7 +24,7 @@ public:
 
 	void CreateAtlasElements();
 	const std::wstring& GetKeyName()const noexcept { return m_KeyName; }
-	std::wstring GetName() const;
+	const std::wstring& GetName() const noexcept { return name; }
 	int GetMaxStacksize() const;
 	CImage* GetItemElement() const;
 	virtual bool OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target_pos);

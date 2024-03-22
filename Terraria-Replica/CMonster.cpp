@@ -80,7 +80,7 @@ void CMonster::OnCollision(CCollider* const _pOther)
 
 	if (L"Player" == wstrObjName)
 	{
-		auto pPlayer = (CPlayer*)pObj;
+		auto pPlayer = (Hero*)pObj;
 
 		if (pPlayer->IsPlayerSlain())
 		{

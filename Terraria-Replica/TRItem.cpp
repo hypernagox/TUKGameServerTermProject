@@ -5,6 +5,7 @@
 #include "CustomMath.hpp"
 #include "CSoundMgr.h"
 #include "Protocol.pb.h"
+#include "s2c_PacketHandler.h"
 
 TRItem::TRItem(std::wstring name, std::wstring k_element)
 {
@@ -23,11 +24,6 @@ TRItem::~TRItem()
 void TRItem::CreateAtlasElements()
 {
 	element = Mgr(CResMgr)->GetImg(k_element);
-}
-
-std::wstring TRItem::GetName() const
-{
-	return name;
 }
 
 int TRItem::GetMaxStacksize() const
@@ -95,9 +91,17 @@ bool TRItemTileWall::OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target
 
 	const int x = FloorToInt(target_pos.x);
 	const int y = FloorToInt(target_pos.y);
-	bool result = world->PlaceTileWall(x, y, Mgr(TRTileManager)->GetTileWallByKey(k_tilewall));
+	//bool result = world->PlaceTileWall(x, y, Mgr(TRTileManager)->GetTileWallByKey(k_tilewall));
 
-	return result;
+	Protocol::c2s_PLACE_TILE_WALL pkt;
+	pkt.set_tile_x(x);
+	pkt.set_tile_y(y);
+	pkt.set_tile_key(WideToUtf8(k_tilewall));
+
+	Send(pkt);
+
+
+	return false;
 }
 
 TRItemTool::TRItemTool(std::wstring name, std::wstring k_element) : TRItem(name, k_element)

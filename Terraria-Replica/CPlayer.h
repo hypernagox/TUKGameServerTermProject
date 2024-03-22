@@ -1,7 +1,8 @@
 #pragma once
 #include "pch.h"
 #include "CObject.h"
-
+#include "Protocol.pb.h"
+#include "Interpolator.hpp"
 
 class CTexture;
 class CAnimation;
@@ -21,17 +22,38 @@ enum class PLAYER_STATE
 
 class CWeapon;
 
+struct  MoveData
+{
+    Vec2 pos;
+    Vec2 will_pos;
+    Vec2 vel;
+};
+
+class MoveInterpolator
+    :public NetHelper::Interpolator<MoveData>
+{
+public:
+    MoveData GetInterPolatedData()noexcept
+    {
+        MoveData temp;
+        UpdateInterpolationParam();
+        temp.pos = SmoothLinearInterpolation(m_curData.pos, m_newData.pos);
+        temp.will_pos = SmoothLinearInterpolation(m_curData.will_pos, m_newData.will_pos);
+        temp.vel = SmoothLinearInterpolation(m_curData.vel, m_newData.vel);
+        return temp;
+    }
+};
 class CPlayer :
     public CObject
 {
     friend class CScene_Intro;
-private:
+protected:
 
     int m_iCurQuickBarIdx = 0;
     vector<CWeapon*>  m_vecWeapon;
-
-    CAnimation* m_pPrevAnim = {};
-    unique_ptr<CAnimator> m_pAnimLeg;
+    bool m_bIsHero = false;
+    class CAnimation* m_pPrevAnim = {};
+    std::unique_ptr<class CAnimator> m_pAnimLeg;
     mutable int m_iDegree = 0;
     PLAYER_STATE m_eCurState = PLAYER_STATE::IDLE;
     PLAYER_STATE m_ePrevState = PLAYER_STATE::IDLE;
@@ -39,13 +61,18 @@ private:
     bool m_bIsIDLE = false;
     bool m_bPrevCol = false;
 
+    bool m_bDirtyFlag = false;
+
     bool m_bSlain = false;
     bool m_bRequestAttack = false;
+
     float m_fDmgCoolDown = 0.f;
     int m_iMonColCnt = 0;
     HDC m_hPlayerVeilDC; 
     HBITMAP m_hPlayerVeilBit;
+    MoveInterpolator m_interpolator;
 public:
+    bool IsHero()const noexcept { return m_bIsHero; }
     CPlayer(TRWorld* const _trWorld);
     CPlayer(const CPlayer& other);
     void update()override;
@@ -56,27 +83,27 @@ public:
         return p;
     }
 
-    void updateState();
-    void updateMove();
-    void updateAnimation();
+public:
     void component_update()override;
+    void updateAnimation();
+    CoRoutine PlayerRebirthProcess();
+    void dmg_render(HDC _dc);
     virtual void OnCollision(CCollider* const _pOther);
     virtual void OnCollisionEnter(CCollider* const _pOther);
     virtual void OnCollisionExit(CCollider* const _pOther);
 
-    void updateQuickBarState(const int _idx);
-
-    void SetSlane(bool _b) { m_bSlain = _b; }
-    bool IsPlayerSlain()const { return m_bSlain; }
-    void UseItem();
-    CoRoutine PlayerRebirthProcess();
-
-    void SetQuickBarIdx(const int _idx) { m_iCurQuickBarIdx = _idx; }
-    int GetQuickBarIdx()const { return m_iCurQuickBarIdx; }
-
 
     void updateDmgCoolDown();
-    void dmg_render(HDC _dc);
+
     bool IsCanHit()const { return 0.f >= m_fDmgCoolDown || 1.f <= m_fDmgCoolDown; }
+
+    void SetState(const PLAYER_STATE eType_)noexcept {
+        m_ePrevState = m_eCurState;
+        m_eCurState = eType_;
+    }
+public:
+    void updateQuickBarState(const int _idx);
+   
+    void SetMoveData(const Protocol::s2c_MOVE& movePkt_)noexcept;
 };
 

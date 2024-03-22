@@ -40,7 +40,7 @@ namespace NetHelper
 	}
 
 	template<typename T>  requires !std::derived_from<T, PacketHeader>
-	static constexpr void Send(T& pkt_)noexcept
+	static constexpr void Send(T&& pkt_)noexcept
 	{
 		Send(s2c_PacketHandler::MakeSendBuffer(pkt_));
 	}

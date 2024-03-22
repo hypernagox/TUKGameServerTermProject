@@ -7,6 +7,7 @@ class CLayer;
 class CTileLayer;
 class CPlayer;
 class CCthulhuEye;
+class Hero;
 
 class CScene
 {
@@ -32,7 +33,7 @@ private:
 public: 
 	void RegisterPlayer(CObject* const _pPlayer) { m_pPlayer = _pPlayer; }
 	CObject* GetPlayer()const { return m_pPlayer; }
-	CPlayer* GetPlayerCast()const { return reinterpret_cast<CPlayer*>(m_pPlayer); }
+	Hero* GetPlayerCast()const { return reinterpret_cast<Hero*>(m_pPlayer); }
 	void AddObject(CObject* const _pObj, GROUP_TYPE _eType);
 	const vector<unique_ptr<CObject>>& GetGroupObject(GROUP_TYPE _eType)const;
 	vector<unique_ptr<CObject>>& GetUIGroup();

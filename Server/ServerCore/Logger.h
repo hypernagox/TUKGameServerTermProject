@@ -16,14 +16,14 @@ namespace ServerCore
 		private:
 			Log(std::wstring&& msg)noexcept :logMsg{ std::move(msg) }
 			{
-				//Mgr(Logger)->EnqueueLogMsg(std::format(L"{} Start", logMsg));
+				Mgr(Logger)->EnqueueLogMsg(std::format(L"{} Start", logMsg));
 			}
 		public:
 			~Log()noexcept
 			{
-				//Mgr(Logger)->EnqueueLogMsg(
-				//	std::format(L"{} End: {}microseconds", std::move(logMsg), std::to_wstring(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - startTime).count()))
-				//);
+				Mgr(Logger)->EnqueueLogMsg(
+					std::format(L"{} End: {}microseconds", std::move(logMsg), std::to_wstring(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - startTime).count()))
+				);
 			}
 		private:
 			std::wstring logMsg;
@@ -31,13 +31,13 @@ namespace ServerCore
 		};
 		void EnqueueLogMsg(std::wstring&& msg)noexcept
 		{
-			//m_msgQueue.emplace(std::move(msg));
-			//m_msgCv.notify_one();
+			m_msgQueue.emplace(std::move(msg));
+			m_msgCv.notify_one();
 		}
 		void EnqueueLogMsg(const wchar_t* const msg)noexcept
 		{
-			//m_msgQueue.emplace(msg);
-			//m_msgCv.notify_one();
+			m_msgQueue.emplace(msg);
+			m_msgCv.notify_one();
 		}
 		static Log CreateFuncLog(std::wstring_view logMsg_)noexcept { return Log{ std::format(L"FUNC_LOG: {}",logMsg_) }; }
 		void Init()noexcept override;

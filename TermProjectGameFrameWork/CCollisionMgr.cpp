@@ -46,24 +46,25 @@ void CCollisionMgr::update()
 		{
 			if (m_bitColTable[iRow][iCol])
 			{
-				//CollisionUpdateGroup(static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
-				Mgr(CThreadMgr)->EnqueueUpdate(&CCollisionMgr::CollisionUpdateGroup,this, static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
+				CollisionUpdateGroup(static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
+				//Mgr(CThreadMgr)->EnqueueUpdate(&CCollisionMgr::CollisionUpdateGroup,this, static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
 			}
 		}
 	}
 
 	const auto& arrCurSceneObj = Mgr(CSceneMgr)->GetCurScene()->GetSceneObj();
 
-	Mgr(CThreadMgr)->JoinUpdate();
+	//Mgr(CThreadMgr)->JoinUpdate();
 	for (const auto& vecObj : arrCurSceneObj)
 	{
 		const auto vecPtr = vecObj.data();
 		for (size_t i = 0, size = vecObj.size(); i < size; ++i)
 		{
-			Mgr(CThreadMgr)->EnqueueUpdate(&CObject::updateTileCollision, vecPtr[i].get());
+			//Mgr(CThreadMgr)->EnqueueUpdate(&CObject::updateTileCollision, vecPtr[i].get());
+			vecPtr[i]->updateTileCollision();
 		}
 	}
-	Mgr(CThreadMgr)->JoinUpdate();
+	//Mgr(CThreadMgr)->JoinUpdate();
 	/*std::for_each(std::execution::par, std::begin(arrCurSceneObj), std::end(arrCurSceneObj), [](const auto& _vecObj) {
 		std::for_each(std::execution::par_unseq, _vecObj.begin(), _vecObj.end(), [](auto& _pObj) {
 			_pObj->updateTileCollision();
@@ -86,10 +87,10 @@ void CCollisionMgr::RegisterGroup(GROUP_TYPE _eLeft, GROUP_TYPE _eRight)
 
 void CCollisionMgr::CollisionUpdateGroup(GROUP_TYPE _eLeft, GROUP_TYPE _eRight)
 {
-	auto pCurScene = Mgr(CSceneMgr)->GetCurScene();
+	const auto pCurScene = Mgr(CSceneMgr)->GetCurScene();
 
-	auto& vecLeft = pCurScene->GetGroupObject(_eLeft);
-	auto& vecRight = pCurScene->GetGroupObject(_eRight);
+	const auto& vecLeft = pCurScene->GetGroupObject(_eLeft);
+	const auto& vecRight = pCurScene->GetGroupObject(_eRight);
 
 	for (size_t i = 0; i < vecLeft.size(); ++i)
 	{
@@ -106,17 +107,17 @@ void CCollisionMgr::CollisionUpdateGroup(GROUP_TYPE _eLeft, GROUP_TYPE _eRight)
 				continue;
 			}
 
-			auto pLeftCol = vecLeft[i]->GetComp<CCollider>();
-			auto pRightCol = vecRight[j]->GetComp<CCollider>();
+			const auto pLeftCol = vecLeft[i]->GetComp<CCollider>();
+			const auto pRightCol = vecRight[j]->GetComp<CCollider>();
 
 			COLLIDER_ID ID;
 			ID.Left_id = pLeftCol->GetID();
 			ID.Right_id = pRightCol->GetID();
 
-			auto iter = m_mapColPrev.try_emplace(ID.ID, false).first;
+			const auto iter = m_mapColPrev.try_emplace(ID.ID, false).first;
 			const bool nowCollision = IsCollision(pLeftCol, pRightCol);
 
-			SPIN_LOCK;
+			//SPIN_LOCK;
 			if (nowCollision)
 			{
 				if (iter->second)

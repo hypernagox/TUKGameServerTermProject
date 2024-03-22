@@ -1,3 +1,10 @@
 syntax = "proto3";
 package Protocol;
 
+enum PLAYER_STATE
+{
+    IDLE = 0;
+    WALK = 1;
+    JUMP = 2;
+    ATTACK = 3;
+}

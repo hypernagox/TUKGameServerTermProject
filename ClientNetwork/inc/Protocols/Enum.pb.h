@@ -28,6 +28,7 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
+#include <google/protobuf/generated_enum_reflection.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_Enum_2eproto
@@ -46,6 +47,33 @@ PROTOBUF_NAMESPACE_OPEN
 PROTOBUF_NAMESPACE_CLOSE
 namespace Protocol {
 
+enum PLAYER_STATE : int {
+  IDLE = 0,
+  WALK = 1,
+  JUMP = 2,
+  ATTACK = 3,
+  PLAYER_STATE_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
+  PLAYER_STATE_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
+};
+bool PLAYER_STATE_IsValid(int value);
+constexpr PLAYER_STATE PLAYER_STATE_MIN = IDLE;
+constexpr PLAYER_STATE PLAYER_STATE_MAX = ATTACK;
+constexpr int PLAYER_STATE_ARRAYSIZE = PLAYER_STATE_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* PLAYER_STATE_descriptor();
+template<typename T>
+inline const std::string& PLAYER_STATE_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, PLAYER_STATE>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function PLAYER_STATE_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    PLAYER_STATE_descriptor(), enum_t_value);
+}
+inline bool PLAYER_STATE_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, PLAYER_STATE* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<PLAYER_STATE>(
+    PLAYER_STATE_descriptor(), name, value);
+}
 // ===================================================================
 
 
@@ -65,6 +93,16 @@ namespace Protocol {
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace Protocol
+
+PROTOBUF_NAMESPACE_OPEN
+
+template <> struct is_proto_enum< ::Protocol::PLAYER_STATE> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::PLAYER_STATE>() {
+  return ::Protocol::PLAYER_STATE_descriptor();
+}
+
+PROTOBUF_NAMESPACE_CLOSE
 
 // @@protoc_insertion_point(global_scope)
 

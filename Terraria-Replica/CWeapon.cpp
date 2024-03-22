@@ -183,7 +183,8 @@ void CWeapon::render_weapon(HDC _dc) const
 	{
 		return;
 	}
-
+	if (!m_pWeaponImg)
+		return;
 	const auto [vLT, vScale] = Mgr(CCamera)->GetRenderPos(this);
 	Mgr(CCore)->RotateTransform(_dc, m_fDeg2, vLT + vScale / 2.f);
 	const auto vBitSlice = GetScale() / 2.f;

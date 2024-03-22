@@ -18,10 +18,15 @@
 #include "TRItemManager.h"
 #include "TRTileManager.h"
 #include "CCthulhuEye.h"
-
+#include <regex>
 #include "s2c_PacketHandler.h"
 #include "ServerSession.h"
 //#include "../ClientNetwork/func.h"
+
+bool isValidIPAddress(std::wstring_view ipAddress) {
+    const std::wregex ipRegex(L"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+    return std::regex_match(ipAddress.data(), ipRegex);
+}
 
 void updateTileCollision(CObject* const _pObj, TRWorld* const _pTRWorld);
 extern bool g_bStopToken;
@@ -78,7 +83,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     NetMgr(NetworkMgr)->Init();
     NetHelper::s2c_PacketHandler::Init();
 
-    NET_NAGOX_ASSERT(NetMgr(NetworkMgr)->Connect<ServerSession>(L"127.0.0.1", 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
+    AllocConsole();
+
+    FILE* fp = nullptr;
+    freopen_s(&fp, "CONOUT$", "w", stdout);
+    freopen_s(&fp, "CONIN$", "r", stdin);
+
+    std::wstring inputIP;
+    do {
+    RE_INPUT:
+        std::wcout << L"Input IP Address: ";
+        std::wcin >> inputIP;
+        if (!isValidIPAddress(inputIP))
+        {
+            std::wcout << L"Invalid Address !'\n";
+            goto RE_INPUT;
+        }
+    } while (!NetMgr(NetworkMgr)->Connect<ServerSession>(inputIP, 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
+
+    //NET_NAGOX_ASSERT(NetMgr(NetworkMgr)->Connect<ServerSession>(L"127.0.0.1", 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
 
     Protocol::c2s_LOGIN pkt;
     Send(pkt);
@@ -297,25 +320,25 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void updateTileCollision(CObject* const _pObj,TRWorld* const _pTRWorld)
 {
-	auto pRigid = _pObj->GetComp<CRigidBody>();
-    auto pCol = _pObj->GetComp<CCollider>();
+	const auto pRigid = _pObj->GetComp<CRigidBody>();
+    const auto pCol = _pObj->GetComp<CCollider>();
 
-    CCthulhuEye* casting = dynamic_cast<CCthulhuEye*>(_pObj);
+   // const CCthulhuEye* const casting = dynamic_cast<CCthulhuEye*>(_pObj);
 
-    if (pCol == nullptr || casting != nullptr)
+    if (pCol == nullptr || L"Monster_CthulhuEye" == _pObj->GetName())
     {
         _pObj->SetPos(_pObj->GetWillPos());
         return;
     }
 
-	auto pTileMap = _pTRWorld->GetTileMap();
-	Vec2 world_pos = TRWorld::GlobalToWorld(_pObj->GetWillPos());
-	Vec2 world_vel = pRigid->GetVelocity();
+	const auto pTileMap = _pTRWorld->GetTileMap();
+	const Vec2 world_pos = TRWorld::GlobalToWorld(_pObj->GetWillPos());
+	const Vec2 world_vel = pRigid->GetVelocity();
 
-	float w = pCol->GetScale().x / (float)PIXELS_PER_TILE;
-	float h = pCol->GetScale().y / (float)PIXELS_PER_TILE;
+	const float w = pCol->GetScale().x / (float)PIXELS_PER_TILE;
+	const float h = pCol->GetScale().y / (float)PIXELS_PER_TILE;
 
-	Vec2 pre_pos = TRWorld::GlobalToWorld(_pObj->GetPos());
+	const Vec2 pre_pos = TRWorld::GlobalToWorld(_pObj->GetPos());
 	Vec2 post_pos = world_pos;
 	Vec2 post_vel = world_vel;
 

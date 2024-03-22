@@ -18,7 +18,7 @@ CObject::~CObject()
 }
 
 CObject::CObject(const CObject& _other)
-	:m_strName{ _other.m_strName }
+	: m_strName{ _other.m_strName }
 	, m_vPos{ _other.m_vPos }
 	, m_vScale{ _other.m_vScale }
 {

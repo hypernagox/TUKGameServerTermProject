@@ -12,6 +12,17 @@ message c2s_LOGIN
 message s2c_LOGIN
 {
 	int32 seed = 1;
+	uint64 id=2;
+}
+
+message c2s_ENTER
+{ 
+	
+}
+
+message s2c_ENTER
+{
+	uint64 player_id=1;
 }
 
 message c2s_BREAK_TILE
@@ -53,4 +64,41 @@ message s2c_PLACE_TILE
 	int32 tile_x=2;
 	int32 tile_y=3;
 	string tile_key=4;
+}
+
+message c2s_PLACE_TILE_WALL
+{
+	int32 tile_x=1;
+	int32 tile_y=2;
+	string tile_key=3;
+}
+
+message s2c_PLACE_TILE_WALL
+{
+	bool success = 1;
+	int32 tile_x=2;
+	int32 tile_y=3;
+	string tile_key=4;
+}
+
+message c2s_MOVE
+{
+	Vec2 wiil_pos=1;
+	Vec2 obj_pos=2;
+	Vec2 vel=3;
+	Vec2 scale=4;
+	PLAYER_STATE state=5;
+	int32 anim_dir=6;
+}
+
+message s2c_MOVE
+{
+	uint64 obj_id=1;
+	Vec2 obj_pos=2;
+	Vec2 vel=3;
+	bool ground=4;
+	PLAYER_STATE state=5;
+	uint64 time_stamp=6;
+	Vec2 wiil_pos=7;
+	int32 anim_dir=8;
 }

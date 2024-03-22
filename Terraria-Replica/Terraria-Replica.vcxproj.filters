@@ -106,6 +106,9 @@
     <Filter Include="pch\func">
       <UniqueIdentifier>{4faa20ee-143d-44ea-acbe-0b378d6e3517}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CObject\Player\Hero">
+      <UniqueIdentifier>{3b7b4a90-c1f1-4511-85ec-aaae4009038e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -255,6 +258,9 @@
     <ClInclude Include="func.h">
       <Filter>pch\func</Filter>
     </ClInclude>
+    <ClInclude Include="Hero.h">
+      <Filter>CObject\Player\Hero</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TRMain.cpp">
@@ -379,6 +385,9 @@
     </ClCompile>
     <ClCompile Include="func.cpp">
       <Filter>pch\func</Filter>
+    </ClCompile>
+    <ClCompile Include="Hero.cpp">
+      <Filter>CObject\Player\Hero</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

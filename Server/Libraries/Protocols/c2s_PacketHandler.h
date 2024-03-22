@@ -11,12 +11,18 @@ namespace ServerCore
 	{
 		c2s_LOGIN = 1000,
 		s2c_LOGIN = 1001,
-		c2s_BREAK_TILE = 1002,
-		s2c_BREAK_TILE = 1003,
-		c2s_BREAK_TILE_WALL = 1004,
-		s2c_BREAK_TILE_WALL = 1005,
-		c2s_PLACE_TILE = 1006,
-		s2c_PLACE_TILE = 1007,
+		c2s_ENTER = 1002,
+		s2c_ENTER = 1003,
+		c2s_BREAK_TILE = 1004,
+		s2c_BREAK_TILE = 1005,
+		c2s_BREAK_TILE_WALL = 1006,
+		s2c_BREAK_TILE_WALL = 1007,
+		c2s_PLACE_TILE = 1008,
+		s2c_PLACE_TILE = 1009,
+		c2s_PLACE_TILE_WALL = 1010,
+		s2c_PLACE_TILE_WALL = 1011,
+		c2s_MOVE = 1012,
+		s2c_MOVE = 1013,
 	};
 	
 	class PacketSession;
@@ -26,9 +32,12 @@ namespace ServerCore
 	
 	const bool Handle_Invalid(const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_);
 	const bool Handle_c2s_LOGIN(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_LOGIN& pkt_);
+	const bool Handle_c2s_ENTER(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_ENTER& pkt_);
 	const bool Handle_c2s_BREAK_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE& pkt_);
 	const bool Handle_c2s_BREAK_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE_WALL& pkt_);
 	const bool Handle_c2s_PLACE_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE& pkt_);
+	const bool Handle_c2s_PLACE_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE_WALL& pkt_);
+	const bool Handle_c2s_MOVE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_MOVE& pkt_);
 	
 	class c2s_PacketHandler
 	{
@@ -38,9 +47,12 @@ namespace ServerCore
 		static void Init() noexcept
 		{
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_LOGIN)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_LOGIN>(Handle_c2s_LOGIN, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_ENTER)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_ENTER>(Handle_c2s_ENTER, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_BREAK_TILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_BREAK_TILE>(Handle_c2s_BREAK_TILE, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_BREAK_TILE_WALL)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_BREAK_TILE_WALL>(Handle_c2s_BREAK_TILE_WALL, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_PLACE_TILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_PLACE_TILE>(Handle_c2s_PLACE_TILE, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_PLACE_TILE_WALL)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_PLACE_TILE_WALL>(Handle_c2s_PLACE_TILE_WALL, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_MOVE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_MOVE>(Handle_c2s_MOVE, pSession_, pBuff_, len_); };
 			for (auto& fpHandlerFunc : g_fpPacketHandler) 
 			{
 				if (nullptr == fpHandlerFunc)
@@ -62,9 +74,12 @@ namespace ServerCore
 			return g_fpPacketHandler[header->pkt_id](pSession_, pBuff_, len_);
 		}
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_LOGIN& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_LOGIN); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_ENTER& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_ENTER); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_BREAK_TILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_BREAK_TILE); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_BREAK_TILE_WALL& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_BREAK_TILE_WALL); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_PLACE_TILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_PLACE_TILE); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_PLACE_TILE_WALL& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_PLACE_TILE_WALL); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_MOVE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_MOVE); }
 	
 	private:
 		template<typename PacketType, typename ProcessFunc>

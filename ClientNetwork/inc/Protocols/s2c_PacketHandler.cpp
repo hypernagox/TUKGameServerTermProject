@@ -16,9 +16,17 @@ namespace NetHelper
     {
         return false;
     }
+
     const bool Handle_s2c_LOGIN(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_LOGIN& pkt_)
     {
         g_TR_SEED = pkt_.seed();
+        NetMgr(NetworkMgr)->SetSessionID(pkt_.id());
+        return true;
+    }
+
+    const bool Handle_s2c_ENTER(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_ENTER& pkt_)
+    {
+        g_TRWorld->AddNewPlayer(pkt_.player_id());
         return true;
     }
 
@@ -50,6 +58,30 @@ namespace NetHelper
             g_TRWorld->PlaceTile(pkt_.tile_x(), pkt_.tile_y(), TRTileManager::GetInst()->GetTileByKey(key));
             g_TRWorld->FindAndModifyItemStack(pkt_.tile_key(), -1);
         }
-        return false;
+        return true;
+    }
+
+    const bool NetHelper::Handle_s2c_PLACE_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_PLACE_TILE_WALL& pkt_)
+    {
+        const auto key = Utf8ToWide(pkt_.tile_key());
+        if (pkt_.success())
+        {
+            g_TRWorld->PlaceTileWall(pkt_.tile_x(), pkt_.tile_y(), TRTileManager::GetInst()->GetTileWallByKey(key));
+            g_TRWorld->FindAndModifyItemStack(pkt_.tile_key(), -1,true);
+        }
+        return true;
+    }
+
+    const bool NetHelper::Handle_s2c_MOVE(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_MOVE& pkt_)
+    {
+        if (const auto other = g_TRWorld->GetOtherPlayer(pkt_.obj_id()))
+        {
+            other->SetMoveData(pkt_);
+        }
+        else
+        {
+            g_TRWorld->GetPlayer()->SetMoveData(pkt_);
+        }
+        return true;
     }
 }

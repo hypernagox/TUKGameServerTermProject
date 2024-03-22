@@ -3,6 +3,9 @@
 #include "TRTile.h"
 #include "TRTileMap.h"
 #include "TRWorldGeneration.h"
+#include "Protocol.pb.h"
+#include "SessionManageable.h"
+
 //#include "CPlayer.h"
 //#include "CScene.h"
 //
@@ -20,7 +23,7 @@ class TRWorld
 public:
 	static constexpr int WORLD_WIDTH = 512;
 	static constexpr int WORLD_HEIGHT = 256;
-
+	ServerCore::SessionManageable m_room{ 0 };
 private:
 	TRTileMap* tile_map;
 	//CPlayer* player;
@@ -69,4 +72,7 @@ public:
 
 	void FloatDamageText(int value, Vec2 vPos, COLORREF color);
 	void SpawnBoss();
+
+public:
+	Protocol::s2c_MOVE updateTileCollision(const Protocol::c2s_MOVE& pkt_)const noexcept;
 };
