@@ -123,6 +123,7 @@ void Hero::updateState()
 	{
 		m_eCurState = PLAYER_STATE::JUMP;
 		m_bIsIDLE = false;
+		m_bDirtyFlag = true;
 	}
 }
 
@@ -130,6 +131,11 @@ void Hero::updateMove()
 {
 	const auto pRigid = GetComp<CRigidBody>();
 	const auto vPos = GetPos();
+
+	//const auto moveData = m_interpolator.GetInterPolatedData();
+	//SetWillPos(moveData.will_pos);
+	//SetPos(moveData.pos);
+	//pRigid->SetVelocity(moveData.vel);
 
 	if (KEY_HOLD(KEY::A))
 	{
@@ -169,19 +175,24 @@ void Hero::component_update()
 
 	CObject::component_update();
 	m_pAnimLeg->component_update();
-
-	//if (PLAYER_STATE::JUMP == m_eCurState && !m_bDirtyFlag)
+	const auto pRigid = GetComp<CRigidBody>();
+	//if ((PLAYER_STATE::JUMP == m_eCurState) && !m_bDirtyFlag)
 	//{
 	//	::updateTileCollision(this, m_pTRWolrd);
-	//	const auto pRigid = GetComp<CRigidBody>();
+	//	//const auto pRigid = GetComp<CRigidBody>();
 	//
-	//	if (bitwise_absf(pRigid->GetVelocity().y) < FLT_EPSILON)
+	//	if (IsFloatZero(pRigid->GetVelocity().y))
 	//	{
 	//		pRigid->SetIsGround(true);
 	//	}
 	//}
 	//else
 		SendMoveData();
+
+		const auto move_data = m_interpolator.GetInterPolatedData();
+		SetPos(move_data.pos);
+		//pRigid->SetVelocity(move_data.vel);
+		//SetWillPos(move_data.will_pos);
 }
 
 
@@ -197,13 +208,13 @@ void Hero::UseItem()
 void Hero::SendMoveData() noexcept
 {
 	m_fAccTime += DT;
-
-	if (m_bDirtyFlag || 0.01f <=m_fAccTime)
+	
+	if (m_bDirtyFlag || 0.1f <= m_fAccTime)
 	{
 		m_fAccTime = 0.f;
 		m_bDirtyFlag = false;
 		Protocol::c2s_MOVE pkt;
-
+		const auto vVelocity = GetComp<CRigidBody>()->GetVelocity();
 		*pkt.mutable_obj_pos() = ToProtoVec2(GetPos());
 		*pkt.mutable_wiil_pos() = ToProtoVec2(GetWillPos());
 		*pkt.mutable_scale() = ToProtoVec2(GetComp<CCollider>()->GetScale());

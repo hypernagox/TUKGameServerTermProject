@@ -164,7 +164,7 @@ void TRWorld::Update()
 
 	Mgr(CParticleMgr)->Update();
 
-	TRMonGenerator::GenerateMonster();
+	//TRMonGenerator::GenerateMonster();
 }
 
 void TRWorld::CreateWorld(int seed)

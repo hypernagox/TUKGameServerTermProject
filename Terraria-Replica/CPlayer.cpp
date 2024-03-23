@@ -95,9 +95,9 @@ void CPlayer::update()
 	//updateState();
 	
 	const auto moveData = m_interpolator.GetInterPolatedData();
-	SetWillPos(moveData.will_pos);
+	//SetWillPos(moveData.will_pos);
 	SetPos(moveData.pos);
-	pRigid->SetVelocity(moveData.vel);
+	//pRigid->SetVelocity(moveData.vel);
 
 	updateAnimation();
 	
@@ -203,17 +203,18 @@ void CPlayer::component_update()
 	}
 	CObject::component_update();
 	m_pAnimLeg->component_update();
-	
-	if (PLAYER_STATE::JUMP == m_eCurState && !m_bDirtyFlag)
-	{
-		::updateTileCollision(this, m_pTRWolrd);
-		const auto pRigid = GetComp<CRigidBody>();
-		
-		if (bitwise_absf(pRigid->GetVelocity().y) < FLT_EPSILON)
-		{
-			pRigid->SetIsGround(true);
-		}
-	}
+	const auto pRigid = GetComp<CRigidBody>();
+	//if (IsFloatZero(pRigid->GetVelocity().y) )
+	//if(m_pTRWolrd &&m_pTRWolrd->GetTileMap())
+	//{
+	//	::updateTileCollision(this, m_pTRWolrd);
+	//	const auto pRigid = GetComp<CRigidBody>();
+	//	
+	//	if (bitwise_absf(pRigid->GetVelocity().y) < FLT_EPSILON)
+	//	{
+	//		pRigid->SetIsGround(true);
+	//	}
+	//}
 	//else
 	//	SendMoveData();
 }
@@ -322,15 +323,43 @@ void CPlayer::SetMoveData(const Protocol::s2c_MOVE& movePkt_) noexcept
 	if (m_bIsHero)
 	{
 		const auto pRigid = GetComp<CRigidBody>();
-		SetPos(ToOriginVec2(movePkt_.obj_pos()));
-		pRigid->SetVelocity(ToOriginVec2(movePkt_.vel()));
+		auto& new_data = m_interpolator.GetNewData();
+		auto& cur_data = m_interpolator.GetCurData();
 
-		pRigid->SetIsGround(movePkt_.ground());
-		SetState((PLAYER_STATE)movePkt_.state());
+		new_data.pos = GetPos();
+		new_data.vel = pRigid->GetVelocity();
+		new_data.will_pos = GetWillPos();
+
+		
+		
+		cur_data.pos = ToOriginVec2(movePkt_.obj_pos());
+		cur_data.vel = ToOriginVec2(movePkt_.vel());
+		cur_data.will_pos = ToOriginVec2(movePkt_.wiil_pos());
+		
+		//
+		//SetPos(cur_data.pos * 0.4f + new_data.pos * 0.6f);
+		//SetWillPos(cur_data.will_pos * 0.4f + new_data.will_pos * 0.6f);
+		//pRigid->SetVelocity(cur_data.vel * 0.4f + new_data.vel * 0.6f);
+		m_interpolator.UpdateNewData(cur_data, movePkt_.time_stamp());
+
+		//m_interpolator.UpdateOnlyTimeStamp(movePkt_.time_stamp());
+		
+		//SetPos(ToOriginVec2(movePkt_.obj_pos()));
+		//pRigid->SetVelocity(ToOriginVec2(movePkt_.vel()));
+		//const bool bGround = movePkt_.ground();
+		//pRigid->SetIsGround(movePkt_.ground());
+		//SetState((PLAYER_STATE)movePkt_.state());
+		//if (bGround)
+		//{
+		//	auto vPos = GetPos();
+		//	const auto vPosY = GetPos().y - pRigid->GetVelocity().y * DT;
+		//	vPos.y = vPosY;
+		//	SetPos(vPos);
+		//}
 	}
 	else
 	{
-		MoveData moveData
+		const MoveData moveData
 		{
 			.pos = ToOriginVec2(movePkt_.obj_pos()),
 			.will_pos = ToOriginVec2(movePkt_.wiil_pos()),

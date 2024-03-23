@@ -127,8 +127,8 @@ namespace ServerCore
         pkt.set_obj_id(pSession_->GetSessionID());
         pkt.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
         pkt.set_anim_dir(pkt_.anim_dir());
-        &TRMgr(TRWorld)->m_room << pkt - pSession_;
-      
+        //&TRMgr(TRWorld)->m_room << pkt - pSession_;
+        &TRMgr(TRWorld)->m_room << pkt;
         return true;
     }
 

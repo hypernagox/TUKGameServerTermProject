@@ -83,25 +83,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     NetMgr(NetworkMgr)->Init();
     NetHelper::s2c_PacketHandler::Init();
 
-    AllocConsole();
+    //AllocConsole();
+    //
+    //FILE* fp = nullptr;
+    //freopen_s(&fp, "CONOUT$", "w", stdout);
+    //freopen_s(&fp, "CONIN$", "r", stdin);
 
-    FILE* fp = nullptr;
-    freopen_s(&fp, "CONOUT$", "w", stdout);
-    freopen_s(&fp, "CONIN$", "r", stdin);
+    //std::wstring inputIP;
+    //do {
+    //RE_INPUT:
+    //    std::wcout << L"Input IP Address: ";
+    //    std::wcin >> inputIP;
+    //    if (!isValidIPAddress(inputIP))
+    //    {
+    //        std::wcout << L"Invalid Address !'\n";
+    //        goto RE_INPUT;
+    //    }
+    //} while (!NetMgr(NetworkMgr)->Connect<ServerSession>(inputIP, 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
 
-    std::wstring inputIP;
-    do {
-    RE_INPUT:
-        std::wcout << L"Input IP Address: ";
-        std::wcin >> inputIP;
-        if (!isValidIPAddress(inputIP))
-        {
-            std::wcout << L"Invalid Address !'\n";
-            goto RE_INPUT;
-        }
-    } while (!NetMgr(NetworkMgr)->Connect<ServerSession>(inputIP, 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
-
-    //NET_NAGOX_ASSERT(NetMgr(NetworkMgr)->Connect<ServerSession>(L"127.0.0.1", 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
+    NET_NAGOX_ASSERT(NetMgr(NetworkMgr)->Connect<ServerSession>(L"127.0.0.1", 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
 
     Protocol::c2s_LOGIN pkt;
     Send(pkt);

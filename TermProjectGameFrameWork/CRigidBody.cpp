@@ -88,7 +88,7 @@ void CRigidBody::component_render(HDC _dc)const
 
 void CRigidBody::update_gravity()
 {
-	auto vLow = m_pOwner->GetPos().y + m_pOwner->GetScale().y/2.f;
+	const auto vLow = m_pOwner->GetPos().y + m_pOwner->GetScale().y/2.f;
 	if (vLow >= 4096.f)
 	{
 		m_bIsGround = true;
