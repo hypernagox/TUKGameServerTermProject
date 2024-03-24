@@ -61,6 +61,12 @@
     <Filter Include="NetContents\Factory">
       <UniqueIdentifier>{e9eb6dff-9562-4129-add8-23f814a93c56}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NetContents\Component\ItemComponent">
+      <UniqueIdentifier>{70ee33f9-d1fb-4a33-9b29-07fabb75509c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\CollisionChecker">
+      <UniqueIdentifier>{15139976-7f56-445d-a497-9894a4c8f11f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -134,6 +140,12 @@
     </ClCompile>
     <ClCompile Include="ObjectFactory.cpp">
       <Filter>NetContents\Factory</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemComponent.cpp">
+      <Filter>NetContents\Component\ItemComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionChecker.cpp">
+      <Filter>NetContents\CollisionChecker</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -240,6 +252,12 @@
     </ClInclude>
     <ClInclude Include="ObjectFactory.h">
       <Filter>NetContents\Factory</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemComponent.h">
+      <Filter>NetContents\Component\ItemComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionChecker.h">
+      <Filter>NetContents\CollisionChecker</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
