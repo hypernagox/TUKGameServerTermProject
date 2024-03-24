@@ -6,7 +6,7 @@ class TRWorldRoom;
 class TRWorldMgr
 	:public ServerCore::Singleton<TRWorldMgr>
 {
-public:
+	friend class Singleton;
 	TRWorldMgr();
 	~TRWorldMgr();
 public:

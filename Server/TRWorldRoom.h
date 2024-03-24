@@ -23,5 +23,6 @@ private:
 	void DeleteObject(const GROUP_TYPE eType_, const uint64 objID_);
 private:
 	ServerCore::LinkedHashMap<uint64, Object> m_worldObjectList[ServerCore::etoi(GROUP_TYPE::END)];
+	ServerCore::Timer m_timer;
 };
 

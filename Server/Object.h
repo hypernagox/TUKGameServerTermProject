@@ -12,9 +12,9 @@ public:
 	{}
 	~Object();
 public:
-	void Update() {
+	void Update(const float dt_) {
 		for (const auto& pComp : m_vecComponentList)
-			pComp->Update();
+			pComp->Update(dt_);
 	}
 	Component* const GetComp(std::string_view compName)const noexcept {
 		const auto iter = std::ranges::find_if(m_vecComponentList, [&compName](const S_ptr<Component>& pComp)noexcept {

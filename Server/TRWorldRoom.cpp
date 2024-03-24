@@ -13,11 +13,12 @@ TRWorldRoom::~TRWorldRoom()
 
 void TRWorldRoom::Update(const uint64 tick_ms)
 {
+	m_timer.Update();
 
 	for (const auto& obj_list : m_worldObjectList)
 	{
 		for (const auto obj : obj_list.GetItemListRef())
-			obj->Update();
+			obj->Update(m_timer.GetDT());
 	}
 	
 	EnqueueAsyncTimer(tick_ms, &TRWorldRoom::Update, uint64{ tick_ms });

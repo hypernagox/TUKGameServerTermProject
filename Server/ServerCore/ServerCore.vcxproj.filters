@@ -100,6 +100,9 @@
     <Filter Include="Network\IDGenerator">
       <UniqueIdentifier>{7ae3946b-07a7-459a-814c-ae765f342e0c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils\Timer">
+      <UniqueIdentifier>{431f723f-0d4f-4ad2-8516-f0f2772957c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CorePch.h">
@@ -252,6 +255,9 @@
     <ClInclude Include="PacketArray.hpp">
       <Filter>Utils\struct</Filter>
     </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Utils\Timer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CorePch.cpp">
@@ -340,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>Manager\Logger</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Utils\Timer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

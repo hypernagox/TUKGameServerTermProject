@@ -12,9 +12,11 @@ S_ptr<Object> ObjectFactory::CreatePlayer(const uint64 id)
 
 	auto collisionHandler = MakeShared<PlayerCollisionHandler>();
 
+	collider->SetCollisionHandler(std::move(collisionHandler));
+
 	player->AddComponent(std::move(collider));
 
-	collider->SetCollisionHandler(std::move(collisionHandler));
+	auto rigidbody = MakeShared<RigidBody>(player.get());
 
 	return player;
 }

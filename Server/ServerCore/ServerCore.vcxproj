@@ -227,6 +227,7 @@
     <ClInclude Include="TaskQueueable.h" />
     <ClInclude Include="TaskTimerMgr.h" />
     <ClInclude Include="ThreadMgr.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="TypeCast.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>
@@ -269,6 +270,7 @@
     <ClCompile Include="TaskQueueable.cpp" />
     <ClCompile Include="TaskTimerMgr.cpp" />
     <ClCompile Include="ThreadMgr.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GenPackets\Enum.proto" />

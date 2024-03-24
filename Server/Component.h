@@ -8,7 +8,7 @@ public:
 	Component(std::string_view compName_, Object* const pOwner_);
 	virtual ~Component();
 public:
-	virtual void Update() = 0;
+	virtual void Update(const float dt_) = 0;
 	
 	const std::string& GetCompName()const noexcept { return m_strCompName; }
 	Object* const GetOwner()noexcept { return m_pOwner; }
@@ -19,7 +19,7 @@ public:
 
 	template <typename T> requires std::derived_from<T, Component>
 	const Component* const Cast()const noexcept { return static_cast<const T* const>(this); }
-private:
+protected:
 	const std::string m_strCompName;
 	Object* const m_pOwner;
 };
