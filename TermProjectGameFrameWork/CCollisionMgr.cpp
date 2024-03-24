@@ -110,9 +110,13 @@ void CCollisionMgr::CollisionUpdateGroup(GROUP_TYPE _eLeft, GROUP_TYPE _eRight)
 			const auto pLeftCol = vecLeft[i]->GetComp<CCollider>();
 			const auto pRightCol = vecRight[j]->GetComp<CCollider>();
 
-			COLLIDER_ID ID;
-			ID.Left_id = pLeftCol->GetID();
-			ID.Right_id = pRightCol->GetID();
+			const COLLIDER_ID ID{
+				(static_cast<const ULONGLONG>(pLeftCol->GetID()) << 32)
+				| static_cast<const ULONGLONG>(pRightCol->GetID())
+			};
+
+			//ID.Left_id = pLeftCol->GetID();
+			//ID.Right_id = pRightCol->GetID();
 
 			const auto iter = m_mapColPrev.try_emplace(ID.ID, false).first;
 			const bool nowCollision = IsCollision(pLeftCol, pRightCol);

@@ -4,14 +4,16 @@
 #include "Service.h"
 #include "ClientSession.h"
 #include "IocpCore.h"
-#include "TRWorld.h"
+#include "TRWorldMgr.h"
+#include "TRWorldRoom.h"
 
 int main()
 {
 	Mgr(CoreGlobal)->Init();
 	ServerCore::c2s_PacketHandler::Init();
 	
-	TRMgr(TRWorld)->CreateWorld(10);
+	TRMgr(TRWorldMgr)->Init();
+	TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0)->CreateWorld(10);
 
 	const auto pServerService = ServerCore::MakeShared<ServerCore::ServerService>
 		(

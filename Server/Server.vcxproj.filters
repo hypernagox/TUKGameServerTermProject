@@ -43,6 +43,24 @@
     <Filter Include="Utils\func">
       <UniqueIdentifier>{5f4bc1c9-956c-434f-9f75-b0fdcf9dd701}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NetContents\TRWorldMgr">
+      <UniqueIdentifier>{a1e19859-b087-4a15-8bcb-ac623d975627}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\TRWorldRoom">
+      <UniqueIdentifier>{34bb017d-67e1-4e5c-a71d-73e9353cc457}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\Component">
+      <UniqueIdentifier>{dd9ef62c-7d1c-4e29-8462-28e710f563fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\Object">
+      <UniqueIdentifier>{102687f0-7feb-4094-a7cb-c78169d010fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\Component\CreatureComponent">
+      <UniqueIdentifier>{ce98f288-7485-4c3a-b0dd-f59c7a0ec1ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\Factory">
+      <UniqueIdentifier>{e9eb6dff-9562-4129-add8-23f814a93c56}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -95,6 +113,27 @@
     </ClCompile>
     <ClCompile Include="func.cpp">
       <Filter>Utils\func</Filter>
+    </ClCompile>
+    <ClCompile Include="TRWorldMgr.cpp">
+      <Filter>NetContents\TRWorldMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="TRWorldRoom.cpp">
+      <Filter>NetContents\TRWorldRoom</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>NetContents\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>NetContents\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsComponent.cpp">
+      <Filter>NetContents\Component\CreatureComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionHandler.cpp">
+      <Filter>NetContents\Component\CreatureComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectFactory.cpp">
+      <Filter>NetContents\Factory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +216,30 @@
     </ClInclude>
     <ClInclude Include="define.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="TRdefine.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorldMgr.h">
+      <Filter>NetContents\TRWorldMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorldRoom.h">
+      <Filter>NetContents\TRWorldRoom</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>NetContents\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>NetContents\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsComponent.h">
+      <Filter>NetContents\Component\CreatureComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionHandler.h">
+      <Filter>NetContents\Component\CreatureComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectFactory.h">
+      <Filter>NetContents\Factory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

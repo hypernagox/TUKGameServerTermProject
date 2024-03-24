@@ -121,8 +121,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     Mgr(CSceneMgr)->AddScene(SCENE_TYPE::INTRO, pSceneIntro);
 
     // ½ÃÀÛ ¾À ¼³Á¤
-    Mgr(CSceneMgr)->init(SCENE_TYPE::INTRO);
+   // Mgr(CSceneMgr)->init(SCENE_TYPE::INTRO);
 
+    pSceneStart->LoadWorld();
+    Mgr(CSceneMgr)->SetCurScnene(pSceneStart);
+    //Mgr(CSceneMgr)->init(SCENE_TYPE::START);
+    
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TERMPROJECTGAMEFRAMEWORK));
 
     MSG msg;

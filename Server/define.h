@@ -140,3 +140,4 @@ enum THREAD
         std::decay_t<decltype(Arg)>, \
         decltype(Arg)> \
     (std::forward<decltype(Arg)>(Arg))
+

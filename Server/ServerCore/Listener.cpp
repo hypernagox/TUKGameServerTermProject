@@ -91,9 +91,9 @@ namespace ServerCore
 		acceptEvent->Init();
 		acceptEvent->RegisterSession(session);
 
-		DWORD bytesReceived;
+		//DWORD bytesReceived;
 		if (false == SocketUtils::AcceptEx(m_socket, session->GetSocket(), session->m_pRecvBuffer->WritePos(), 0,
-			sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, OUT & bytesReceived, acceptEvent))
+			sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16, NULL, acceptEvent))
 		{
 			const int32 errCode = ::WSAGetLastError();
 			if (errCode != WSA_IO_PENDING)

@@ -41,8 +41,8 @@ void CScene_Start::Enter()
 	Mgr(CEventMgr)->SetTRupdate(&TRMain::Update, m_pTRMain);
 	g_bLoadMainStage = false;
 	Mgr(CSoundMgr)->PlayEffect("Menu_Close.wav", 1.f);
-	Protocol::c2s_ENTER pkt;
-	Send(pkt);
+	//Protocol::c2s_ENTER pkt;
+	//Send(pkt);
 }
 
 void CScene_Start::Exit()
@@ -100,5 +100,9 @@ void CScene_Start::LoadWorld()
 	//std::this_thread::sleep_for(std::chrono::seconds(3));
 	g_bLoadMainStage = false;
 	Mgr(CSoundMgr)->PlayBGM("03. Overworld Day.mp3", 0.1f);
-	ChangeScene(SCENE_TYPE::START);
+
+	Mgr(CEventMgr)->SetTRupdate(&TRMain::Update, m_pTRMain);
+	//ChangeScene(SCENE_TYPE::START);
+	Protocol::c2s_ENTER pkt;
+	Send(pkt);
 }

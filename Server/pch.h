@@ -10,3 +10,4 @@
 #include "Vec2Int.hpp"
 #include "Registry.hpp"
 #include "define.h"
+#include "TRdefine.h"

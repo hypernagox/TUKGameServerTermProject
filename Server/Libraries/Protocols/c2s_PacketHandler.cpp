@@ -1,11 +1,16 @@
 #include "../pch.h"
 #include "c2s_PacketHandler.h"
 #include "../ClientSession.h"
-#include "../TRWorld.h"
 #include "../TRTileManager.h"
+#include "../TRWorldMgr.h"
+#include "../TRWorldRoom.h"
 
 static ClientSession* const GetClientSession(const std::shared_ptr<ServerCore::PacketSession>& pSession_)noexcept {
     return static_cast<ClientSession* const>(pSession_.get());
+}
+
+static std::shared_ptr<TRWorldRoom> GetWorldRoom(const std::shared_ptr<ServerCore::PacketSession>& pSession_)noexcept {
+    return TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(pSession_->GetCurrentSessionRoomInfo().GetID()));
 }
 
 namespace ServerCore
@@ -29,11 +34,13 @@ namespace ServerCore
 
     const bool Handle_c2s_ENTER(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_ENTER& pkt_)
     {
-        TRMgr(TRWorld)->m_room.EnqueueAsync([pSession_]()
+        const auto start_room = TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0);
+
+        start_room->EnqueueAsync([pSession_, start_room]()noexcept
             {
                 Protocol::s2c_ENTER pkt;
                 pkt.set_player_id(pSession_->GetSessionID());
-                for (const auto others : TRMgr(TRWorld)->m_room.GetSessionList())
+                for (const auto others : start_room->GetSessionList())
                 {
                     {
                         others << pkt;
@@ -46,50 +53,59 @@ namespace ServerCore
                 }
             });
 
-        TRMgr(TRWorld)->m_room.EnterEnqueue(pSession_);
+        start_room->EnterEnqueue(pSession_);
 
         return true;
     }
 
     const bool Handle_c2s_BREAK_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE& pkt_)
     {
+        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
-        if (TRMgr(TRWorld)->BreakTile(x, y))
+        if (session_room->BreakTile(x, y))
         {
             Protocol::s2c_BREAK_TILE pkt;
             pkt.set_success(true);
             pkt.set_tile_x(x);
             pkt.set_tile_y(y);
 
-            &TRMgr(TRWorld)->m_room << pkt;
+            session_room << pkt;
         }
         return true;
     }
 
     const bool Handle_c2s_BREAK_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE_WALL& pkt_)
     {
+        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
-        if (TRMgr(TRWorld)->BreakTileWall(x, y))
+        if (session_room->BreakTileWall(x, y))
         {
             Protocol::s2c_BREAK_TILE_WALL pkt;
             pkt.set_success(true);
             pkt.set_tile_x(x);
             pkt.set_tile_y(y);
 
-            &TRMgr(TRWorld)->m_room << pkt;
+            session_room << pkt;
         }
         return true;
     }
 
     const bool Handle_c2s_PLACE_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE& pkt_)
     {
+        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
         const auto key = ::Utf8ToWide(pkt_.tile_key());
 
-        if (TRMgr(TRWorld)->PlaceTile(x,y,TRMgr(TRTileManager)->GetTileByKey(key)))
+        if (session_room->PlaceTile(x,y,TRMgr(TRTileManager)->GetTileByKey(key)))
         {
             Protocol::s2c_PLACE_TILE pkt;
             pkt.set_success(true);
@@ -97,18 +113,21 @@ namespace ServerCore
             pkt.set_tile_y(y);
             pkt.set_tile_key(pkt_.tile_key());
 
-            &TRMgr(TRWorld)->m_room << pkt;
+            session_room << pkt;
         }
         return true;
     }
 
     const bool Handle_c2s_PLACE_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE_WALL& pkt_)
     {
+        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
         const auto key = ::Utf8ToWide(pkt_.tile_key());
 
-        if (TRMgr(TRWorld)->PlaceTileWall(x, y, TRMgr(TRTileManager)->GetTileWallByKey(key)))
+        if (session_room->PlaceTileWall(x, y, TRMgr(TRTileManager)->GetTileWallByKey(key)))
         {
             Protocol::s2c_PLACE_TILE_WALL pkt;
             pkt.set_success(true);
@@ -116,19 +135,23 @@ namespace ServerCore
             pkt.set_tile_y(y);
             pkt.set_tile_key(pkt_.tile_key());
 
-            &TRMgr(TRWorld)->m_room << pkt;
+            session_room << pkt;
         }
         return true;
     }
 
     const bool Handle_c2s_MOVE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_MOVE& pkt_)
     {
-        auto pkt = TRMgr(TRWorld)->updateTileCollision(pkt_);
+        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+
+        auto pkt = session_room->updateTileCollision(pkt_);
         pkt.set_obj_id(pSession_->GetSessionID());
         pkt.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
         pkt.set_anim_dir(pkt_.anim_dir());
         //&TRMgr(TRWorld)->m_room << pkt - pSession_;
-        &TRMgr(TRWorld)->m_room << pkt;
+        session_room << pkt;
         return true;
     }
 

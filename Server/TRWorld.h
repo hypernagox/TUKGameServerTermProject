@@ -18,12 +18,10 @@ class CHealthIndicator;
 class CInventoryVisualizer;
 
 class TRWorld
-	:public ServerCore::Singleton<TRWorld>
 {
 public:
 	static constexpr int WORLD_WIDTH = 512;
 	static constexpr int WORLD_HEIGHT = 256;
-	ServerCore::SessionManageable m_room{ 0 };
 private:
 	TRTileMap* tile_map;
 	//CPlayer* player;

@@ -52,7 +52,6 @@ namespace NetHelper
         }
         if (INVALID_SOCKET != m_c2sSession->m_sessionSocket)
         {
-            CancelIoEx(reinterpret_cast<HANDLE>(m_c2sSession->m_sessionSocket), NULL);
             shutdown(m_c2sSession->m_sessionSocket, SD_BOTH);
             SocketUtils::Close(m_c2sSession->m_sessionSocket);
         }
@@ -108,6 +107,13 @@ namespace NetHelper
         if (bConnectSuccess)
         {
             WSAEventSelect(m_c2sSession->GetSocket(), m_connectEvent, FD_CLOSE);
+            static SOCKET finSocket = m_c2sSession->GetSocket();
+            std::atexit([]()noexcept
+                {
+                    shutdown(finSocket, SD_BOTH);
+                    SocketUtils::Close(finSocket);
+                    SocketUtils::Clear();
+                });
         }
         return bConnectSuccess;
     }

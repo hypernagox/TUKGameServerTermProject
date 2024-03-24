@@ -24,8 +24,8 @@ namespace ServerCore
 
 	Session::~Session()
 	{
-		CancelIoEx(reinterpret_cast<HANDLE>(m_sessionSocket), NULL);
-		shutdown(m_sessionSocket, SD_BOTH);
+		//CancelIoEx(reinterpret_cast<HANDLE>(m_sessionSocket), NULL);
+		//shutdown(m_sessionSocket, SD_BOTH);
 		SocketUtils::Close(m_sessionSocket);
 		m_sessionSocketForRecv = INVALID_SOCKET;
 	}
@@ -40,9 +40,9 @@ namespace ServerCore
 		LOG_MSG(std::move(cause));
 		if (false == m_bConnected.exchange(false))
 			return;
-
-		m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = m_bConnected.load();
+		m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
 		std::atomic_thread_fence(std::memory_order_release);
+		m_bConnected.store(false);
 		RegisterDisconnect();
 	}
 
@@ -74,9 +74,9 @@ namespace ServerCore
 
 		const SOCKADDR_IN& sockAddr = GetService()->GetNetAddress().GetSockAddr(); // 내가 붙어야 할 서버쪽 주소임
 
-		DWORD numOfBytes = 0;
+		//DWORD numOfBytes = 0;
 
-		if (false == SocketUtils::ConnectEx(m_sessionSocket, reinterpret_cast<const SOCKADDR* const>(&sockAddr), sizeof(sockAddr), nullptr, 0, &numOfBytes, m_pConnectEvent.get()))
+		if (false == SocketUtils::ConnectEx(m_sessionSocket, reinterpret_cast<const SOCKADDR* const>(&sockAddr), sizeof(sockAddr), NULL, NULL, NULL, m_pConnectEvent.get()))
 		{
 			const int32 errorCode = ::WSAGetLastError();
 			if (errorCode != WSA_IO_PENDING)
@@ -94,10 +94,9 @@ namespace ServerCore
 		// 세선 등록
 		if (GetService()->AddSession(pThisSessionPtr))
 		{
-			m_bConnected.store(true);
-			m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = m_bConnected.load();
+			m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = true;
 			std::atomic_thread_fence(std::memory_order_release);
-
+			m_bConnected.store(true);
 			// 컨텐츠 코드에서 오버로딩 해야함
 			// 입장시 해야할 일
 
@@ -131,6 +130,7 @@ namespace ServerCore
 	{
 		OnDisconnected();
 		GetService()->ReleaseSession(pThisSessionPtr);
+		CancelIoEx(reinterpret_cast<HANDLE>(m_sessionSocket), NULL);
 	}
 
 	void Session::RegisterRecv(const S_ptr<PacketSession>& pThisSessionPtr)noexcept

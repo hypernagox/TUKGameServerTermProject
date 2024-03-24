@@ -59,9 +59,9 @@ namespace NetHelper
 
 		const SOCKADDR_IN& sockAddr = m_serverAddr.GetSockAddr(); // 내가 붙어야 할 서버쪽 주소임
 
-		DWORD numOfBytes;
+		//DWORD numOfBytes;
 
-		if (false == SocketUtils::ConnectEx(m_sessionSocket, reinterpret_cast<const SOCKADDR* const>(&sockAddr), sizeof(sockAddr), nullptr, 0, &numOfBytes, m_pConnectEvent.get()))
+		if (false == SocketUtils::ConnectEx(m_sessionSocket, reinterpret_cast<const SOCKADDR* const>(&sockAddr), sizeof(sockAddr), NULL, NULL, NULL, m_pConnectEvent.get()))
 		{
 			const int32 errorCode = ::WSAGetLastError();
 			if (errorCode != WSA_IO_PENDING)
