@@ -109,6 +109,9 @@
     <Filter Include="CObject\Player\Hero">
       <UniqueIdentifier>{3b7b4a90-c1f1-4511-85ec-aaae4009038e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interpolator">
+      <UniqueIdentifier>{621dbc25-7360-4cc2-961c-b39f5cbef2af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -261,6 +264,9 @@
     <ClInclude Include="Hero.h">
       <Filter>CObject\Player\Hero</Filter>
     </ClInclude>
+    <ClInclude Include="MoveInterpolator.h">
+      <Filter>Interpolator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TRMain.cpp">
@@ -388,6 +394,9 @@
     </ClCompile>
     <ClCompile Include="Hero.cpp">
       <Filter>CObject\Player\Hero</Filter>
+    </ClCompile>
+    <ClCompile Include="MoveInterpolator.cpp">
+      <Filter>Interpolator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -11,3 +11,6 @@
 #include "Registry.hpp"
 #include "define.h"
 #include "TRdefine.h"
+#include <bitset>
+
+using std::bitset;

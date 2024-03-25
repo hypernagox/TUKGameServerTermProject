@@ -67,6 +67,12 @@
     <Filter Include="NetContents\CollisionChecker">
       <UniqueIdentifier>{15139976-7f56-445d-a497-9894a4c8f11f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NetContents\EventHandler">
+      <UniqueIdentifier>{8abcfef3-145b-4d9a-8c58-87d816b898ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\Component\BroadCaster">
+      <UniqueIdentifier>{84c3eea3-fc30-4397-aab0-f67e10957abd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -146,6 +152,12 @@
     </ClCompile>
     <ClCompile Include="CollisionChecker.cpp">
       <Filter>NetContents\CollisionChecker</Filter>
+    </ClCompile>
+    <ClCompile Include="BroadCaster.cpp">
+      <Filter>NetContents\Component\BroadCaster</Filter>
+    </ClCompile>
+    <ClCompile Include="EventHandler.cpp">
+      <Filter>NetContents\EventHandler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -258,6 +270,12 @@
     </ClInclude>
     <ClInclude Include="CollisionChecker.h">
       <Filter>NetContents\CollisionChecker</Filter>
+    </ClInclude>
+    <ClInclude Include="BroadCaster.h">
+      <Filter>NetContents\Component\BroadCaster</Filter>
+    </ClInclude>
+    <ClInclude Include="EventHandler.h">
+      <Filter>NetContents\EventHandler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

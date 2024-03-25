@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "TRWorldRoom.h"
 #include "Object.h"
+#include "PhysicsComponent.h"
+#include "TRTileMap.h"
 
 TRWorldRoom::TRWorldRoom(const SECTOR sector_)
 	:SessionManageable{ static_cast<uint16>(sector_) }
@@ -15,18 +17,32 @@ void TRWorldRoom::Update(const uint64 tick_ms)
 {
 	m_timer.Update();
 
+	const float dt = m_timer.GetDT();
+
 	for (const auto& obj_list : m_worldObjectList)
 	{
 		for (const auto obj : obj_list.GetItemListRef())
-			obj->Update(m_timer.GetDT());
+			obj->Update(dt);
 	}
 	
+	UpdateWorldCollision();
+
+	TickTileCollision();
+
+	for (const auto& obj_list : m_worldObjectList)
+	{
+		for (const auto obj : obj_list.GetItemListRef())
+			obj->PostUpdate(dt);
+	}
+
 	EnqueueAsyncTimer(tick_ms, &TRWorldRoom::Update, uint64{ tick_ms });
 }
 
 void TRWorldRoom::Init()
 {
+	//EnqueueAsyncTimer(5000, &TRWorldRoom::Update, uint64{ 30 });
 
+	RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::DROP_ITEM);
 }
 
 void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
@@ -47,4 +63,210 @@ void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 void TRWorldRoom::DeleteObject(const GROUP_TYPE eType_, const uint64 objID_)
 {
 	m_worldObjectList[etoi(eType_)].EraseItem(objID_);
+}
+
+void TRWorldRoom::UpdateWorldCollision()
+{
+	for (uint16 iRow = 0; iRow < etoi(GROUP_TYPE::END); ++iRow)
+	{
+		for (uint16  iCol = iRow; iCol < etoi(GROUP_TYPE::END); ++iCol)
+		{
+			if (m_collisionChecker.GetCollisionBit(iRow, iCol))
+			{
+				m_collisionChecker.CollisionUpdateGroup(m_worldObjectList[iRow], m_worldObjectList[iCol]);
+			}
+		}
+	}
+}
+
+void TRWorldRoom::TickTileCollision()
+{
+	for (const auto& obj_list : m_worldObjectList)
+	{
+		for (const auto obj : obj_list.GetItemListRef())
+		{
+			//if (const auto pRigid = obj->GetComp("RIGIDBODY")->Cast<RigidBody>())
+			//{
+			//	Protocol::c2s_MOVE pkt;
+			//	*pkt.mutable_obj_pos() = ::ToProtoVec2(obj->GetPos());
+			//	*pkt.mutable_scale() = ::ToProtoVec2(obj->GetScale());
+			//	*pkt.mutable_wiil_pos() = ToProtoVec2(obj->GetWillPos());
+			//	*pkt.mutable_vel() = ::ToProtoVec2(pRigid->GetVelocity());
+			//	updateTileCollision(pkt);
+			//}
+			UpdateTileCollisionForTick(obj);
+		}
+	}
+}
+
+void TRWorldRoom::UpdateTileCollisionForTick(Object* const pObj_) const
+{
+	const auto pRigid = pObj_->GetComp("RIGIDBODY")->Cast<RigidBody>();
+	const auto pCol = pObj_->GetComp("COLLIDER")->Cast<Collider>();
+
+	if (pCol == nullptr || "Monster_CthulhuEye" == pObj_->GetObjectName())
+	{
+		pObj_->SetPos(pObj_->GetWillPos());
+		return;
+	}
+
+	const Vec2 prev_pos = pRigid->GetPrevPosition();
+	const Vec2 prev_vel = pRigid->GetPrevVelocity();
+
+	const Vec2 delta_pos = -(pRigid->GetPrevPosition() - pObj_->GetPos()) / 10.f;
+	const Vec2 delta_vel = -(pRigid->GetPrevVelocity() - pRigid->GetVelocity()) / 10.f;
+
+	const auto pTileMap = GetTileMap();
+
+	Vec2 temp_prev_pos;
+	Vec2 temp_prev_vel;
+	bool prev_landed = pRigid->IsGround();
+
+	for (int i = 0; i < 10; ++i)
+	{
+		const Vec2 seq_pos = prev_pos + delta_pos * (float)i;
+		const Vec2 seq_vel = prev_vel + delta_vel * (float)i;
+
+
+
+		//const Vec2 world_pos = TRWorld::GlobalToWorld(pObj_->GetWillPos());
+		//const Vec2 world_vel = pRigid->GetVelocity();
+
+		const Vec2 world_pos = TRWorld::GlobalToWorld(seq_pos);
+		const Vec2 world_vel = seq_vel;
+
+
+		const float w = pCol->GetScale().x / (float)PIXELS_PER_TILE;
+		const float h = pCol->GetScale().y / (float)PIXELS_PER_TILE;
+
+		//const Vec2 pre_pos = TRWorld::GlobalToWorld(pObj_->GetPos());
+
+		const Vec2 pre_pos = TRWorld::GlobalToWorld(seq_pos);
+
+		Vec2 post_pos = world_pos;
+		Vec2 post_vel = world_vel;
+
+		bool landed = false;
+		bool collided = false;
+
+		int x_min = FloorToInt(pre_pos.x - w * 0.5f);
+		int x_max = CeilToInt(pre_pos.x + w * 0.5f) - 1;
+		int y_min = FloorToInt(world_pos.y - h * 0.5f);
+		int y_max = CeilToInt(world_pos.y + h * 0.5f) - 1;
+
+		if (x_min >= 0 && x_max < TRWorld::WORLD_WIDTH && y_min >= 0 && y_max < TRWorld::WORLD_HEIGHT)
+		{
+			for (int x = x_min; x <= x_max; ++x)
+			{
+				if (world_vel.y > 0.0f && pTileMap->GetTile(x, y_min)->Solid())
+				{
+					post_pos.y = y_min + 1.0f + h * 0.5f;
+					post_vel.y = 0.0f;
+
+					landed = true;
+					collided = true;
+					break;
+				}
+				if (world_vel.y < 0.0f && pTileMap->GetTile(x, y_max)->Solid())
+				{
+					post_pos.y = y_max - h * 0.5f;
+					post_vel.y = 0.0f;
+
+					collided = true;
+					break;
+				}
+			}
+		}
+
+		if (world_pos.x - w * 0.5f < 0.0f)
+		{
+			post_pos.x = w * 0.5f;
+			post_vel.x = 0.0f;
+		}
+		if (world_pos.x + w * 0.5f > TRWorld::WORLD_WIDTH)
+		{
+			post_pos.x = TRWorld::WORLD_WIDTH - w * 0.5f;
+			post_vel.x = 0.0f;
+		}
+
+		x_min = FloorToInt(post_pos.x - w * 0.5f);
+		x_max = CeilToInt(post_pos.x + w * 0.5f) - 1;
+		y_min = FloorToInt(post_pos.y - h * 0.5f);
+		y_max = CeilToInt(post_pos.y + h * 0.5f) - 1;
+
+		if (x_min >= 0 && x_max < TRWorld::WORLD_WIDTH && y_min >= 0 && y_max < TRWorld::WORLD_HEIGHT)
+		{
+			bool collision_x = false;
+			float reform_x = 0.0f;
+
+			for (int y = y_min; y <= y_max; ++y)
+			{
+				if (world_vel.x < 0.0f && pTileMap->GetTile(x_min, y)->Solid())
+				{
+					reform_x = x_min + 1.0f + w * 0.5f;
+
+					collided = true;
+					collision_x = true;
+					break;
+				}
+				if (world_vel.x > 0.0f && pTileMap->GetTile(x_max, y)->Solid())
+				{
+					reform_x = x_max - w * 0.5f;
+
+					collided = true;
+					collision_x = true;
+					break;
+				}
+			}
+
+			if (collision_x)
+			{
+				y_min = y_min + 1;
+				y_max = CeilToInt(y_min + h) - 1;
+
+				bool flag = false;
+				for (int x = x_min; x <= x_max; ++x)
+				{
+					for (int y = y_min; y <= y_max; ++y)
+						flag |= pTileMap->GetTile(x, y)->Solid();
+				}
+				if (flag)
+				{
+					post_pos.x = reform_x;
+					post_vel.x = 0.0f;
+				}
+				else if (post_vel.y >= 0.0f)
+					post_pos.y = y_min + h * 0.5f;
+			}
+		}
+
+		if (0 != i && prev_landed != landed)
+		{
+			pObj_->SetPos(TRWorld::WorldToGlobal((post_pos)));
+			pRigid->SetVelocity((post_vel));
+			//pRigid->SetIsGround(prev_landed);
+			prev_landed = landed;
+			break;
+		}
+		else if (landed)
+		{
+			pObj_->SetPos(TRWorld::WorldToGlobal((post_pos)));
+			pRigid->SetVelocity((post_vel));
+			//pRigid->SetIsGround(prev_landed);
+			prev_landed = landed;
+			break;
+		}
+		prev_landed = landed;
+		temp_prev_pos = post_pos;
+		temp_prev_vel = post_vel;
+	}
+	//pRigid->SetIsGround(prev_landed);
+	pRigid->SetPrevPosition(pObj_->GetPos());
+	pRigid->SetPrevVelocity(pRigid->GetVelocity());
+
+	//pRigid->SetIsGround(landed);
+	//if (!landed)
+	//{
+	//	pRigid->SetIsGround(false);
+	//}
 }

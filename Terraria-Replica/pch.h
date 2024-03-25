@@ -70,3 +70,4 @@ using std::pair;
 #include "../TermProjectGameFrameWork/func.h"
 #include "func.h"
 #include <queue>
+#include "MoveInterpolator.h"

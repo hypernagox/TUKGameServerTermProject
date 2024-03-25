@@ -23,6 +23,10 @@ namespace ServerCore
 		s2c_PLACE_TILE_WALL = 1011,
 		c2s_MOVE = 1012,
 		s2c_MOVE = 1013,
+		c2s_CREATE_ITEM = 1014,
+		s2c_CREATE_ITEM = 1015,
+		c2s_GET_ITEM = 1016,
+		s2c_GET_ITEM = 1017,
 	};
 	
 	class PacketSession;
@@ -38,6 +42,8 @@ namespace ServerCore
 	const bool Handle_c2s_PLACE_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE& pkt_);
 	const bool Handle_c2s_PLACE_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE_WALL& pkt_);
 	const bool Handle_c2s_MOVE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_MOVE& pkt_);
+	const bool Handle_c2s_CREATE_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CREATE_ITEM& pkt_);
+	const bool Handle_c2s_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_GET_ITEM& pkt_);
 	
 	class c2s_PacketHandler
 	{
@@ -53,6 +59,8 @@ namespace ServerCore
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_PLACE_TILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_PLACE_TILE>(Handle_c2s_PLACE_TILE, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_PLACE_TILE_WALL)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_PLACE_TILE_WALL>(Handle_c2s_PLACE_TILE_WALL, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_MOVE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_MOVE>(Handle_c2s_MOVE, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_CREATE_ITEM)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_CREATE_ITEM>(Handle_c2s_CREATE_ITEM, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_GET_ITEM)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_GET_ITEM>(Handle_c2s_GET_ITEM, pSession_, pBuff_, len_); };
 			for (auto& fpHandlerFunc : g_fpPacketHandler) 
 			{
 				if (nullptr == fpHandlerFunc)
@@ -80,6 +88,8 @@ namespace ServerCore
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_PLACE_TILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_PLACE_TILE); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_PLACE_TILE_WALL& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_PLACE_TILE_WALL); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_MOVE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_MOVE); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_CREATE_ITEM& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_CREATE_ITEM); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_GET_ITEM& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_GET_ITEM); }
 	
 	private:
 		template<typename PacketType, typename ProcessFunc>

@@ -7,6 +7,7 @@
 #include "TRItem.h"
 #include "Vec2Int.hpp"
 #include "CSoundMgr.h"
+#include "s2c_PacketHandler.h"
 
 CDropItem::CDropItem(TRWorld* const _trWorld, TRItemStack _item)
 {
@@ -28,15 +29,25 @@ CDropItem::~CDropItem()
 
 void CDropItem::update()
 {
-	CObject::update();
+	//CObject::update();
 
-	CRigidBody* rBody = GetComp<CRigidBody>();
-	CObject* target = m_pTRWolrd->GetPlayer();
-	Vec2 t_vPos = target->GetPos();
+	//CRigidBody* rBody = GetComp<CRigidBody>();
+	//CObject* target = m_pTRWolrd->GetPlayer();
+	//Vec2 t_vPos = target->GetPos();
 
-	float dist = (t_vPos - m_vPos).length();
-	if (dist < 80.0f)
-		rBody->AddForce((t_vPos - m_vPos).Normalize() * 5000.0f);
+	//float dist = (t_vPos - m_vPos).length();
+	//if (dist < 80.0f)
+	//	rBody->AddForce((t_vPos - m_vPos).Normalize() * 5000.0f);
+
+	const auto moveData = m_interpolator.GetInterPolatedData();
+	//SetWillPos(moveData.will_pos);
+	SetPos(moveData.pos);
+	//pRigid->SetVelocity(moveData.vel);
+}
+
+void CDropItem::component_update()
+{
+	CObject::component_update();
 }
 
 void CDropItem::render(HDC _dc) const
@@ -49,7 +60,19 @@ void CDropItem::render(HDC _dc) const
 	CImage* image = m_item.GetItem()->GetItemElement();
 	Vec2 pos = Mgr(CCamera)->GetRenderPos(m_vPos);
 	Vec2Int size = Vec2Int(image->GetWidth(), image->GetHeight());
-	Mgr(CResMgr)->renderImg(_dc, image, pos - Vec2Int(size.x, size.y * 2 - 6), size * 2, Vec2Int::zero, size);
+	auto v = pos - Vec2Int(size.x, size.y * 2 - 6);
+
+
+	//v *= -1;
+	//Mgr(CResMgr)->renderImg(_dc, image, this, {}, size);
+	//std::cout << v.x << ", " << v.y << std::endl;
+	Mgr(CResMgr)->renderImg(_dc, image, (pos - Vec2Int(size.x, size.y * 2 - 6)), size * 2, Vec2Int::zero, size);
+	
+	//Mgr(CResMgr)->renderImg(_dc, image, v, size * 2, Vec2Int::zero, size);
+
+	//Mgr(CResMgr)->renderImg(_dc, image, this,{},size);
+
+	//Mgr(CResMgr)->renderImg(_dc, image, pos - Vec2Int(size.x, size.y * 2 - 6), size * 2, Vec2Int::zero, size*100);
 }
 
 void CDropItem::OnCollision(CCollider* const _pOther)
@@ -70,5 +93,19 @@ void CDropItem::OnCollisionEnter(CCollider* const _pOther)
 
 void CDropItem::OnCollisionExit(CCollider* const _pOther)
 {
+
+}
+
+void CDropItem::SetMoveData(Protocol::s2c_MOVE movePkt_)
+{
+	const MoveData moveData
+	{
+		.pos =(ToOriginVec2(movePkt_.obj_pos())),
+		.will_pos =(ToOriginVec2(movePkt_.wiil_pos())),
+		.vel = (ToOriginVec2(movePkt_.vel()))
+	};
+	
+	SetPos((moveData.pos));
+	m_interpolator.UpdateNewData(moveData, movePkt_.time_stamp());
 
 }

@@ -64,6 +64,10 @@ void CCollisionMgr::update()
 			vecPtr[i]->updateTileCollision();
 		}
 	}
+	//if (const auto p = Mgr(CSceneMgr)->GetCurScene()->GetPlayer())
+	//{
+	//	p->SetPos({ 4000,1032 });
+	//}
 	//Mgr(CThreadMgr)->JoinUpdate();
 	/*std::for_each(std::execution::par, std::begin(arrCurSceneObj), std::end(arrCurSceneObj), [](const auto& _vecObj) {
 		std::for_each(std::execution::par_unseq, _vecObj.begin(), _vecObj.end(), [](auto& _pObj) {

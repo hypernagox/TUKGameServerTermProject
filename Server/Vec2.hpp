@@ -1,5 +1,6 @@
 #pragma once
 #include "SimpleMath.hpp"
+#include "Struct.pb.h"
 
 struct Vec2
 {
@@ -139,5 +140,12 @@ public:
 		temp.x = std::lround(x);
 		temp.y = std::lround(y);
 		return temp;
+	}
+
+	operator Protocol::Vec2()const noexcept {
+		Protocol::Vec2 vec;
+		vec.set_x(x);
+		vec.set_y(y);
+		return vec;
 	}
 };

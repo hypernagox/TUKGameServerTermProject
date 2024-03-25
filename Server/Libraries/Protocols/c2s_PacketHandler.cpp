@@ -4,6 +4,8 @@
 #include "../TRTileManager.h"
 #include "../TRWorldMgr.h"
 #include "../TRWorldRoom.h"
+#include "../ObjectFactory.h"
+#include "../Object.h"
 
 static ClientSession* const GetClientSession(const std::shared_ptr<ServerCore::PacketSession>& pSession_)noexcept {
     return static_cast<ClientSession* const>(pSession_.get());
@@ -54,6 +56,24 @@ namespace ServerCore
             });
 
         start_room->EnterEnqueue(pSession_);
+
+        Protocol::s2c_CREATE_ITEM pkt;
+        const auto item_pos = Vec2{ 4100.f,0.f };;
+        *pkt.mutable_pos() = item_pos;
+        pkt.set_item_name("armor_iron_head");
+        pkt.set_obj_id(IDGenerator::GenerateID());
+
+        start_room << pkt;
+
+        const auto pClientSession = GetClientSession(pSession_);
+
+        auto player = ObjectFactory::CreatePlayer(pClientSession, pSession_->GetSessionID());
+
+        pClientSession->SetPlayer(player.get());
+
+        start_room->AddObjectEnqueue(GROUP_TYPE::PLAYER, std::move(player));
+
+        start_room->AddObjectEnqueue(GROUP_TYPE::DROP_ITEM, ObjectFactory::CreateDropItem(pkt.obj_id(), "armor_iron_head", item_pos, start_room.get()));
 
         return true;
     }
@@ -152,7 +172,24 @@ namespace ServerCore
         pkt.set_anim_dir(pkt_.anim_dir());
         //&TRMgr(TRWorld)->m_room << pkt - pSession_;
         session_room << pkt;
+        
+        const auto player = GetClientSession(pSession_)->GetPlayer();
+        if (player)
+        {
+            player->SetPos(::ToOriginVec2(pkt.obj_pos()));
+            player->SetWillPos(::ToOriginVec2(pkt.wiil_pos()));
+        }
         return true;
+    }
+
+    const bool Handle_c2s_CREATE_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CREATE_ITEM& pkt_)
+    {
+        return false;
+    }
+
+    const bool Handle_c2s_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_GET_ITEM& pkt_)
+    {
+        return false;
     }
 
 }

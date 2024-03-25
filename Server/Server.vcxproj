@@ -150,10 +150,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BroadCaster.cpp" />
     <ClCompile Include="ClientSession.cpp" />
     <ClCompile Include="CollisionChecker.cpp" />
     <ClCompile Include="CollisionHandler.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="ItemComponent.cpp" />
     <ClCompile Include="ObjectFactory.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
@@ -201,10 +203,12 @@
     <None Include="ServerCore\GenPackets\Struct.proto" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BroadCaster.h" />
     <ClInclude Include="ClientSession.h" />
     <ClInclude Include="CollisionChecker.h" />
     <ClInclude Include="CollisionHandler.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="EventHandler.h" />
     <ClInclude Include="ItemComponent.h" />
     <ClInclude Include="ObjectFactory.h" />
     <ClInclude Include="PhysicsComponent.h" />

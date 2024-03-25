@@ -100,7 +100,7 @@ namespace ServerCore
 
 	void SessionManageable::ListenHeartBeat() noexcept
 	{
-		CREATE_FUNC_LOG(L"HeartBeat");
+		//CREATE_FUNC_LOG(L"HeartBeat");
 		const S_ptr<SendBuffer> sendBuffer = CreateHeartBeatSendBuffer(HEART_BEAT::s2c_HEART_BEAT);
 		for (const auto session : m_linkedHashMapForSession)
 		{

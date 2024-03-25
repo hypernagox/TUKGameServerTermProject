@@ -208,28 +208,31 @@ void TRWorld::OnSceneCreate(CScene* scene)
 	Mgr(CCamera)->SetTarget(player);
 	scene->RegisterPlayer(player);
 
-	TRItemStack dropitem_list[] = {
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"tile_planks_wood"), 100),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"tile_bricks_stone"), 100),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"tile_bricks_clay"), 100),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"tile_torch"), 100),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"wall_planks_wood"), 100),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"wall_bricks_stone"), 100),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"wall_bricks_clay"), 100),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"armor_iron_head"), 1),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"armor_iron_chestplate"), 1),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"armor_iron_leggings"), 1),
-		TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"summon_cthulhueye"), 1)
-	};
-
-	for (int i = 0; i < sizeof(dropitem_list) / sizeof(*dropitem_list); ++i)
-		DropItem(Vec2Int(x - 10 + i * -4, 255), dropitem_list[i]);
+	//TRItemStack dropitem_list[] = {
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"tile_planks_wood"), 100),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"tile_bricks_stone"), 100),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"tile_bricks_clay"), 100),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"tile_torch"), 100),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"wall_planks_wood"), 100),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"wall_bricks_stone"), 100),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"wall_bricks_clay"), 100),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"armor_iron_head"), 1),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"armor_iron_chestplate"), 1),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"armor_iron_leggings"), 1),
+	//	TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"summon_cthulhueye"), 1)
+	//};
+	//
+	//for (int i = 0; i < sizeof(dropitem_list) / sizeof(*dropitem_list); ++i)
+	//	DropItem(Vec2Int(x - 10 + i * -4, 255), dropitem_list[i]);
 	
 	tile_map->OnSceneCreate(scene);
 
 	Mgr(CCollisionMgr)->RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::MONSTER); 
+
 	Mgr(CCollisionMgr)->RegisterGroup( GROUP_TYPE::MONSTER,GROUP_TYPE::PLAYER_WEAPON);
-	Mgr(CCollisionMgr)->RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::DROP_ITEM);
+
+	//Mgr(CCollisionMgr)->RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::DROP_ITEM);
+
 	scene->AddObject(quick_bar_visualizer, GROUP_TYPE::UI);
 	quick_bar_visualizer->AddContainerVisualizers(scene);
 	scene->AddObject(inventory_visualizer, GROUP_TYPE::UI);
@@ -515,6 +518,28 @@ void TRWorld::SpawnBoss()
 	Mgr(CCamera)->FadeIn(1.f);
 
 	StartCoEvent(Mgr(CCamera)->ZoomInBoss(pMon->GetPos()));
+}
+extern CDropItem* g_item;
+void TRWorld::CreateItem(Vec2 world_pos, std::string_view item_key)
+{
+	const auto key = ::Utf8ToWide(item_key);
+	auto item = TRItemStack(Mgr(TRItemManager)->GetItemByKey(key), 1);
+
+	if (item.Null())
+		return;
+
+	
+	//drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
+	const int x = TRWorld::WORLD_WIDTH / 2;
+
+	for (int i = 0; i < 1; ++i)
+	{
+		
+		CDropItem* drop_item = new CDropItem(this, item);
+		g_item = drop_item;
+		drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
+		m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM);
+	}
 }
 
 void TRWorld::AddNewPlayer(const uint64_t id)

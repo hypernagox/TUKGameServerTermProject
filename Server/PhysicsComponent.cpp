@@ -17,6 +17,11 @@ void Collider::Update(const float dt_)
 	m_vFinalPos = GetOwner()->GetPos() + m_vOffsetPos;
 }
 
+const Vec2 Collider::GetScale() const noexcept
+{
+	return m_pOwner->GetScale();
+}
+
 //////////////////////////////////////////////////
 
 RigidBody::RigidBody(Object* const pOwner_)
@@ -39,19 +44,19 @@ void RigidBody::Move(const float dt_)
 		m_vVelocity.y = 0.f;
 	}
 	
-	Vec2 vPos = GetOwner()->GetPos();
+	const Vec2 vPos = GetOwner()->GetPos() + m_vVelocity * dt_;
 	const Vec2 vScale = GetOwner()->GetScale() / 2.f;
 
-
-	vPos += m_vVelocity * dt_;
-
-	
-
-	GetOwner()->SetWillPos(vPos);
+	m_pOwner->SetPos(vPos);
+	m_pOwner->SetWillPos(vPos);
 }
 
 void RigidBody::Update(const float dt_)
 {
+	if (m_pOwner->GetObjectGroup() == GROUP_TYPE::DROP_ITEM)
+	{
+		std::cout << m_pOwner->GetPos().x << ", " << m_pOwner->GetPos().y << std::endl;
+	}
 	if (bitwise_absf(m_vVelocity.x) <= bitwise_absf(m_vMaxVelocityOrigin.x))
 	{
 		//SetLimitOrigin();
@@ -61,8 +66,8 @@ void RigidBody::Update(const float dt_)
 	m_vVelocity += m_vAccel * dt_;
 	if (!m_vVelocity.IsZero())
 	{
-		Vec2 vFriction = m_vVelocity.Normalize();
-		vFriction *= m_fFriction * dt_;
+		const Vec2 vFriction = m_vVelocity.Normalize() * m_fFriction * dt_;
+
 		if (m_vVelocity.length() <= vFriction.length())
 		{
 			m_vVelocity = Vec2{ 0.,0. };

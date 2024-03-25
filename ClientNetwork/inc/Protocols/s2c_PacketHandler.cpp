@@ -5,10 +5,12 @@
 #include "TRWorld.h"
 #include "TRItemManager.h"
 #include "TRTileManager.h"
+#include "CDropItem.h"
+#include "CCollider.h"
 
 extern int g_TR_SEED;
 extern TRWorld* g_TRWorld;
-
+CDropItem* g_item;
 
 namespace NetHelper
 {
@@ -78,10 +80,27 @@ namespace NetHelper
         {
             other->SetMoveData(pkt_);
         }
-        else
+        else if(NetMgr(NetworkMgr)->GetSessionID()==pkt_.obj_id())
         {
             g_TRWorld->GetPlayer()->SetMoveData(pkt_);
         }
+        else
+        {
+            g_item->SetMoveData(pkt_);
+        }
+        return true;
+    }
+
+    const bool NetHelper::Handle_s2c_CREATE_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_CREATE_ITEM& pkt_)
+    {
+        g_TRWorld->CreateItem(::ToOriginVec2(pkt_.pos()), pkt_.item_name());
+        return true;
+    }
+
+    const bool NetHelper::Handle_s2c_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_GET_ITEM& pkt_)
+    {
+       // const auto pCurScene=
+        g_item->OnCollisionEnter(g_TRWorld->GetPlayer()->GetComp<CCollider>());
         return true;
     }
 }

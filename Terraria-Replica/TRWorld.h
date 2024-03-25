@@ -75,6 +75,8 @@ public:
 
 	void FloatDamageText(int value, Vec2 vPos, COLORREF color);
 	void SpawnBoss();
+
+	void CreateItem(Vec2 world_pos, std::string_view item_key);
 public:
 	void AddNewPlayer(const uint64_t id);
 	CPlayer* GetOtherPlayer(const uint64_t id)noexcept { return m_mapOtherPlayer[id]; }

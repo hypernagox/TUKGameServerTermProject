@@ -21,7 +21,7 @@
 
 //#define COMP_CLONE(type,owner)	type* Clone(owner* const _pOwner)const override {type* pNewComp = new type {*this}; pNewComp->SetOwner(_pOwner);return pNewComp;}
 
-enum class GROUP_TYPE	
+enum class GROUP_TYPE : uint16
 {
 	DEFAULT,	
 	TILE,		

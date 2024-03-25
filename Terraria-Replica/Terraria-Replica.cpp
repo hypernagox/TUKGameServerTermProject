@@ -83,11 +83,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     NetMgr(NetworkMgr)->Init();
     NetHelper::s2c_PacketHandler::Init();
 
-    //AllocConsole();
-    //
-    //FILE* fp = nullptr;
-    //freopen_s(&fp, "CONOUT$", "w", stdout);
-    //freopen_s(&fp, "CONIN$", "r", stdin);
+    AllocConsole();
+    
+    FILE* fp = nullptr;
+    freopen_s(&fp, "CONOUT$", "w", stdout);
+    freopen_s(&fp, "CONIN$", "r", stdin);
 
     //std::wstring inputIP;
     //do {

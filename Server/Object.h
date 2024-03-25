@@ -1,6 +1,25 @@
 #pragma once
 #include "PhysicsComponent.h"
 
+class ClientSession;
+
+class SessionObject
+	:public Component
+{
+public:
+	SessionObject(ClientSession*const pSession_,Object* const pOwner_)
+		: Component{ "SESSIONOBJECT",pOwner_ }
+		, m_pSession{ pSession_ }
+	{}
+public:
+	void Update(const float)override{}
+
+	ClientSession* const GetSession()const noexcept { return m_pSession; }
+	
+private:
+	ClientSession* const m_pSession;
+};
+
 class Object
 {
 public:
@@ -16,36 +35,44 @@ public:
 		for (const auto& pComp : m_vecComponentList)
 			pComp->Update(dt_);
 	}
+	void PostUpdate(const float dt_)noexcept {
+		for (const auto& pComp : m_vecComponentList)
+			pComp->PostUpdate(dt_);
+	}
 	Component* const GetComp(std::string_view compName)const noexcept {
-		const auto iter = std::ranges::find_if(m_vecComponentList, [&compName](const S_ptr<Component>& pComp)noexcept {
-			return pComp->GetCompName() == compName;
-			});
-		return m_vecComponentList.end() != iter ? iter->get() : nullptr;
+		const auto iter = m_mapComponent.find(compName.data());
+		return m_mapComponent.end() != iter ? iter->second : nullptr;
 	}
 
-	Component* const AddComponent(S_ptr<Component>&& pComp)noexcept {
-		NAGOX_ASSERT(nullptr != GetComp(pComp->GetCompName()));
-		return m_vecComponentList.emplace_back(std::move(pComp)).get();
+	template<typename T> requires std::derived_from<T,Component>
+	T* const AddComponent(S_ptr<T>&& pComp)noexcept {
+		NAGOX_ASSERT(nullptr == GetComp(pComp->GetCompName()));
+		const auto temp_ptr = static_cast<T* const>(m_vecComponentList.emplace_back(std::move(pComp)).get());
+		m_mapComponent.try_emplace(temp_ptr->GetCompName(), temp_ptr);
+		return temp_ptr;
 	}
 
 	const uint64 GetObjID()const noexcept { return m_objID; }
 	const GROUP_TYPE GetObjectGroup()const noexcept { return m_eObjectGroup; }
 	const std::string& GetObjectName()const noexcept { return m_strObjectName; }
-
+	const std::string& GetImgName()const noexcept { return m_strImgName; }
 public:
 	void SetPos(const Vec2 v_)noexcept { m_positionComponent.SetPos(v_); }
 	void SetWillPos(const Vec2 v_)noexcept { m_positionComponent.SetWillPos(v_); }
 	void SetScale(const Vec2 v_)noexcept { m_positionComponent.SetScale(v_); }
+	void SetImageName(std::string_view imgName_)noexcept { m_strImgName = imgName_; }
 public:
 	const Vec2 GetPos()const noexcept { return m_positionComponent.GetPos(); }
 	const Vec2 GetWillPos()const noexcept { return m_positionComponent.GetWillPos(); }
 	const Vec2 GetScale()const noexcept { return m_positionComponent.GetScale(); }
 private:
 	ServerCore::Vector<S_ptr<Component>> m_vecComponentList;
+	ServerCore::HashMap<std::string, Component*> m_mapComponent;
 
 	PositionComponent m_positionComponent;
 	const uint64 m_objID;
 	const GROUP_TYPE m_eObjectGroup;
 	const std::string m_strObjectName;
+	std::string m_strImgName;
 };
 

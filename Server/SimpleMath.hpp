@@ -1,29 +1,29 @@
 #pragma once
 
-inline short bitwise_abs_short(const short x)
+inline const short bitwise_abs_short(const short x)noexcept
 {
 	const short mask = x >> (sizeof(short) * 8 - 1);
 	return (x + mask) ^ mask;
 }
 
-inline float bitwise_absf(float num)
+inline const float bitwise_absf(float num)noexcept
 {
 	int& numAsInt = reinterpret_cast<int&>(num);
 	numAsInt &= 0x7FFFFFFF;
 	return num;
 }
 
-inline int bitwise_absi(const int num)
+inline const int bitwise_absi(const int num)noexcept
 {
-	int mask = num >> (sizeof(int) * 8 - 1);
+	const int mask = num >> (sizeof(int) * 8 - 1);
 	return (num + mask) ^ mask;
 }
 
-inline float Q_rsqrt(float number)
+inline const float Q_rsqrt(const float number)noexcept
 {
 	long i;
 	float x2, y;
-	const float threehalfs = 1.5F;
+	constexpr const float threehalfs = 1.5F;
 
 	x2 = number * 0.5F;
 	y = number;
@@ -35,12 +35,12 @@ inline float Q_rsqrt(float number)
 	return y;
 }
 
-inline bool IsFloatZero(float number)
+inline const bool IsFloatZero(const float number)noexcept
 {
 	return (number >= -FLT_EPSILON && number <= FLT_EPSILON);
 }
 
-inline float Q_sqrt(float number)
+inline const float Q_sqrt(const float number)noexcept
 {
 	const float invSqrt = Q_rsqrt(number);
 	return IsFloatZero(number) ? 0.f : 1.0f / invSqrt;

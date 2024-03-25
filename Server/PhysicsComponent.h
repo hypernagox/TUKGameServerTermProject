@@ -36,32 +36,43 @@ public:
 private:
 	Vec2				m_vOffsetPos = {};
 	Vec2				m_vFinalPos = {};
-	Vec2				m_vScale = {};
+	//Vec2				m_vScale = {};
 	const UINT			m_iID;
 	int			m_iColCnt = {};
+	bool m_bIsDead = false;
 	S_ptr<CollisionHandler> m_pCollisionHandler;
 public:
+	const bool IsDead()const noexcept { return m_bIsDead; }
+	void SetDead()noexcept { m_bIsDead = true; }
+
 	void SetCollisionHandler(S_ptr<CollisionHandler>&& pCollisionHandler)noexcept { m_pCollisionHandler = std::move(pCollisionHandler); }
 	constexpr const UINT GetID()const noexcept{ return m_iID; }
 	constexpr inline Vec2 GetFinalPos()const noexcept{ return m_vFinalPos; }
 	constexpr inline void SetOffsetPos(Vec2 _vPos) noexcept{ m_vOffsetPos = _vPos; }
-	constexpr inline void SetScale(Vec2 _vScale) noexcept{ m_vScale = _vScale; }
+	//constexpr inline void SetScale(Vec2 _vScale) noexcept{ m_vScale = _vScale; }
 	constexpr inline Vec2 GetOffsetPos()const noexcept{ return m_vOffsetPos; }
-	constexpr inline Vec2 GetScale()const noexcept{ return m_vScale; }
+
+	const Vec2 GetScale()const noexcept;
 	int GetColCnt()const noexcept{ return m_iColCnt; }
 public:
 	void Update(const float dt_)override;
 	
 public:
 	void OnCollisionEnter(Collider* const _pOther) {
+		if (!m_pCollisionHandler)
+			return;
 		m_pCollisionHandler->OnCollisionEnter(GetOwner(), _pOther->GetOwner());
 	}
 
 	void OnCollisionStay(Collider* const _pOther) {
+		if (!m_pCollisionHandler)
+			return;
 		m_pCollisionHandler->OnCollisionStay(GetOwner(), _pOther->GetOwner());
 	}
 
 	void OnCollisionExit(Collider* const _pOther) {
+		if (!m_pCollisionHandler)
+			return;
 		m_pCollisionHandler->OnCollisionExit(GetOwner(), _pOther->GetOwner());
 	}
 };
@@ -81,6 +92,9 @@ private:
 	float           m_fFriction = 640.0f;
 	bool            m_bGravity = true;
 	bool            m_bIsGround = false;
+
+	Vec2			m_vPrevVelocity;
+	Vec2			m_vPrevPosition;
 private:
 	void Move(const float dt_);
 public:
@@ -131,4 +145,11 @@ public:
 	void Update(const float dt_)override;
 
 	void update_gravity();
+
+
+	void SetPrevPosition(const Vec2 v_)noexcept { m_vPrevPosition = v_; }
+	void SetPrevVelocity(const Vec2 v_)noexcept { m_vPrevVelocity = v_; }
+
+	const Vec2 GetPrevPosition()const noexcept { return m_vPrevPosition; }
+	const Vec2 GetPrevVelocity()const noexcept { return m_vPrevVelocity; }
 };

@@ -102,3 +102,27 @@ message s2c_MOVE
 	Vec2 wiil_pos=7;
 	int32 anim_dir=8;
 }
+
+message c2s_CREATE_ITEM
+{
+	
+}
+
+message s2c_CREATE_ITEM
+{
+	uint64 obj_id=1;
+	Vec2 pos=2;
+	string item_name=3;
+}
+
+message c2s_GET_ITEM
+{
+	
+}
+
+message s2c_GET_ITEM
+{
+	uint64 obj_id=1;
+	Vec2 pos=2;
+	string item_name=3;
+}
