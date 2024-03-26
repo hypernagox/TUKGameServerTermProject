@@ -47,10 +47,18 @@ public:
 	void CreateWorld(int seed);
 	void OnSceneCreate();
 
-	static Vec2 WorldToGlobal(const Vec2& v);
-	static Vec2 GlobalToWorld(const Vec2& v);
+	static constexpr Vec2 WorldToGlobal(const Vec2& v)noexcept
+	{
+		return Vec2(v.x * PIXELS_PER_TILE, (static_cast<float>(TRWorld::WORLD_HEIGHT) - v.y) * PIXELS_PER_TILE);
+	}
 
-	TRTileMap* GetTileMap() const;
+	static constexpr Vec2 GlobalToWorld(const Vec2& v)noexcept
+	{
+		return Vec2(v.x / PIXELS_PER_TILE, static_cast<float>(TRWorld::WORLD_HEIGHT) - v.y / PIXELS_PER_TILE);
+	}
+
+	TRTileMap* const GetTileMap()noexcept { return tile_map; }
+	const TRTileMap* const GetTileMap()const noexcept { return tile_map; }
 	//CPlayer* GetPlayer() const;
 
 	bool PlaceTile(int x, int y, TRTile* new_tile);
