@@ -29,7 +29,7 @@ private:
 	void UpdateWorldCollision();
 	
 
-	void UpdateTileCollisionForTick(Object* const pObj_)const;
+	void UpdateTileCollisionForTick(Object* const pObj_)const noexcept;
 
 	void RegisterGroup(const GROUP_TYPE _eLeft, const GROUP_TYPE _eRight) {
 		m_collisionChecker.RegisterGroup(_eLeft, _eRight);
@@ -39,5 +39,7 @@ private:
 	ServerCore::Timer m_timer;
 	CollisionChecker m_collisionChecker;
 	EventHandler m_eventHandler;
+	ServerCore::Vector<ServerCore::Task*> m_vecCollisionTask;
+	std::atomic_int m_jobCount = 0;
 };
 
