@@ -62,7 +62,7 @@ public:
 	//CPlayer* GetPlayer() const;
 
 	bool PlaceTile(int x, int y, TRTile* new_tile);
-	bool BreakTile(int x, int y);
+	bool BreakTile(int x, int y,std::string& outName);
 	bool PlaceTileWall(int x, int y, TRTileWall* new_tile);
 	bool BreakTileWall(int x, int y);
 

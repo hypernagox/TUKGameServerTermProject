@@ -32,6 +32,7 @@
 
 #include "CParticleMgr.h"
 #include "CSceneMgr.h"
+#include "CEventMgr.h"
 
 TRWorld* g_TRWorld = nullptr;
 extern bool g_bStopToken;
@@ -519,8 +520,8 @@ void TRWorld::SpawnBoss()
 
 	StartCoEvent(Mgr(CCamera)->ZoomInBoss(pMon->GetPos()));
 }
-extern CDropItem* g_item;
-void TRWorld::CreateItem(Vec2 world_pos, std::string_view item_key)
+
+void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_view item_key)
 {
 	const auto key = ::Utf8ToWide(item_key);
 	auto item = TRItemStack(Mgr(TRItemManager)->GetItemByKey(key), 1);
@@ -532,14 +533,18 @@ void TRWorld::CreateItem(Vec2 world_pos, std::string_view item_key)
 	//drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
 	const int x = TRWorld::WORLD_WIDTH / 2;
 
-	for (int i = 0; i < 1; ++i)
-	{
-		
-		CDropItem* drop_item = new CDropItem(this, item);
-		g_item = drop_item;
-		drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
-		m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM);
-	}
+	CDropItem* drop_item = new CDropItem(this, item);
+
+	drop_item->SetItemId(item_id);
+
+	m_mapItem.emplace(item_id, drop_item);
+	drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
+	m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM);
+}
+
+void TRWorld::EraseItem(const uint64_t item_id) noexcept
+{
+	m_mapItem.erase(item_id);
 }
 
 void TRWorld::AddNewPlayer(const uint64_t id)

@@ -21,6 +21,7 @@ private:
 };
 
 class Object
+	:public ServerCore::enable_shared_cache_this_core<Object>
 {
 public:
 	Object(const uint64 id_,const GROUP_TYPE eType_,std::string_view name_)
@@ -56,7 +57,9 @@ public:
 	const GROUP_TYPE GetObjectGroup()const noexcept { return m_eObjectGroup; }
 	const std::string& GetObjectName()const noexcept { return m_strObjectName; }
 	const std::string& GetImgName()const noexcept { return m_strImgName; }
+	PositionComponent& GetPositionComponent()noexcept { return m_positionComponent; }
 public:
+	void SetPrevPos(const Vec2 v_)noexcept { m_positionComponent.SetPrevPos(v_); }
 	void SetPos(const Vec2 v_)noexcept { m_positionComponent.SetPos(v_); }
 	void SetWillPos(const Vec2 v_)noexcept { m_positionComponent.SetWillPos(v_); }
 	void SetScale(const Vec2 v_)noexcept { m_positionComponent.SetScale(v_); }
@@ -65,11 +68,16 @@ public:
 	const Vec2 GetPos()const noexcept { return m_positionComponent.GetPos(); }
 	const Vec2 GetWillPos()const noexcept { return m_positionComponent.GetWillPos(); }
 	const Vec2 GetScale()const noexcept { return m_positionComponent.GetScale(); }
+	const Vec2 GetPrevPos()const noexcept { return m_positionComponent.GetPrevPos(); }
+	
+	const bool IsValid()const noexcept { return m_bIsValid.load(std::memory_order_acquire); }
+	const bool SetInvalid()noexcept { return m_bIsValid.exchange(false,std::memory_order_acq_rel); }
 private:
 	ServerCore::Vector<S_ptr<Component>> m_vecComponentList;
 	ServerCore::HashMap<std::string, Component*> m_mapComponent;
 
 	PositionComponent m_positionComponent;
+	std::atomic_bool m_bIsValid = true;
 	const uint64 m_objID;
 	const GROUP_TYPE m_eObjectGroup;
 	const std::string m_strObjectName;

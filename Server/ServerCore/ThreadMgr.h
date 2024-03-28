@@ -29,7 +29,7 @@ namespace ServerCore
 			static inline void free(void* const ptr)noexcept { Mgr(MemoryMgr)->Release(ptr); }
 		};
 	public:
-		static constexpr uint64 NUM_OF_THREADS = 6;
+		static constexpr const uint64 NUM_OF_THREADS = 6;
 		void Launch(S_ptr<Service> pService);
 		c_uint32 GetCurThreadID()const noexcept { return LThreadId; }
 		const bool IsServerFinish()const noexcept { return m_bStopRequest; }

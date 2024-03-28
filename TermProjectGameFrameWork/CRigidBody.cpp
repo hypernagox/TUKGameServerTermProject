@@ -49,6 +49,8 @@ void CRigidBody::Move()
 
 void CRigidBody::component_update()
 {
+	//if (m_pOwner->GetName() != L"HERO")
+	//	return;
 	if (bitwise_absf(m_vVelocity.x) <= bitwise_absf(m_vMaxVelocityOrigin.x))
 	{
 		//SetLimitOrigin();

@@ -42,6 +42,7 @@ public:
 	bool  IsGravity()const { return m_bGravity; }
 	void  SetGravity(bool _b) { m_bGravity = _b; }
 public:
+	const inline Vec2 GetAccel()const noexcept { return m_vAccel; }
 	constexpr inline Vec2 GetVelocity()const { return m_vVelocity; }
 	constexpr inline void SetVelocity(Vec2 _v) { m_vVelocity = _v; }
 	constexpr inline void SetMaxVelocity(Vec2 _vMaxVel)

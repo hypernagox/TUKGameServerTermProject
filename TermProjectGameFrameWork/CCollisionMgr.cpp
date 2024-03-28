@@ -61,7 +61,8 @@ void CCollisionMgr::update()
 		for (size_t i = 0, size = vecObj.size(); i < size; ++i)
 		{
 			//Mgr(CThreadMgr)->EnqueueUpdate(&CObject::updateTileCollision, vecPtr[i].get());
-			vecPtr[i]->updateTileCollision();
+			//if(vecPtr[i]->GetName()==L"HERO")
+				vecPtr[i]->updateTileCollision();
 		}
 	}
 	//if (const auto p = Mgr(CSceneMgr)->GetCurScene()->GetPlayer())

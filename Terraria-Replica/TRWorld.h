@@ -14,6 +14,7 @@ class TRItemContainer;
 class CQuickBarVisualizer;
 class CHealthIndicator;
 class CInventoryVisualizer;
+class CDropItem;
 
 class TRWorld
 {
@@ -40,6 +41,8 @@ private:
 	bool toggle_inventory;
 
 	std::unordered_map<uint64_t, CPlayer*> m_mapOtherPlayer;
+
+	std::unordered_map<uint64_t, CDropItem*> m_mapItem;
 public:
 	void FindAndModifyItemStack(std::string_view itemName, const int mount_,const bool bIsWall = false)noexcept;
 public:
@@ -76,7 +79,13 @@ public:
 	void FloatDamageText(int value, Vec2 vPos, COLORREF color);
 	void SpawnBoss();
 
-	void CreateItem(Vec2 world_pos, std::string_view item_key);
+	void CreateItem(const uint64_t item_id,Vec2 world_pos, std::string_view item_key);
+	CDropItem* const GetDropItem(const uint64_t item_id)const {
+		const auto iter = m_mapItem.find(item_id);
+		return m_mapItem.end() != iter ? iter->second : nullptr;
+	}
+	
+	void EraseItem(const uint64_t item_id)noexcept;
 public:
 	void AddNewPlayer(const uint64_t id);
 	CPlayer* GetOtherPlayer(const uint64_t id)noexcept { return m_mapOtherPlayer[id]; }

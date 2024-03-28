@@ -25,7 +25,8 @@ namespace ServerCore
 	ThreadMgr::ThreadMgr()
 	{
 		// Main Thread
-		InitTLS();
+		//InitTLS();
+		LThreadId = 1;
 	}
 
 	ThreadMgr::~ThreadMgr()

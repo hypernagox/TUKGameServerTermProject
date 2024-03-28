@@ -10,7 +10,6 @@
 
 extern int g_TR_SEED;
 extern TRWorld* g_TRWorld;
-CDropItem* g_item;
 
 namespace NetHelper
 {
@@ -86,21 +85,38 @@ namespace NetHelper
         }
         else
         {
-            g_item->SetMoveData(pkt_);
+            if (const auto pItem = g_TRWorld->GetDropItem(pkt_.obj_id()))
+            {
+                pItem->SetMoveData(pkt_);
+            }
         }
         return true;
     }
 
     const bool NetHelper::Handle_s2c_CREATE_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_CREATE_ITEM& pkt_)
     {
-        g_TRWorld->CreateItem(::ToOriginVec2(pkt_.pos()), pkt_.item_name());
+        g_TRWorld->CreateItem(pkt_.obj_id(), ::ToOriginVec2(pkt_.pos()), pkt_.item_name());
         return true;
     }
 
     const bool NetHelper::Handle_s2c_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_GET_ITEM& pkt_)
     {
-       // const auto pCurScene=
-        g_item->OnCollisionEnter(g_TRWorld->GetPlayer()->GetComp<CCollider>());
+        if (const auto pItem = g_TRWorld->GetDropItem(pkt_.item_id()))
+        {
+            g_TRWorld->EraseItem(pkt_.item_id());
+            if(pSession_->GetSessionID() == pkt_.obj_id())
+                pItem->OnCollisionEnter(g_TRWorld->GetPlayer()->GetComp<CCollider>());
+        }
         return true;
+    }
+
+    const bool NetHelper::Handle_s2c_INPUT_KEY(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_INPUT_KEY& pkt_)
+    {
+        return false;
+    }
+
+    const bool NetHelper::Handle_s2c_TRY_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_TRY_GET_ITEM& pkt_)
+    {
+        return false;
     }
 }

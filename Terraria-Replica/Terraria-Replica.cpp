@@ -336,7 +336,7 @@ void updateTileCollision(CObject* const _pObj,TRWorld* const _pTRWorld)
     }
 
 	const auto pTileMap = _pTRWorld->GetTileMap();
-	const Vec2 world_pos = TRWorld::GlobalToWorld(_pObj->GetWillPos());
+	const Vec2 world_pos = _pObj->GetWillPos().IsZero() ? TRWorld::GlobalToWorld(_pObj->GetPos()) : TRWorld::GlobalToWorld(_pObj->GetWillPos());
 	const Vec2 world_vel = pRigid->GetVelocity();
 
 	const float w = pCol->GetScale().x / (float)PIXELS_PER_TILE;
@@ -431,7 +431,7 @@ void updateTileCollision(CObject* const _pObj,TRWorld* const _pTRWorld)
 					flag |= pTileMap->GetTile(x, y)->Solid();
 			}
 			if (flag)
-			{
+			{   
  				post_pos.x = reform_x;
 				post_vel.x = 0.0f;
 			}

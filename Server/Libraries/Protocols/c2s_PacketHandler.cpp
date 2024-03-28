@@ -57,6 +57,8 @@ namespace ServerCore
 
         start_room->EnterEnqueue(pSession_);
 
+       
+
         Protocol::s2c_CREATE_ITEM pkt;
         const auto item_pos = Vec2{ 4100.f,0.f };;
         *pkt.mutable_pos() = item_pos;
@@ -73,9 +75,18 @@ namespace ServerCore
 
         start_room->AddObjectEnqueue(GROUP_TYPE::PLAYER, std::move(player));
 
-        start_room->AddObjectEnqueue(GROUP_TYPE::DROP_ITEM, ObjectFactory::CreateDropItem(pkt.obj_id(), "armor_iron_head", item_pos, start_room.get()));
+        for(int i=0;i<1;++i)
+            start_room->AddObjectEnqueue(GROUP_TYPE::DROP_ITEM, ObjectFactory::CreateDropItem(pkt.obj_id(), "armor_iron_head", item_pos, start_room.get()));
 
-        return true;
+       const auto tile_map = TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0)->GetTileMap();
+       constexpr const int x = TRWorld::WORLD_WIDTH / 2;
+       Protocol::s2c_MOVE pkt2;
+       *pkt2.mutable_obj_pos() = TRWorld::WorldToGlobal(Vec2Int(x, tile_map->GetTopYpos(x))) - Vec2(20.0f, 28.0f);
+       pkt2.set_obj_id(pSession_->GetSessionID());
+       pkt2.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
+       //*pkt2.mutable_vel()
+       pSession_ << pkt2;
+        return true;    
     }
 
     const bool Handle_c2s_BREAK_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE& pkt_)
@@ -85,14 +96,38 @@ namespace ServerCore
         const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
-        if (session_room->BreakTile(x, y))
+        const Vec2 item_pos = TRWorld::WorldToGlobal(Vec2{ (float)x,(float)y });
+
+        std::string temp;
+
+        if (session_room->BreakTile(x, y,temp))
         {
             Protocol::s2c_BREAK_TILE pkt;
             pkt.set_success(true);
             pkt.set_tile_x(x);
             pkt.set_tile_y(y);
 
+           
             session_room << pkt;
+
+            if (!temp.empty())
+            {
+                Protocol::s2c_CREATE_ITEM item_pkt;
+                *item_pkt.mutable_pos() = item_pos;
+                item_pkt.set_item_name(temp);
+                item_pkt.set_obj_id(IDGenerator::GenerateID());
+
+                session_room->AddObjectEnqueue(GROUP_TYPE::DROP_ITEM, ObjectFactory::CreateDropItem(item_pkt.obj_id(), temp, item_pos, session_room));
+
+                session_room << item_pkt;
+
+                Protocol::s2c_MOVE pkt2;
+                *pkt2.mutable_obj_pos() = item_pos;
+                pkt2.set_obj_id(item_pkt.obj_id());
+                pkt2.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
+
+                session_room << pkt2;
+            }
         }
         return true;
     }
@@ -170,14 +205,27 @@ namespace ServerCore
         pkt.set_obj_id(pSession_->GetSessionID());
         pkt.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
         pkt.set_anim_dir(pkt_.anim_dir());
-        //&TRMgr(TRWorld)->m_room << pkt - pSession_;
-        session_room << pkt;
-        
-        const auto player = GetClientSession(pSession_)->GetPlayer();
+       // &TRMgr(TRWorld)->m_room << pkt - pSession_;
+
+       //Protocol::s2c_MOVE pkt;
+       //
+       //*pkt.mutable_obj_pos() = pkt_.obj_pos();
+       //*pkt.mutable_vel() = pkt_.vel();
+       // pkt.set_state(pkt_.state());
+       // 
+       // pkt.set_obj_id(pSession_->GetSessionID());
+       // pkt.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
+       // pkt.set_anim_dir(pkt_.anim_dir());
+
+         session_room << pkt;
+         
+         const auto player = GetClientSession(pSession_)->GetPlayer();
         if (player)
         {
             player->SetPos(::ToOriginVec2(pkt.obj_pos()));
             player->SetWillPos(::ToOriginVec2(pkt.wiil_pos()));
+            player->GetComp("RIGIDBODY")->Cast<RigidBody>()->SetVelocity(::ToOriginVec2(pkt.vel()));
+            player->GetComp("RIGIDBODY")->Cast<RigidBody>()->SetIsGround(pkt.ground());
         }
         return true;
     }
@@ -190,6 +238,27 @@ namespace ServerCore
     const bool Handle_c2s_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_GET_ITEM& pkt_)
     {
         return false;
+    }
+
+    const bool Handle_c2s_INPUT_KEY(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_INPUT_KEY& pkt_)
+    {
+        const auto player = GetClientSession(pSession_)->GetPlayer();
+        if (player)
+        {
+           player->GetComp("KEYINPUTHANDLER")->Cast<KeyInputHandler>()->SetKeyState(pkt_.vk_key(), (KeyInputHandler::KEY_STATE)(pkt_.key_state()));
+        }
+        return true;
+    }
+
+    const bool Handle_c2s_TRY_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_TRY_GET_ITEM& pkt_)
+    {
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+
+        if (const auto player = GetClientSession(pSession_)->GetPlayer())
+        {
+            session_room->TryGetItem(GetClientSession(pSession_)->GetPlayer());
+        }
+        return true;
     }
 
 }

@@ -35,9 +35,10 @@ private:
 	array<unique_ptr<CComponent>, (UINT)COMPONENT_TYPE::END>		m_arrComp; 
 	bool					m_bAlive = true;
 private:
-	void	SetDead() { m_bAlive = false; } 
+
 	void updateTileCollision();
 public:
+	void	SetDead() { m_bAlive = false; }
 	bool IsDead()const { return !m_bAlive; } 
 	bool IsCamAffect()const { return m_bIsCamAffected; }
 	Vec2 GetPrevPos()const { return m_vPrevPos; }

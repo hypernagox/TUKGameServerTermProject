@@ -30,6 +30,9 @@ namespace NetHelper
             m_iNewTimeStamp = arrivedNewTimeStamp;
             m_iLastDataArrivedTime = GetTimeStampMilliseconds();
         }
+        void SetCurrentTimeStampRTT()noexcept { m_iStartTimeStamp = GetTimeStampMilliseconds(); }
+        
+        const float GetPredictRTT()const noexcept { return static_cast<const float>(m_iLastDataArrivedTime - m_iStartTimeStamp) / 1000.f; }
         auto& GetCurData()noexcept { return m_curData; }
         auto& GetNewData()noexcept { return m_newData; }
         const auto& GetCurData()const noexcept { return m_curData; }
@@ -71,6 +74,8 @@ namespace NetHelper
         uint64 m_iLastDataArrivedTime = GetTimeStampMilliseconds();
         uint64 m_iOldTimeStamp = GetTimeStampMilliseconds();
         uint64 m_iNewTimeStamp = GetTimeStampMilliseconds();
+
+        uint64 m_iStartTimeStamp = GetTimeStampMilliseconds();
         static inline constinit const float MIN_UPDATE_INTERVAL = 0.01f;
     };
 }

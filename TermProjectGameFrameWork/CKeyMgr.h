@@ -18,6 +18,7 @@ enum class KEY
 	A,
 	S,
 	D,
+	Z,
 	SPACE,
 	ENTER, 
 	TAB,

@@ -15,9 +15,9 @@ CDropItem::CDropItem(TRWorld* const _trWorld, TRItemStack _item)
 	m_bIsCamAffected = true;
 	m_item = _item;
 
-	CreateComponent(COMPONENT_TYPE::COLLIDER, Vec2::one * 16.0f);
-	CreateComponent(COMPONENT_TYPE::RIGIDBODY);
-	GetComp<CRigidBody>()->AddVelocity(Vec2::down * 240.0f);
+	//CreateComponent(COMPONENT_TYPE::COLLIDER, Vec2::one * 16.0f);
+	//CreateComponent(COMPONENT_TYPE::RIGIDBODY);
+	//GetComp<CRigidBody>()->AddVelocity(Vec2::down * 240.0f);
 
 	SetName(L"DropItem_" + _item.GetItem()->GetName());
 }
@@ -47,7 +47,7 @@ void CDropItem::update()
 
 void CDropItem::component_update()
 {
-	CObject::component_update();
+	//CObject::component_update();
 }
 
 void CDropItem::render(HDC _dc) const

@@ -18,6 +18,10 @@ Hero::Hero(TRWorld* const _trWorld)
 	:CPlayer{ _trWorld }
 {
 	m_bIsHero = true;
+	SetName(L"HERO");
+	//CreateComponent(COMPONENT_TYPE::RIGIDBODY);
+	//auto pRigid = GetComp<CRigidBody>();
+	//pRigid->SetIsGround(false);
 }
 
 Hero::~Hero()
@@ -62,6 +66,16 @@ void Hero::updateState()
 	const auto pAnim = GetComp<CAnimator>();
 	const auto pRigid = GetComp<CRigidBody>();
 
+	Protocol::c2s_INPUT_KEY pkt;
+	
+	if (KEY_TAP(KEY::Z))
+	{
+		Protocol::c2s_TRY_GET_ITEM pkt;
+		pkt.set_time_stamp(NetHelper::GetTimeStampMilliseconds());
+		*pkt.mutable_obj_pos() = ::ToProtoVec2(GetPos());
+		Send(pkt);
+	}
+
 	if (KEY_TAP(KEY::SPACE) && IsFloatZero(pRigid->GetVelocity().y))
 	{
 		pRigid->SetIsGround(false);
@@ -72,6 +86,10 @@ void Hero::updateState()
 		m_bIsIDLE = false;
 
 		m_bDirtyFlag = true;
+
+		pkt.set_key_state(1);
+		pkt.set_vk_key(VK_SPACE);
+		Send(pkt);
 	}
 
 	if (m_ePrevState == PLAYER_STATE::ATTACK && pAnim->IsFinish())
@@ -80,7 +98,7 @@ void Hero::updateState()
 		m_bIsAtk = false;
 	}
 
-	if (KEY_HOLD(KEY::A))
+	if (KEY_TAP(KEY::A))
 	{
 		pAnim->SetAnimLeft();
 		m_pAnimLeg->SetAnimLeft();
@@ -88,9 +106,13 @@ void Hero::updateState()
 		m_bIsIDLE = false;
 
 		m_bDirtyFlag = true;
+
+		pkt.set_key_state(1);
+		pkt.set_vk_key('A');
+		Send(pkt);
 	}
 
-	if (KEY_HOLD(KEY::D))
+	if (KEY_TAP(KEY::D))
 	{
 		pAnim->SetAnimRight();
 		m_pAnimLeg->SetAnimRight();
@@ -98,8 +120,33 @@ void Hero::updateState()
 		m_bIsIDLE = false;
 
 		m_bDirtyFlag = true;
+
+		pkt.set_key_state(1);
+		pkt.set_vk_key('D');
+		Send(pkt);
 	}
 
+	if (KEY_AWAY(KEY::SPACE))
+	{
+		m_bDirtyFlag = true;
+		pkt.set_key_state(3);
+		pkt.set_vk_key(VK_SPACE);
+		Send(pkt);
+	}
+	if (KEY_AWAY(KEY::A))
+	{
+		m_bDirtyFlag = true;
+		pkt.set_key_state(3);
+		pkt.set_vk_key('A');
+		Send(pkt);
+	}
+	if (KEY_AWAY(KEY::D))
+	{
+		m_bDirtyFlag = true;
+		pkt.set_key_state(3);
+		pkt.set_vk_key('D');
+		Send(pkt);
+	}
 	if (m_bRequestAttack)
 	{
 		m_eCurState = PLAYER_STATE::ATTACK;
@@ -123,7 +170,7 @@ void Hero::updateState()
 	{
 		m_eCurState = PLAYER_STATE::JUMP;
 		m_bIsIDLE = false;
-		m_bDirtyFlag = true;
+		//m_bDirtyFlag = true;
 	}
 }
 
@@ -141,14 +188,14 @@ void Hero::updateMove()
 	{
 		pRigid->AddVelocity(Vec2{ -20.0f, 0.0f });
 
-		m_bDirtyFlag = true;
+		//m_bDirtyFlag = true;
 	}
 
 	if (KEY_HOLD(KEY::D))
 	{
 		pRigid->AddVelocity(Vec2{ 20.0f, 0.0f });
 
-		m_bDirtyFlag = true;
+		//m_bDirtyFlag = true;
 	}
 
 	/*if (KEY_HOLD(KEY::W))
@@ -163,6 +210,8 @@ void Hero::updateMove()
 		pRigid->AddVelocity(Vec2{ 0,300 });
 		pRigid->AddForce(Vec2{ 0,300 });
 	}*/
+
+	m_bDirtyFlag |= KEY_TAP(KEY::A) || KEY_TAP(KEY::D) || KEY_TAP(KEY::SPACE);
 }
 
 void Hero::component_update()
@@ -211,16 +260,22 @@ void Hero::SendMoveData() noexcept
 	
 	if (m_bDirtyFlag || 0.1f <= m_fAccTime)
 	{
+		const float dt_rtt = m_interpolator.GetPredictRTT();
+
 		m_fAccTime = 0.f;
 		m_bDirtyFlag = false;
 		Protocol::c2s_MOVE pkt;
 		const auto vVelocity = GetComp<CRigidBody>()->GetVelocity();
-		*pkt.mutable_obj_pos() = ToProtoVec2(GetPos());
+		*pkt.mutable_obj_pos() = ToProtoVec2(GetPos()+ GetComp<CRigidBody>()->GetVelocity() * dt_rtt);
 		*pkt.mutable_wiil_pos() = ToProtoVec2(GetWillPos());
 		*pkt.mutable_scale() = ToProtoVec2(GetComp<CCollider>()->GetScale());
-		*pkt.mutable_vel() = ToProtoVec2(GetComp<CRigidBody>()->GetVelocity());
+		*pkt.mutable_vel() = ToProtoVec2(GetComp<CRigidBody>()->GetVelocity() + GetComp<CRigidBody>()->GetAccel()* dt_rtt);
 		pkt.set_state((Protocol::PLAYER_STATE)m_eCurState);
 		pkt.set_anim_dir(GetComp<CAnimator>()->GetAnimDir());
+		pkt.set_ground(GetComp<CRigidBody>()->IsGround());
+
+		m_interpolator.SetCurrentTimeStampRTT();
+
 		Send(pkt);
 	}
 }

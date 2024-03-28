@@ -50,8 +50,8 @@ CPlayer::CPlayer(TRWorld* const _trWorld)
 	m_pAnimLeg->Play(L"Player_Leg_IDLE", true);
 	m_pPrevAnim = pAnim->GetCurAnim();
 
-	auto pRigid = GetComp<CRigidBody>();
-	pRigid->SetIsGround(false);
+	//auto pRigid = GetComp<CRigidBody>();
+	//pRigid->SetIsGround(false);
 	
 	for (int i = 0; i < 10; ++i)
 	{
@@ -96,9 +96,10 @@ void CPlayer::update()
 	
 	const auto moveData = m_interpolator.GetInterPolatedData();
 	//SetWillPos(moveData.will_pos);
+	
 	SetPos(moveData.pos);
 	//pRigid->SetVelocity(moveData.vel);
-
+	
 	updateAnimation();
 	
 	if (PLAYER_STATE::ATTACK == m_eCurState)
@@ -133,6 +134,10 @@ void CPlayer::render(HDC _dc)const
 		m_vecWeapon[m_iCurQuickBarIdx]->render_weapon(_dc);
 	}
 	
+	if (!m_bIsHero)
+	{
+		std::cout <<GetPos().x << ", " << GetPos().y << std::endl;
+	}
 	//m_pWeapon->render(_dc);
 	//Mgr(CCore)->ResetTransform();
 	//m_iDegree = (m_iDegree + 1);
@@ -203,7 +208,7 @@ void CPlayer::component_update()
 	}
 	CObject::component_update();
 	m_pAnimLeg->component_update();
-	const auto pRigid = GetComp<CRigidBody>();
+	//const auto pRigid = GetComp<CRigidBody>();
 	//if (IsFloatZero(pRigid->GetVelocity().y) )
 	//if(m_pTRWolrd &&m_pTRWolrd->GetTileMap())
 	//{
@@ -323,24 +328,24 @@ void CPlayer::SetMoveData(const Protocol::s2c_MOVE& movePkt_) noexcept
 	if (m_bIsHero)
 	{
 		const auto pRigid = GetComp<CRigidBody>();
-		auto& new_data = m_interpolator.GetNewData();
-		auto& cur_data = m_interpolator.GetCurData();
+		auto new_data = m_interpolator.GetNewData();
+		//auto& cur_data = m_interpolator.GetCurData();
 
-		new_data.pos = GetPos();
-		new_data.vel = pRigid->GetVelocity();
-		new_data.will_pos = GetWillPos();
+		//cur_data.pos = GetPos();
+		//cur_data.vel = pRigid->GetVelocity();
+		//cur_data.will_pos = GetWillPos();
 
 		
 		
-		cur_data.pos = ToOriginVec2(movePkt_.obj_pos());
-		cur_data.vel = ToOriginVec2(movePkt_.vel());
-		cur_data.will_pos = ToOriginVec2(movePkt_.wiil_pos());
+		new_data.pos = ToOriginVec2(movePkt_.obj_pos());
+		new_data.vel = ToOriginVec2(movePkt_.vel());
+		new_data.will_pos = ToOriginVec2(movePkt_.wiil_pos());
 		
 		//
 		//SetPos(cur_data.pos * 0.4f + new_data.pos * 0.6f);
 		//SetWillPos(cur_data.will_pos * 0.4f + new_data.will_pos * 0.6f);
 		//pRigid->SetVelocity(cur_data.vel * 0.4f + new_data.vel * 0.6f);
-		m_interpolator.UpdateNewData(cur_data, movePkt_.time_stamp());
+		m_interpolator.UpdateNewData(new_data, movePkt_.time_stamp());
 
 		//m_interpolator.UpdateOnlyTimeStamp(movePkt_.time_stamp());
 		
@@ -365,10 +370,13 @@ void CPlayer::SetMoveData(const Protocol::s2c_MOVE& movePkt_) noexcept
 			.will_pos = ToOriginVec2(movePkt_.wiil_pos()),
 			.vel = ToOriginVec2(movePkt_.vel())
 		};
-
+	
 		m_interpolator.UpdateNewData(moveData, movePkt_.time_stamp());
+		//SetPos(moveData.pos);
 		SetState((PLAYER_STATE)movePkt_.state());
 		GetComp<CAnimator>()->SetAnimDir(movePkt_.anim_dir());
+		GetComp<CRigidBody>()->SetIsGround(movePkt_.ground());
+		GetComp<CRigidBody>()->SetVelocity(moveData.vel);
 	}
 }
 

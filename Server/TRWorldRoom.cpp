@@ -3,6 +3,11 @@
 #include "Object.h"
 #include "PhysicsComponent.h"
 #include "TRTileMap.h"
+#include "ThreadMgr.h"
+#include "ItemComponent.h"
+#include "ClientSession.h"
+#include "c2s_PacketHandler.h"
+#include "ThreadMgr.h"
 
 TRWorldRoom::TRWorldRoom(const SECTOR sector_)
 	:SessionManageable{ static_cast<uint16>(sector_) }
@@ -15,25 +20,56 @@ TRWorldRoom::~TRWorldRoom()
 
 void TRWorldRoom::Update(const uint64 tick_ms)
 {
+	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
+
 	m_timer.Update();
 
 	const float dt = m_timer.GetDT();
 
-	for (const auto& obj_list : m_worldObjectList)
+	for (auto& obj_list : m_worldObjectList[threadID])
 	{
-		for (const auto obj : obj_list.GetItemListRef())
-			obj->Update(dt);
+		const auto end_iter = obj_list.cend();
+		for (auto iter = obj_list.cbegin(); iter != end_iter; )
+		{
+			const auto obj = (*iter);
+			if (obj->IsValid())
+			{
+				obj->Update(dt);
+				m_vecCollisionTask.emplace_back(ServerCore::PoolNew<ServerCore::Task>(
+					[this, obj = obj->SharedCastThis<Object>()]()mutable noexcept {
+						this->UpdateTileCollisionForTick(std::move(obj));
+						//m_jobCount.fetch_sub(1, std::memory_order_release);
+					}
+				));
+				++iter;
+			}
+			else
+			{
+				obj->reset_cache_shared(*this);
+				iter = obj_list.EraseItemAndGetIter(obj->GetObjID());
+			}
+		}
 	}
 	
 	UpdateWorldCollision();
 
-	TickTileCollision();
+	//TickTileCollision();
 
-	for (const auto& obj_list : m_worldObjectList)
+	if (const auto num = m_vecCollisionTask.size())
 	{
-		for (const auto obj : obj_list.GetItemListRef())
-			obj->PostUpdate(dt);
+		Mgr(ThreadMgr)->EnqueueGlobalTaskBulk(m_vecCollisionTask.data(), num);
+		//m_jobCount.fetch_add(static_cast<int>(num), std::memory_order_acq_rel);
+		m_vecCollisionTask.clear();
+		//while (0 != m_jobCount.load(std::memory_order_relaxed)) { std::this_thread::yield(); };
 	}
+
+	//for (const auto& obj_list : m_worldObjectList)
+	//{
+	//	for (const auto obj : obj_list.GetItemListRef())
+	//	{
+	//		obj->PostUpdate(dt);
+	//	}
+	//}
 
 	EnqueueAsyncTimer(tick_ms, &TRWorldRoom::Update, uint64{ tick_ms });
 }
@@ -42,38 +78,55 @@ void TRWorldRoom::Init()
 {
 	//EnqueueAsyncTimer(5000, &TRWorldRoom::Update, uint64{ 30 });
 
-	RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::DROP_ITEM);
+	//RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::DROP_ITEM);
 }
 
 void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 {
-	EnqueueAsync(&TRWorldRoom::AddObject, GROUP_TYPE{ eType_ }, std::move(pObj_));
+	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
+	m_worldObjectList[threadID][etoi(eType_)].AddItem(pObj_->GetObjID(), pObj_);
+
+	EnqueueAsync(&TRWorldRoom::AddObject, GROUP_TYPE{ eType_ }, std::move(pObj_), uint64{ threadID });
 }
 
-void TRWorldRoom::DeleteObjectEnqueue(const GROUP_TYPE eType_, const uint64 objID_)
+//void TRWorldRoom::DeleteObjectEnqueue(const GROUP_TYPE eType_, const uint64 objID_)
+//{
+//	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID();
+//	m_worldObjectList[threadID][etoi(eType_)].EraseItem(objID_);
+//
+//	EnqueueAsync(&TRWorldRoom::DeleteObject, GROUP_TYPE{ eType_ }, uint64{ objID_ }, uint64{ threadID });
+//}
+
+void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_, const uint64 exceptThreadID)
 {
-	EnqueueAsync(&TRWorldRoom::DeleteObject, GROUP_TYPE{ eType_ }, uint64{ objID_ });
+	const auto obj_id = pObj_->GetObjID();
+	for (int i = 0; i < CONTAINER_SIZE; ++i)
+	{
+		if (exceptThreadID == i)continue;
+		m_worldObjectList[i][etoi(eType_)].AddItem(obj_id, pObj_);
+	}
 }
 
-void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
-{
-	m_worldObjectList[etoi(eType_)].AddItem(pObj_->GetObjID(), std::move(pObj_));
-}
-
-void TRWorldRoom::DeleteObject(const GROUP_TYPE eType_, const uint64 objID_)
-{
-	m_worldObjectList[etoi(eType_)].EraseItem(objID_);
-}
+//void TRWorldRoom::DeleteObject(const GROUP_TYPE eType_, const uint64 objID_, const uint64 exceptThreadID)
+//{
+//	for (int i = 0; i < ServerCore::ThreadMgr::NUM_OF_THREADS; ++i)
+//	{
+//		if (exceptThreadID == i)continue;
+//		m_worldObjectList[i][etoi(eType_)].EraseItem(objID_);
+//	}
+//}
 
 void TRWorldRoom::UpdateWorldCollision()
 {
+	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
+
 	for (uint16 iRow = 0; iRow < etoi(GROUP_TYPE::END); ++iRow)
 	{
 		for (uint16  iCol = iRow; iCol < etoi(GROUP_TYPE::END); ++iCol)
 		{
 			if (m_collisionChecker.GetCollisionBit(iRow, iCol))
 			{
-				m_collisionChecker.CollisionUpdateGroup(m_worldObjectList[iRow], m_worldObjectList[iCol]);
+				m_collisionChecker.CollisionUpdateGroup(m_worldObjectList[threadID][iRow], m_worldObjectList[threadID][iCol]);
 			}
 		}
 	}
@@ -81,48 +134,110 @@ void TRWorldRoom::UpdateWorldCollision()
 
 void TRWorldRoom::TickTileCollision()
 {
-	for (const auto& obj_list : m_worldObjectList)
+	//for (const auto& obj_list : m_worldObjectList)
+	//{
+	//	for (const auto obj : obj_list.GetItemListRef())
+	//	{
+	//		//if (const auto pRigid = obj->GetComp("RIGIDBODY")->Cast<RigidBody>())
+	//		//{
+	//		//	Protocol::c2s_MOVE pkt;
+	//		//	*pkt.mutable_obj_pos() = ::ToProtoVec2(obj->GetPos());
+	//		//	*pkt.mutable_scale() = ::ToProtoVec2(obj->GetScale());
+	//		//	*pkt.mutable_wiil_pos() = ToProtoVec2(obj->GetWillPos());
+	//		//	*pkt.mutable_vel() = ::ToProtoVec2(pRigid->GetVelocity());
+	//		//	updateTileCollision(pkt);
+	//		//};
+	//		m_vecCollisionTask.emplace_back(ServerCore::PoolNew<ServerCore::Task>(
+	//			[this,obj]()noexcept {
+	//				this->UpdateTileCollisionForTick(obj);
+	//				m_jobCount.fetch_sub(1, std::memory_order_release);
+	//			}
+	//		));
+	//		//UpdateTileCollisionForTick(obj);
+	//		//Mgr(ThreadMgr)->EnqueueGlobalTask(ServerCore::PoolNew<ServerCore::Task>(
+	//		//	[this, pObj = obj->shared_from_this()]()mutable noexcept {this->UpdateTileCollisionForTick(std::move(pObj)); }
+	//		//));
+	//	}
+	//}
+	//if (const auto num = m_vecCollisionTask.size())
+	//{
+	//	Mgr(ThreadMgr)->EnqueueGlobalTaskBulk(m_vecCollisionTask.data(), num);
+	//	m_jobCount.fetch_add(static_cast<int>(num), std::memory_order_acq_rel);
+	//	m_vecCollisionTask.clear();
+	//	while (0 != m_jobCount.load(std::memory_order_relaxed)) { std::this_thread::yield(); };
+	//}
+}
+
+void TRWorldRoom::TryGetItem(Object* const pPlayer)
+{
+	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
+	const auto pPlayerCollider = pPlayer->GetComp("COLLIDER")->Cast<Collider>();
+	const auto pSession = pPlayer->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
+
+	for (const auto pItem : m_worldObjectList[threadID][etoi(GROUP_TYPE::DROP_ITEM)].GetItemListRef())
 	{
-		for (const auto obj : obj_list.GetItemListRef())
+		const auto pCol = pItem->GetComp("COLLIDER")->Cast<Collider>();
+
+		if (CollisionChecker::IsCollision(pPlayerCollider, pCol))
 		{
-			//if (const auto pRigid = obj->GetComp("RIGIDBODY")->Cast<RigidBody>())
-			//{
-			//	Protocol::c2s_MOVE pkt;
-			//	*pkt.mutable_obj_pos() = ::ToProtoVec2(obj->GetPos());
-			//	*pkt.mutable_scale() = ::ToProtoVec2(obj->GetScale());
-			//	*pkt.mutable_wiil_pos() = ToProtoVec2(obj->GetWillPos());
-			//	*pkt.mutable_vel() = ::ToProtoVec2(pRigid->GetVelocity());
-			//	updateTileCollision(pkt);
-			//}
-			UpdateTileCollisionForTick(obj);
+			if (pItem->GetComp("ACQUIREITEM")->Cast<AcquireItem>()->TryGetItem())
+			{
+				Protocol::s2c_GET_ITEM pkt;
+				pkt.set_obj_id(pSession->GetSessionID());
+				pkt.set_item_name(pItem->GetObjectName());
+				pkt.set_item_id(pItem->GetObjID());
+
+				this << pkt;
+
+				pItem->SetInvalid();
+			}
 		}
 	}
 }
 
-void TRWorldRoom::UpdateTileCollisionForTick(Object* const pObj_) const
+void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noexcept
 {
+	constexpr const int try_num = 10;
+	//if (pObj_->GetObjectGroup() == GROUP_TYPE::PLAYER)
+	//{
+	//	if (pObj_->GetComp("KEYINPUTHANDLER")->Cast<KeyInputHandler>()->GetKeyState(VK_SPACE) == KeyInputHandler::KEY_STATE::KEY_TAP)
+	//	{
+	//		try_num = 10;
+	//	}
+	//}
+
 	const auto pRigid = pObj_->GetComp("RIGIDBODY")->Cast<RigidBody>();
 	const auto pCol = pObj_->GetComp("COLLIDER")->Cast<Collider>();
 
-	if (pCol == nullptr || "Monster_CthulhuEye" == pObj_->GetObjectName())
+	if (pCol == nullptr || "Monster_CthulhuEye" == pObj_->GetObjectName())[[unlikely]]
 	{
 		pObj_->SetPos(pObj_->GetWillPos());
 		return;
 	}
+	
+	//if (pObj_->GetObjectGroup() == GROUP_TYPE::PLAYER)
+	//{
+	//	if (pObj_->GetComp("KEYINPUTHANDLER")->Cast<KeyInputHandler>()->GetKeyState(VK_SPACE) == KeyInputHandler::KEY_STATE::KEY_TAP)
+	//	{
+	//		//pRigid->SetPrevPos(pObj_->GetPos() + Vec2{ 0,-2.f });
+	//		pRigid->SetPrevVelocity(pRigid->GetVelocity() + Vec2{ 0,-2.f });
+	//		pRigid->SetIsGround(false);
+	//	}
+	//}
 
-	const Vec2 prev_pos = pRigid->GetPrevPosition();
+	const Vec2 prev_pos = pRigid->GetPrevPos();
 	const Vec2 prev_vel = pRigid->GetPrevVelocity();
 
-	const Vec2 delta_pos = -(pRigid->GetPrevPosition() - pObj_->GetPos()) / 10.f;
-	const Vec2 delta_vel = -(pRigid->GetPrevVelocity() - pRigid->GetVelocity()) / 10.f;
+	const Vec2 delta_pos = (pObj_->GetPos() - pRigid->GetPrevPos()) / (float)try_num;
+	const Vec2 delta_vel = (pRigid->GetVelocity() - pRigid->GetPrevVelocity()) / (float)try_num;
 
 	const auto pTileMap = GetTileMap();
 
 	Vec2 temp_prev_pos;
-	Vec2 temp_prev_vel;
+	//Vec2 temp_prev_vel;
 	bool prev_landed = pRigid->IsGround();
-
-	for (int i = 0; i < 10; ++i)
+	bool bCollide = false;
+	for (int i = 1; i <= try_num; ++i)
 	{
 		const Vec2 seq_pos = prev_pos + delta_pos * (float)i;
 		const Vec2 seq_vel = prev_vel + delta_vel * (float)i;
@@ -240,29 +355,38 @@ void TRWorldRoom::UpdateTileCollisionForTick(Object* const pObj_) const
 			}
 		}
 
-		if (0 != i && prev_landed != landed)
+		//if (prev_landed != landed)
+		//{
+		//	pObj_->SetPos(TRWorld::WorldToGlobal((post_pos)));
+		//	pRigid->SetVelocity((post_vel));
+		//	//pRigid->SetIsGround(prev_landed);
+		//	prev_landed = landed;
+		//	break;
+		//}
+		if (landed)
 		{
 			pObj_->SetPos(TRWorld::WorldToGlobal((post_pos)));
 			pRigid->SetVelocity((post_vel));
 			//pRigid->SetIsGround(prev_landed);
 			prev_landed = landed;
+			bCollide = true;
 			break;
 		}
-		else if (landed)
-		{
-			pObj_->SetPos(TRWorld::WorldToGlobal((post_pos)));
-			pRigid->SetVelocity((post_vel));
-			//pRigid->SetIsGround(prev_landed);
-			prev_landed = landed;
-			break;
-		}
+		
+
 		prev_landed = landed;
 		temp_prev_pos = post_pos;
-		temp_prev_vel = post_vel;
+		//temp_prev_vel = post_vel;
 	}
-	//pRigid->SetIsGround(prev_landed);
-	pRigid->SetPrevPosition(pObj_->GetPos());
+	if (!bCollide)
+		pObj_->SetPos(TRWorld::WorldToGlobal(temp_prev_pos));
+
+	pRigid->SetIsGround(prev_landed);
+
+	pObj_->SetPrevPos(pObj_->GetPos());
 	pRigid->SetPrevVelocity(pRigid->GetVelocity());
+	
+	pObj_->PostUpdate(GetSectorDT());
 
 	//pRigid->SetIsGround(landed);
 	//if (!landed)

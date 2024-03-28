@@ -14,12 +14,24 @@ Collider::~Collider()
 
 void Collider::Update(const float dt_)
 {
+	const Vec2 vPrevPos = GetPrevPos();
+	const Vec2 vCurPos = GetOwner()->GetPos();
+
+	const Vec2 vDir = vCurPos - vPrevPos;
+
+
+
 	m_vFinalPos = GetOwner()->GetPos() + m_vOffsetPos;
 }
 
 const Vec2 Collider::GetScale() const noexcept
 {
 	return m_pOwner->GetScale();
+}
+
+const Vec2 Collider::GetPrevPos() const noexcept
+{
+	return m_pOwner->GetPrevPos();
 }
 
 //////////////////////////////////////////////////
@@ -53,10 +65,10 @@ void RigidBody::Move(const float dt_)
 
 void RigidBody::Update(const float dt_)
 {
-	if (m_pOwner->GetObjectGroup() == GROUP_TYPE::DROP_ITEM)
-	{
-		std::cout << m_pOwner->GetPos().x << ", " << m_pOwner->GetPos().y << std::endl;
-	}
+	//if (m_pOwner->GetObjectGroup() == GROUP_TYPE::DROP_ITEM)
+	//{
+	//	std::cout << m_pOwner->GetPos().x << ", " << m_pOwner->GetPos().y << std::endl;
+	//}
 	if (bitwise_absf(m_vVelocity.x) <= bitwise_absf(m_vMaxVelocityOrigin.x))
 	{
 		//SetLimitOrigin();
@@ -100,5 +112,41 @@ void RigidBody::update_gravity()
 	if (m_bGravity && !m_bIsGround)
 	{
 		AddForce(Vec2{ 0.0f,2000.0f });
+	}
+}
+
+const Vec2 RigidBody::GetPrevPos()const noexcept
+{
+	return m_pOwner->GetPrevPos();
+}
+
+/////////////////////////////////////////////////////
+
+KeyInputHandler::~KeyInputHandler()
+{
+
+}
+
+void KeyInputHandler::Update(const float dt_)
+{
+	for (const auto& [key, info] : m_keyHandlerMap)
+	{
+		info.second(m_pOwner, info.first);
+	}
+	
+}
+
+void KeyInputHandler::PostUpdate(const float dt_)noexcept
+{
+	for (auto& [key, info] : m_keyHandlerMap)
+	{
+		if (KEY_STATE::KEY_TAP == info.first)
+		{
+			info.first = KEY_STATE::KEY_HOLD;
+		}
+		else if (KEY_STATE::KEY_AWAY == info.first)
+		{
+			info.first = KEY_STATE::KEY_NONE;
+		}
 	}
 }

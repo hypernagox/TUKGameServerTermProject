@@ -70,6 +70,18 @@ namespace ServerCore
                 return false;
             }
         }
+        const auto EraseItemAndGetIter(const Key& key)noexcept
+        {
+            if (const auto iter = m_mapForFindItem.extract(key))
+            {
+                m_mapForGetItem.erase_unsafe(key);
+                return m_listItem.erase(iter.mapped());
+            }
+            else
+            {
+                return m_listItem.end();
+            }
+        }
         S_ptr<Value> ExtractItem(const Key& key)noexcept
         {
             if (auto item = m_mapForGetItem.extract_unsafe(key))

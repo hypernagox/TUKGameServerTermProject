@@ -224,21 +224,6 @@ void TRWorld::OnSceneCreate()
 	//Mgr(CCamera)->update();
 }
 
-Vec2 TRWorld::WorldToGlobal(const Vec2& v)
-{
-	return Vec2(v.x * PIXELS_PER_TILE, (static_cast<float>(TRWorld::WORLD_HEIGHT) - v.y) * PIXELS_PER_TILE);
-}
-
-Vec2 TRWorld::GlobalToWorld(const Vec2& v)
-{
-	return Vec2(v.x / PIXELS_PER_TILE, static_cast<float>(TRWorld::WORLD_HEIGHT) - v.y / PIXELS_PER_TILE);
-}
-
-TRTileMap* TRWorld::GetTileMap() const
-{
-	return tile_map;
-}
-
 //CPlayer* TRWorld::GetPlayer() const
 //{
 //	return player;
@@ -287,7 +272,7 @@ bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 	return true;
 }
 
-bool TRWorld::BreakTile(int x, int y)
+bool TRWorld::BreakTile(int x, int y, std::string& outName)
 {
 	const TRTile* const tile = tile_map->GetTile(x, y);
 
@@ -312,6 +297,8 @@ bool TRWorld::BreakTile(int x, int y)
 	const std::wstring k_dropitem = tile->DropItem();
 	if (k_dropitem == L"")
 		return true;
+
+	outName =  WideToUtf8(k_dropitem);
 
 	//TRItem* p_dropitem = Mgr(TRItemManager)->GetItemByKey(k_dropitem);
 	//DropItem(Vec2(x + 0.5f, y + 0.5f), TRItemStack(p_dropitem, 1));

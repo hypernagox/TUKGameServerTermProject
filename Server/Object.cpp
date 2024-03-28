@@ -5,5 +5,6 @@
 
 Object::~Object()
 {
+	std::cout << "destroy" << std::endl;
 }
 

@@ -7,6 +7,7 @@ class Component
 public:
 	Component(std::string_view compName_, Object* const pOwner_);
 	virtual ~Component();
+	//Component(Component& const) = delete;
 public:
 	virtual void Update(const float dt_) = 0;
 	virtual void PostUpdate(const float dt_)noexcept{}

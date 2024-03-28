@@ -89,6 +89,7 @@ message c2s_MOVE
 	Vec2 scale=4;
 	PLAYER_STATE state=5;
 	int32 anim_dir=6;
+	bool ground=7;
 }
 
 message s2c_MOVE
@@ -125,4 +126,27 @@ message s2c_GET_ITEM
 	uint64 obj_id=1;
 	Vec2 pos=2;
 	string item_name=3;
+	uint64 item_id=4;
+}
+
+message c2s_INPUT_KEY
+{
+	int32 vk_key=1;
+	int32 key_state=2;
+}
+
+message s2c_INPUT_KEY
+{
+	
+}
+
+message c2s_TRY_GET_ITEM
+{
+	Vec2 obj_pos=1;
+	uint64 time_stamp=2;
+}
+
+message s2c_TRY_GET_ITEM
+{
+
 }

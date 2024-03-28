@@ -6,6 +6,7 @@
 #include "TRWorldMgr.h"
 #include "TRWorldRoom.h"
 #include "BroadCaster.h"
+#include "ItemComponent.h"
 
 S_ptr<Object> ObjectFactory::CreatePlayer(ClientSession* const pSession_, const uint64 id)
 {
@@ -31,7 +32,72 @@ S_ptr<Object> ObjectFactory::CreatePlayer(ClientSession* const pSession_, const 
 
 	player->AddComponent(MakeShared<RigidBody>(player.get()));
 
-	
+	player->register_cache_shared_core(player);
+
+	//auto broadcaster = MakeShared<MoveBroadCaster>(player.get(), TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0).get());
+	//
+	//player->AddComponent(std::move(broadcaster));
+
+	auto input_handler = MakeShared<KeyInputHandler>(player.get());
+
+	input_handler->RegisterKeyHandleFunc('A', [](Object* const pObj,const KeyInputHandler::KEY_STATE eState_)
+		{
+			const auto pRigid = pObj->GetComp("RIGIDBODY")->Cast<RigidBody>();
+			switch (eState_)
+			{
+			case KeyInputHandler::KEY_STATE::KEY_TAP:
+				pRigid->AddVelocity(Vec2{ -20.0f, 0.0f });
+				break;
+			case KeyInputHandler::KEY_STATE::KEY_HOLD:
+				pRigid->AddVelocity(Vec2{ -20.0f, 0.0f });
+				break;
+			case KeyInputHandler::KEY_STATE::KEY_AWAY:
+				//pRigid->AddVelocity(Vec2{ -20.0f, 0.0f });
+				break;
+			default:
+				break;
+			}
+		});
+
+	input_handler->RegisterKeyHandleFunc('D', [](Object* const pObj, const KeyInputHandler::KEY_STATE eState_)
+		{
+			const auto pRigid = pObj->GetComp("RIGIDBODY")->Cast<RigidBody>();
+			switch (eState_)
+			{
+			case KeyInputHandler::KEY_STATE::KEY_TAP:
+				pRigid->AddVelocity(Vec2{ 20.0f, 0.0f });
+				break;
+			case KeyInputHandler::KEY_STATE::KEY_HOLD:
+				pRigid->AddVelocity(Vec2{ 20.0f, 0.0f });
+				break;
+			case KeyInputHandler::KEY_STATE::KEY_AWAY:
+				break;
+			default:
+				break;
+			}
+		});
+
+	input_handler->RegisterKeyHandleFunc(VK_SPACE, [](Object* const pObj, const KeyInputHandler::KEY_STATE eState_)
+		{
+			const auto pRigid = pObj->GetComp("RIGIDBODY")->Cast<RigidBody>();
+			switch (eState_)
+			{
+			case KeyInputHandler::KEY_STATE::KEY_TAP:
+				pRigid->SetIsGround(false);
+				pRigid->AddVelocity(Vec2::down * 720.0f);
+				pRigid->SetForce(Vec2{ 0, -1000.0f });
+				break;
+			case KeyInputHandler::KEY_STATE::KEY_HOLD:
+				break;
+			case KeyInputHandler::KEY_STATE::KEY_AWAY:
+				break;
+			default:
+				break;
+			}
+		});
+
+	player->AddComponent(std::move(input_handler));
+
 	return player;
 }
 
@@ -62,6 +128,12 @@ S_ptr<Object> ObjectFactory::CreateDropItem(const uint64 id, std::string_view st
 	const auto rigid = drop_item->AddComponent(MakeShared<RigidBody>(drop_item.get()));
 	
 	rigid->AddVelocity(Vec2::down * 240.f);
+
+	drop_item->register_cache_shared_core(drop_item);
+
+	auto acq = MakeShared<AcquireItem>(drop_item.get());
+
+	drop_item->AddComponent(std::move(acq));
 
 	return drop_item;
 }
