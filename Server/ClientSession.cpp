@@ -1,5 +1,6 @@
 #include "ClientSession.h"
 #include "c2s_PacketHandler.h"
+#include "Object.h"
 
 ClientSession::ClientSession()
 	:PacketSession{ ServerCore::c2s_PacketHandler::GetPacketHandlerList() }
@@ -20,4 +21,5 @@ void ClientSession::OnSend(c_int32 len)noexcept
 
 void ClientSession::OnDisconnected()
 {
+	m_pPlayer->SetInvalid();
 }

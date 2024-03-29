@@ -96,7 +96,7 @@ namespace ServerCore
         const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
-        const Vec2 item_pos = TRWorld::WorldToGlobal(Vec2{ (float)x,(float)y });
+        const Vec2 item_pos = TRWorld::WorldToGlobal(Vec2{ (float)x,(float)y + .5f });
 
         std::string temp;
 
@@ -113,7 +113,7 @@ namespace ServerCore
             if (!temp.empty())
             {
                 Protocol::s2c_CREATE_ITEM item_pkt;
-                *item_pkt.mutable_pos() = item_pos;
+                *item_pkt.mutable_pos() = Vec2{ (float)x ,(float)y + .5f };
                 item_pkt.set_item_name(temp);
                 item_pkt.set_obj_id(IDGenerator::GenerateID());
 

@@ -37,7 +37,7 @@ private:
 	CHealthIndicator* health_indicator;
 	int quick_bar_index;
 	bool toggle_inventory;
-
+	ServerCore::SpinLock m_tileWorldLock;
 public:
 	TRWorld();
 	~TRWorld();

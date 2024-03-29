@@ -14,7 +14,7 @@ public:
 	TRWorldRoom(const SECTOR sector_);
 	~TRWorldRoom();
 public:
-	void Update(const uint64 tick_ms = 100);
+	void Update(const uint64 tick_ms = 200);
 
 	void Init();
 public:

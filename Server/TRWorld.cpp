@@ -274,22 +274,26 @@ bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 
 bool TRWorld::BreakTile(int x, int y, std::string& outName)
 {
-	const TRTile* const tile = tile_map->GetTile(x, y);
-
-	if (tile == nullptr)
-		return false;
-
+	const TRTile* tile;
 	TRTile* const air_tile = TRTileManager::GetInst()->TileAir();
+	{
+		std::lock_guard<ServerCore::SpinLock> lock{ m_tileWorldLock };
+		tile = tile_map->GetTile(x, y);
 
-	if (tile == air_tile)
-		return false;
+		if (tile == nullptr)
+			return false;
 
-	//char buffer[16];
-	//sprintf_s(buffer, "%s_%d.wav", tile->Rocky() ? "Tink" : "Dig", uidDig(randDigSound));
-	//Mgr(CSoundMgr)->PlayEffect(buffer, 0.5f);
+		
 
-	tile_map->SetTile(x, y, air_tile, true);
+		if (tile == air_tile)
+			return false;
 
+		//char buffer[16];
+		//sprintf_s(buffer, "%s_%d.wav", tile->Rocky() ? "Tink" : "Dig", uidDig(randDigSound));
+		//Mgr(CSoundMgr)->PlayEffect(buffer, 0.5f);
+
+		tile_map->SetTile(x, y, air_tile, true);
+	}
 	const Vec2 vParticlePos = TRWorld::WorldToGlobal(Vec2{ (float)x,(float)y });
 	//CAtlasElement* pImg = tile->GetTileImg();
 	//Mgr(CParticleMgr)->SetParticles(vParticlePos, pImg);

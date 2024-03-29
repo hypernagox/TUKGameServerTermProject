@@ -197,7 +197,7 @@ void TRWorldRoom::TryGetItem(Object* const pPlayer)
 
 void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noexcept
 {
-	constexpr const int try_num = 10;
+	constexpr const int try_num = 5;
 	//if (pObj_->GetObjectGroup() == GROUP_TYPE::PLAYER)
 	//{
 	//	if (pObj_->GetComp("KEYINPUTHANDLER")->Cast<KeyInputHandler>()->GetKeyState(VK_SPACE) == KeyInputHandler::KEY_STATE::KEY_TAP)

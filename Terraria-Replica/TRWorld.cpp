@@ -544,7 +544,7 @@ void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_vie
 
 void TRWorld::EraseItem(const uint64_t item_id) noexcept
 {
-	m_mapItem.erase(item_id);
+	DeleteObj(m_mapItem.extract(item_id).mapped());
 }
 
 void TRWorld::AddNewPlayer(const uint64_t id)
