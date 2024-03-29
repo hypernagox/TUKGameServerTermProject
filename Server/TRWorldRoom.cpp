@@ -103,7 +103,7 @@ void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_, const 
 	for (int i = 0; i < CONTAINER_SIZE; ++i)
 	{
 		if (exceptThreadID == i)continue;
-		m_worldObjectList[i][etoi(eType_)].AddItem(obj_id, pObj_);
+		m_worldObjectList[i][etoi(eType_)].AddItem_endLock(obj_id, pObj_);
 	}
 }
 
@@ -174,8 +174,11 @@ void TRWorldRoom::TryGetItem(Object* const pPlayer)
 	const auto pPlayerCollider = pPlayer->GetComp("COLLIDER")->Cast<Collider>();
 	const auto pSession = pPlayer->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
 
-	for (const auto pItem : m_worldObjectList[threadID][etoi(GROUP_TYPE::DROP_ITEM)].GetItemListRef())
+	auto begin_iter = m_worldObjectList[threadID][etoi(GROUP_TYPE::DROP_ITEM)].cbegin();
+	const auto end_iter = m_worldObjectList[threadID][etoi(GROUP_TYPE::DROP_ITEM)].cend_safe();
+	for (; begin_iter != end_iter; ++begin_iter)
 	{
+		const auto pItem = (*begin_iter);
 		const auto pCol = pItem->GetComp("COLLIDER")->Cast<Collider>();
 
 		if (CollisionChecker::IsCollision(pPlayerCollider, pCol))

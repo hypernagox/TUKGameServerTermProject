@@ -117,6 +117,9 @@ namespace ServerCore
 			const int32 errorCode = ::WSAGetLastError();
 			if (errorCode != WSA_IO_PENDING)
 			{
+				m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
+				m_bConnected.store(false);
+
 				HandleError(errorCode);
 				m_pDisconnectEvent->ReleaseIocpObject();
 				return false;
@@ -150,6 +153,9 @@ namespace ServerCore
 			const int32 errorCode = ::WSAGetLastError();
 			if (errorCode != WSA_IO_PENDING)
 			{
+				m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
+				m_bConnected.store(false);
+
 				HandleError(errorCode);
 				m_pRecvEvent->ReleaseIocpObject();
 			}
@@ -211,11 +217,13 @@ namespace ServerCore
 			const int32 errorCode = ::WSAGetLastError();
 			if (errorCode != WSA_IO_PENDING)
 			{
+
+				m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
+				m_bIsSendRegistered.store(false);
+
 				HandleError(errorCode);
 				m_pSendEvent->ReleaseIocpObject();
-
 				sendBuffer.clear();
-				m_bIsSendRegistered.store(false, std::memory_order_release);
 			}
 		}
 	}

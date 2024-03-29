@@ -19,6 +19,20 @@ namespace ServerCore
             m_mapForGetItem.emplace_unsafe(key, std::forward<V>(value));
             return temp_ptr;
         }
+        template<typename V> requires std::same_as<std::remove_cvref_t<V>, S_ptr<Value>>
+        Value* const AddItem_endLock(const Key& key, V&& value)noexcept
+        {
+            if (HasItem(key))
+                return nullptr;
+            const auto temp_ptr = value.get();
+            decltype(m_listItem.begin()) insert_iter;
+            m_srwLock.lock();
+            insert_iter = m_listItem.insert(m_listItem.cend(), temp_ptr);
+            m_srwLock.unlock();
+            m_mapForFindItem.emplace(key, insert_iter);
+            m_mapForGetItem.emplace_unsafe(key, std::forward<V>(value));
+            return temp_ptr;
+        }
         S_ptr<Value> FindItem(const Key& key)const noexcept
         {
             auto item = m_mapForGetItem.find(key);
@@ -131,7 +145,33 @@ namespace ServerCore
 
         const auto& GetItemListRef()const noexcept { return m_listItem; }
         auto& GetItemListRef()noexcept { return m_listItem; }
+
+        constexpr const auto end_safe()noexcept {
+            m_srwLock.lock_shared();
+            const auto end_iter = m_listItem.end();
+            m_srwLock.unlock_shared();
+            return end_iter;
+        }
+        constexpr const auto end_safe()const noexcept {
+            m_srwLock.lock_shared();
+            const auto end_iter = m_listItem.end();
+            m_srwLock.unlock_shared();
+            return end_iter;
+        }
+        constexpr const auto cend_safe()noexcept {
+            m_srwLock.lock_shared();
+            const auto end_iter = m_listItem.cend();
+            m_srwLock.unlock_shared();
+            return end_iter;
+        }
+        constexpr const auto cend_safe()const noexcept {
+            m_srwLock.lock_shared();
+            const auto end_iter = m_listItem.cend();
+            m_srwLock.unlock_shared();
+            return end_iter;
+        }
     private:
+        SRWLock m_srwLock;
         std::list<Value*, AtomicAllocator<Value*>> m_listItem;
         HashMap<Key, decltype(m_listItem.begin())> m_mapForFindItem;
         ConcurrentHashMap<Key, S_ptr<Value>> m_mapForGetItem;
