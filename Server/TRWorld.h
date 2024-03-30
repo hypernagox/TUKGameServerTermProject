@@ -38,6 +38,7 @@ private:
 	int quick_bar_index;
 	bool toggle_inventory;
 	ServerCore::SpinLock m_tileWorldLock;
+	ServerCore::SpinLock m_tileWallWorldLock;
 public:
 	TRWorld();
 	~TRWorld();

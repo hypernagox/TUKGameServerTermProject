@@ -231,14 +231,14 @@ void TRWorld::OnSceneCreate()
 
 bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 {
-	TRTile* tile = tile_map->GetTile(x, y);
+	TRTile* const tile = tile_map->GetTile(x, y);
 
 	if (tile == nullptr)
 		return false;
 	if (tile->Solid())
 		return false;
 
-	const int dir[][2] = { 0, 1, 0, -1, -1, 0, 1, 0 };
+	constexpr const int dir[][2] = { 0, 1, 0, -1, -1, 0, 1, 0 };
 	int bitmask = 0;
 
 	for (int k = 0; k < 4; ++k)
@@ -254,7 +254,7 @@ bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 			bitmask |= 1 << k;
 	}
 
-	TRTileWall* tile_wall_p = tile_map->GetTileWall(x, y);
+	TRTileWall* const tile_wall_p = tile_map->GetTileWall(x, y);
 
 	if (bitmask == 0 && tile_wall_p == TRMgr(TRTileManager)->TileWallAir())
 		return false;
@@ -268,7 +268,11 @@ bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 	//	break;
 	//}
 
-	tile_map->SetTile(x, y, new_tile, true);
+	{
+		std::lock_guard<ServerCore::SpinLock> lock{ m_tileWorldLock };
+		tile_map->SetTile(x, y, new_tile, true);
+	}
+
 	return true;
 }
 
@@ -298,7 +302,7 @@ bool TRWorld::BreakTile(int x, int y, std::string& outName)
 	//CAtlasElement* pImg = tile->GetTileImg();
 	//Mgr(CParticleMgr)->SetParticles(vParticlePos, pImg);
 
-	const std::wstring k_dropitem = tile->DropItem();
+	const auto& k_dropitem = tile->DropItem();
 	if (k_dropitem == L"")
 		return true;
 
@@ -311,15 +315,15 @@ bool TRWorld::BreakTile(int x, int y, std::string& outName)
 
 bool TRWorld::PlaceTileWall(int x, int y, TRTileWall* new_tile)
 {
-	TRTileWall* tile = tile_map->GetTileWall(x, y);
-	TRTileWall* air_tile = TRMgr(TRTileManager)->TileWallAir();
+	TRTileWall* const tile = tile_map->GetTileWall(x, y);
+	TRTileWall* const air_tile = TRMgr(TRTileManager)->TileWallAir();
 
 	if (tile == nullptr)
 		return false;
 	if (tile != air_tile)
 		return false;
 
-	const int dir[][2] = { 0, 1, 0, -1, -1, 0, 1, 0 };
+	constexpr const int dir[][2] = { 0, 1, 0, -1, -1, 0, 1, 0 };
 	int bitmask = 0;
 
 	for (int k = 0; k < 4; ++k)
@@ -351,29 +355,37 @@ bool TRWorld::PlaceTileWall(int x, int y, TRTileWall* new_tile)
 	//sprintf_s(buffer, "%s_%d.wav", "Dig", uidDig(randDigSound));
 	//Mgr(CSoundMgr)->PlayEffect(buffer, 0.5f);
 	//
-	//tile_map->SetTileWall(x, y, new_tile, true);
+	{
+		std::lock_guard<ServerCore::SpinLock> lock{ m_tileWallWorldLock };
+		tile_map->SetTileWall(x, y, new_tile, true);
+	}
 	return true;
 }
 
 bool TRWorld::BreakTileWall(int x, int y)
 {
-	const TRTileWall* const tile = tile_map->GetTileWall(x, y);
+	const TRTileWall* tile;
+	{
+		std::lock_guard<ServerCore::SpinLock> lock{ m_tileWallWorldLock };
 
-	if (tile == nullptr)
-		return false;
+		tile = tile_map->GetTileWall(x, y);
 
-	TRTileWall* const air_tile = TRMgr(TRTileManager)->TileWallAir();
+		if (tile == nullptr)
+			return false;
 
-	if (tile == air_tile)
-		return false;
+		TRTileWall* const air_tile = TRMgr(TRTileManager)->TileWallAir();
 
-	//char buffer[16];
-	//sprintf_s(buffer, "%s_%d.wav", "Dig", uidDig(randDigSound));
-	//Mgr(CSoundMgr)->PlayEffect(buffer, 0.5f);
+		if (tile == air_tile)
+			return false;
 
-	tile_map->SetTileWall(x, y, air_tile, true);
+		//char buffer[16];
+		//sprintf_s(buffer, "%s_%d.wav", "Dig", uidDig(randDigSound));
+		//Mgr(CSoundMgr)->PlayEffect(buffer, 0.5f);
 
-	const std::wstring k_dropitem = tile->DropItem();
+		tile_map->SetTileWall(x, y, air_tile, true);
+	}
+
+	const auto& k_dropitem = tile->DropItem();
 	if (k_dropitem == L"")
 		return true;
 

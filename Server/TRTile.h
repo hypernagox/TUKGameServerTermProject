@@ -37,7 +37,7 @@ public:
 	float Hardness() const;
 	bool Rocky() const;
 	int LightLevel() const;
-	std::wstring DropItem() const;
+	const std::wstring& DropItem() const noexcept { return k_dropitem; }
 
 	//CAtlasElement* GetTileImg() const
 	//{

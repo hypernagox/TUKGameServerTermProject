@@ -353,11 +353,6 @@ int TRTile::LightLevel() const
     return light_level;
 }
 
-std::wstring TRTile::DropItem() const
-{
-    return k_dropitem;
-}
-
 TRTileSolid::TRTileSolid(std::wstring name, float hardness, bool rocky, std::wstring k_element, std::wstring k_dropitem) : TRTile(name, true, hardness, rocky, k_element, k_dropitem)
 {
     this->stick_group = 1;

@@ -17,7 +17,7 @@ protected:
 public:
 	TRTileWall(std::wstring name, std::wstring k_element, std::wstring k_dropitem);
 
-	std::wstring DropItem() const;
+	const std::wstring& DropItem() const noexcept { return k_dropitem; }
 
 	//void CreateAtlasElements();
 	//virtual void OnDrawElement(CTileLayer* tilemap_layer, int x, int y, int bitmask);
