@@ -136,7 +136,7 @@ void CPlayer::render(HDC _dc)const
 	
 	if (!m_bIsHero)
 	{
-		std::cout <<GetPos().x << ", " << GetPos().y << std::endl;
+		//std::cout <<GetPos().x << ", " << GetPos().y << std::endl;
 	}
 	//m_pWeapon->render(_dc);
 	//Mgr(CCore)->ResetTransform();

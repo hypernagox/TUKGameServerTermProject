@@ -122,7 +122,7 @@ namespace ServerCore
 		MPSCQueue<S_ptr<SendBuffer>> m_sendQueue;
 		const U_ptr<SendEvent> m_pSendEvent;
 		Atomic<bool> m_bIsSendRegistered = false;
-		bool m_bConnectedNonAtomic = false;
+		volatile bool m_bConnectedNonAtomic = false;
 		Vector<WSABUF> m_wsaBufs;
 		SOCKET m_sessionSocket = INVALID_SOCKET;
 
@@ -130,7 +130,7 @@ namespace ServerCore
 		const U_ptr<DisconnectEvent> m_pDisconnectEvent;
 		NetAddress m_sessionAddr;
 
-		bool m_bConnectedNonAtomicForRecv = false;
+		volatile bool m_bConnectedNonAtomicForRecv = false;
 		SOCKET m_sessionSocketForRecv = INVALID_SOCKET;
 		const U_ptr<RecvEvent> m_pRecvEvent;
 		const U_Pptr<RecvBuffer> m_pRecvBuffer;
@@ -140,7 +140,7 @@ namespace ServerCore
 		std::atomic<ID_Ptr<SessionManageable>> m_CurrentSessionRoomInfo;
 	private:
 		Atomic<bool>m_bConnected = false;
-		bool m_bHeartBeatAlive = true;
+		volatile bool m_bHeartBeatAlive = true;
 		int32 m_iLastErrorCode = 1;
 		const U_ptr<ConnectEvent> m_pConnectEvent;
 	private:
