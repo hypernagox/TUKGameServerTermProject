@@ -2,6 +2,8 @@
 
 class CObject;
 
+extern int sector;
+
 enum class CAM_EFFECT
 {
 	FADE_IN,
@@ -42,6 +44,7 @@ class CCamera
 	~CCamera();
 	static constexpr Vec2 vCamLowLimit{ 0.f,4096.f };
 	static constexpr Vec2 vCamUpperLimit{ (float)8192.f,0.f };
+	static constexpr inline const float g_xLimit = 8192.f / 4.f;
 private:
 	CamRect	m_CamRect = {};
 
@@ -120,16 +123,16 @@ public:
 	void ResetRenderPos(HDC _dc)const;
 	pair<Vec2,Vec2> GetRenderPos(const CObject* const _pObj)const;
 	void SetNowLookAt(Vec2 _vLook) { m_vCurLookAt =m_vLookAt = _vLook; }
-	void renderBackGround(HDC _hDest, HDC _hSrc, Vec2 _vLayerScale ,float _fSpeed)const;
+	void renderBackGround(HDC _hDest, HDC _hSrc, Vec2 _vLayerScale ,float _fSpeed)const noexcept;
 
 public:
 	void update();
 	CamRect GetCamRect()const { return m_CamRect; }
-	void SetCamRect(Vec2 _vCamLookMid) 
+	void SetCamRect(Vec2 _vCamLookMid,const int sector)noexcept 
 	{ 
-		_vCamLookMid.x = max(m_vOriginMid.x, _vCamLookMid.x);
+		_vCamLookMid.x = max(m_vOriginMid.x, _vCamLookMid.x + g_xLimit * sector);
 		_vCamLookMid.y = max(m_vOriginMid.y , _vCamLookMid.y);
-		_vCamLookMid.x = min(((float)(8192.f) - 700.f), _vCamLookMid.x);
+		_vCamLookMid.x = min(((float)(g_xLimit)*(sector+1) - 700.f), _vCamLookMid.x) - sector * 700;
 		_vCamLookMid.y = min(4096.f - m_vOriginMid.y , _vCamLookMid.y);
 		m_CamRect.vLookMid = _vCamLookMid;
 		m_CamRect.vLT = _vCamLookMid - m_CamRect.vCamSize / 2.f;
@@ -139,7 +142,7 @@ public:
 
 	void SetCamRect(Vec2 _vGlobalLT, Vec2 _vGlobalRB)
 	{
-		SetCamRect((_vGlobalLT + _vGlobalRB) / 2.f);
+		SetCamRect((_vGlobalLT + _vGlobalRB) / 2.f, sector);
 	}
 
 	void SetShakeFlag(bool _b) { ShakeFlag = _b; }

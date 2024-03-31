@@ -128,7 +128,7 @@ pair<Vec2, Vec2> CCamera::GetRenderPos(const CObject* const _pObj) const
 
 
 
-void CCamera::renderBackGround(HDC _hDest,HDC _hSrc,Vec2 _vLayerScale, float _fSpeed) const
+void CCamera::renderBackGround(HDC _hDest,HDC _hSrc,Vec2 _vLayerScale, float _fSpeed) const noexcept
 {	
 	const short iBackWidth = (short)_vLayerScale.x;
 	const short iBackHeight = (short)_vLayerScale.y;
@@ -180,6 +180,8 @@ void CCamera::renderBackGround(HDC _hDest,HDC _hSrc,Vec2 _vLayerScale, float _fS
 
 }
 
+extern int sector;
+
 void CCamera::update()
 {
 	if (m_pTargetObj)
@@ -197,7 +199,7 @@ void CCamera::update()
 			xint = xint - xint % 2;
 			yint = yint - yint % 2;
 			m_vShadingPos = Vec2(static_cast<float>(xint), static_cast<float>(yint));
-			SetCamRect(m_vShadingPos);
+			SetCamRect(m_vShadingPos,sector);
 		}
 	}
 
@@ -213,7 +215,7 @@ void CCamera::update()
 	
 	if (ShakeFlag)
 	{
-		Vec2 vPrev = m_vLookAt;
+		const Vec2 vPrev = m_vLookAt;
 		ShakeFlag = true;
 		if (0. >= m_fShakeAcc)
 		{
@@ -223,7 +225,7 @@ void CCamera::update()
 			if (m_pTargetObj)
 			{
 				//SetLookAt(m_pTargetObj->GetPos());
-				SetCamRect(m_pTargetObj->GetPos());
+				SetCamRect(m_pTargetObj->GetPos(),sector);
 			}
 			else
 			{
@@ -322,7 +324,7 @@ void CCamera::CalDiff()
 {
 	if (m_bMoveFlag)
 	{
-		Vec2 vLookDir = m_vLookAt - m_vPrevLookAt;
+		const Vec2 vLookDir = m_vLookAt - m_vPrevLookAt;
 
 		m_fAccTime += DT;
 		m_fSpeed -= m_fAccel * DT;
@@ -342,7 +344,7 @@ void CCamera::CalDiff()
 			}
 			else
 			{
-				Vec2 vLookDir = m_vLookAt - m_vPrevLookAt;
+				const Vec2 vLookDir = m_vLookAt - m_vPrevLookAt;
 				if (!vLookDir.IsZero())
 				{
 					m_vCurLookAt = m_vPrevLookAt + vLookDir.Normalize() * m_fSpeed * DT;
@@ -360,10 +362,10 @@ void CCamera::CalDiff()
 	{
 		m_vCurLookAt = m_vLookAt;
 	}
-	Vec2 vResolution = CCore::GetInst()->GetResolution();
-	Vec2 vCenter = vResolution / 2.f;
-	Vec2 vCurLookLT = m_vCurLookAt - vResolution / 2;
-	Vec2 vCurLookRB = m_vCurLookAt + vResolution / 2;
+	const Vec2 vResolution = CCore::GetInst()->GetResolution();
+	const Vec2 vCenter = vResolution / 2.f;
+	const Vec2 vCurLookLT = m_vCurLookAt - vResolution / 2;
+	const Vec2 vCurLookRB = m_vCurLookAt + vResolution / 2;
 	//m_vCurLookAt.x = m_vCurLookAt.x * m_dCamZoom + (FLOAT)(vCurLookLT.x) * 2.f * (1.f - m_dCamZoom);
 	//m_vCurLookAt.y = m_vCurLookAt.y * m_dCamZoom + (FLOAT)(vCurLookLT.y) * 2.f * (1.f - m_dCamZoom);
 	

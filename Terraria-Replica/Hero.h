@@ -1,6 +1,8 @@
 #pragma once
 #include "CPlayer.h"
 
+extern int sector;
+
 class Hero
 	:public CPlayer
 {

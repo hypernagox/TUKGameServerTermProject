@@ -73,7 +73,6 @@ void CPlayer::update()
 	{
 		return;
 	}
-
 	CObject::update();
 	const auto pRigid = GetComp<CRigidBody>();
 	//if (bitwise_absf(pRigid->GetVelocity().y) > FLT_EPSILON && PLAYER_STATE::ATTACK != m_eCurState)
@@ -82,7 +81,7 @@ void CPlayer::update()
 	//	m_bIsIDLE = false;
 	//}
 
-	//auto pAnim = GetComp<CAnimator>();
+	const auto pAnim = GetComp<CAnimator>();
 	//
 	//m_ePrevState = m_eCurState;
 	//
@@ -100,6 +99,12 @@ void CPlayer::update()
 	SetPos(moveData.pos);
 	//pRigid->SetVelocity(moveData.vel);
 	
+	if (m_ePrevState == PLAYER_STATE::ATTACK && pAnim->IsFinish())
+	{
+		m_eCurState = PLAYER_STATE::IDLE;
+		m_bIsAtk = false;
+	}
+
 	updateAnimation();
 	
 	if (PLAYER_STATE::ATTACK == m_eCurState)
@@ -129,15 +134,7 @@ void CPlayer::render(HDC _dc)const
 	CObject::component_render(_dc);
 	m_pAnimLeg->component_render(_dc);
 
-	if (PLAYER_STATE::ATTACK == m_eCurState)
-	{
-		m_vecWeapon[m_iCurQuickBarIdx]->render_weapon(_dc);
-	}
 	
-	if (!m_bIsHero)
-	{
-		//std::cout <<GetPos().x << ", " << GetPos().y << std::endl;
-	}
 	//m_pWeapon->render(_dc);
 	//Mgr(CCore)->ResetTransform();
 	//m_iDegree = (m_iDegree + 1);

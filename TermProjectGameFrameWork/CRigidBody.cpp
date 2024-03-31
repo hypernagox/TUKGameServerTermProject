@@ -60,11 +60,10 @@ void CRigidBody::component_update()
 	m_vVelocity += m_vAccel * DT;
 	if (!m_vVelocity.IsZero())
 	{
-		Vec2 vFriction = m_vVelocity.Normalize();
-		vFriction *= m_fFriction * DT;
+		const Vec2 vFriction = m_vVelocity.Normalize() * m_fFriction * DT;
 		if (m_vVelocity.length() <= vFriction.length())
 		{
-			m_vVelocity = Vec2{ 0.,0. };
+			m_vVelocity = Vec2{ 0.f,0.f };
 		}
 		else
 		{

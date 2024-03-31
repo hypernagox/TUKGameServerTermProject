@@ -75,13 +75,15 @@ public:
 	void ScaleTransform(HDC dc, float _fScale);
 	void TranslateTransform(HDC dc, Vec2 vDist);
 
-	void MazentaBlt(HDC _dc, Vec2 _vRes)const
+	void MazentaBlt(const HDC _dc, const Vec2 _vRes)const noexcept
 	{
-		SelectObject(_dc, m_arrBrush[etoi(BRUSH_TYPE::MAZENTA)]);
-		Rectangle(_dc, 0, 0, (int)_vRes.x, (int)_vRes.y);
+		//SelectObject(_dc, m_arrBrush[etoi(BRUSH_TYPE::MAZENTA)]);
+		//Rectangle(_dc, 0, 0, (int)_vRes.x, (int)_vRes.y);
+		const RECT rt{ 0, 0, (int)_vRes.x, (int)_vRes.y };
+		FillRect(_dc, &rt, m_arrBrush[etoi(BRUSH_TYPE::MAZENTA)]);
 	}
 
-	void MaznetaClear(HDC _dc, const UINT _idx)const
+	void MaznetaClear(HDC _dc, const UINT _idx)const noexcept
 	{
 		BitBlt(_dc
 			, 0

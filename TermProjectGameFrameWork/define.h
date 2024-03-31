@@ -71,6 +71,7 @@ enum class PEN_TYPE
 	GREEN,
 	BLUE,
 	MAZENTA,
+	HOLLOW,
 
 	END,
 };

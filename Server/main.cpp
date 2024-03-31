@@ -13,7 +13,7 @@ int main()
 	ServerCore::c2s_PacketHandler::Init();
 	
 	TRMgr(TRWorldMgr)->Init();
-	TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0)->CreateWorld(10);
+	TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0)->GetTRWorld()->CreateWorld(10);
 
 	const auto pServerService = ServerCore::MakeShared<ServerCore::ServerService>
 		(

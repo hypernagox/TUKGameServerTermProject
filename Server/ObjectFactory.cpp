@@ -7,6 +7,7 @@
 #include "TRWorldRoom.h"
 #include "BroadCaster.h"
 #include "ItemComponent.h"
+#include "ClientSession.h"
 
 S_ptr<Object> ObjectFactory::CreatePlayer(ClientSession* const pSession_, const uint64 id)
 {
@@ -24,11 +25,11 @@ S_ptr<Object> ObjectFactory::CreatePlayer(ClientSession* const pSession_, const 
 
 	constexpr const int x = TRWorld::WORLD_WIDTH / 2;
 
-	const auto tile_map = TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0)->GetTileMap();
+	const auto tile_map = TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0)->GetTRWorld()->GetTileMap();
 	player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x, tile_map->GetTopYpos(x))) - Vec2(20.0f, 28.0f));
 	player->SetScale(Vec2{ 40.f, 56.f });
 	
-	player->AddComponent(MakeShared<SessionObject>(pSession_, player.get()));
+	player->AddComponent(MakeShared<SessionObject>(pSession_->SharedCastThis<ClientSession>(), player.get()));
 
 	player->AddComponent(MakeShared<RigidBody>(player.get()));
 

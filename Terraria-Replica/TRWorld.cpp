@@ -203,7 +203,7 @@ void TRWorld::OnSceneCreate(CScene* scene)
 	Mgr(CCollisionMgr)->Reset();
 	player = new Hero(this);
 	const int x = TRWorld::WORLD_WIDTH / 2;
-	player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x, tile_map->GetTopYpos(x))) - Vec2(20.0f, 28.0f));
+	player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x / 4, tile_map->GetTopYpos(x))) - Vec2(20.0f / 4, 28.0f));
 	player->SetScale(Vec2{ 40.f, 56.f });
 	scene->AddObject(player, GROUP_TYPE::PLAYER);
 	Mgr(CCamera)->SetTarget(player);
@@ -456,7 +456,7 @@ void TRWorld::AddItemToInventory(TRItemStack item)
 			break;
 	}
 
-	static wchar_t buffer[64];
+	wchar_t buffer[64];
 	if (item.GetStackSize() > 1)
 		wsprintf(buffer, L"%s (%d)", item.GetItem()->GetName().c_str(), item.GetStackSize());
 	else
@@ -542,12 +542,23 @@ void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_vie
 	m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM);
 }
 
+void TRWorld::EraseOtherPlayer(const uint64_t otherPlayerId, const uint64_t sector) noexcept
+{
+	if (const auto iter = m_mapOtherPlayer[sector].extract(otherPlayerId))
+	{
+		std::erase_if(m_pScene->GetSectorObject(sector)[etoi(GROUP_TYPE::PLAYER)], [otherPlayerId](const std::unique_ptr<CObject>& obj) {
+			const auto player = static_cast<CPlayer* const>(obj.get());
+			return player->GetPlayerID() == otherPlayerId;
+			});
+	}
+}
+
 void TRWorld::EraseItem(const uint64_t item_id) noexcept
 {
 	DeleteObj(m_mapItem.extract(item_id).mapped());
 }
 
-void TRWorld::AddNewPlayer(const uint64_t id)
+void TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector)
 {
 	const auto player = new CPlayer{ this };
 	const int x = TRWorld::WORLD_WIDTH / 2;
@@ -555,5 +566,6 @@ void TRWorld::AddNewPlayer(const uint64_t id)
 	player->SetScale(Vec2{ 40.f, 56.f });
 	//Mgr(CSceneMgr)->GetCurScene()->AddObject(player, GROUP_TYPE::PLAYER);
 	m_pScene->AddObject(player, GROUP_TYPE::PLAYER);
-	m_mapOtherPlayer.emplace(id, player);
+	player->SetPlayerID(id);
+	m_mapOtherPlayer[sector].emplace(id, player);
 }

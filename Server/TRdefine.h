@@ -3,7 +3,7 @@
 enum class SECTOR :uint16_t
 {
 	SECTOR_0,
-	
+	SECTOR_1,
 
 	END,
 };

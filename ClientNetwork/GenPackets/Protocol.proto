@@ -151,3 +151,52 @@ message s2c_TRY_GET_ITEM
 {
 
 }
+
+message c2s_TRY_NEW_ROOM
+{
+	int32 cur_sector_num=1;
+	int32 next_sector_num=2;
+}
+
+message s2c_TRY_NEW_ROOM
+{
+
+}
+
+message c2s_ARRIVE_NEW_ROOM
+{
+	
+}
+
+message s2c_ARRIVE_NEW_ROOM
+{
+
+}
+
+message c2s_APPEAR_NEW_OBJECT
+{
+	
+}
+
+message s2c_APPEAR_NEW_OBJECT
+{
+	bool is_player=1;
+	uint32 sector=2;
+	uint64 obj_id=3;
+	string obj_name=4;
+}
+
+message c2s_LEAVE_OBJECT
+{
+	bool is_player=1;
+	uint64 obj_id=2;
+	int32 sector=3;
+}
+
+message s2c_LEAVE_OBJECT
+{
+	bool is_player=1;
+	uint64 obj_id=2;
+	int32 sector=3;
+}
+

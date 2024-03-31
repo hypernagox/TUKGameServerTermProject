@@ -25,6 +25,7 @@ namespace ServerCore
 		void ImmigrationAllEnqueue(S_ptr<SessionManageable> pOtherRoom, const bool bDestroyCurrentRoom)noexcept;
 	protected:
 		drop_range GetSessionRangeExceptOne(c_uint64 exceptSessionNumber_)noexcept;
+		virtual void ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManageable> beforeRoom, const S_ptr<ServerCore::PacketSession> pSession_)noexcept abstract;
 	private:
 		void Enter(S_ptr<Session> pSession_)noexcept;
 		void LeaveAndDisconnect(const S_ptr<Session> pSession_)noexcept;

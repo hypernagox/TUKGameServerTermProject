@@ -14,9 +14,9 @@ public:
 	virtual void OnSend(c_int32 len)noexcept override;
 	virtual void OnDisconnected()override;
 public:
-	Object* const GetPlayer()const noexcept { return m_pPlayer; };
-	void SetPlayer(Object* const pPlayer)noexcept { m_pPlayer = pPlayer; }
+	const S_ptr<Object>& GetPlayer()const noexcept { return m_pPlayer; };
+	void SetPlayer(const S_ptr<Object>& pPlayer)noexcept { m_pPlayer = pPlayer; }
 private:
-	Object* m_pPlayer;
+	S_ptr<Object> m_pPlayer;
 };
 

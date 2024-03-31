@@ -446,4 +446,18 @@ void updateTileCollision(CObject* const _pObj,TRWorld* const _pTRWorld)
     {
         pRigid->SetIsGround(false);
     }
+
+    const auto vPos = _pObj->GetPos();
+    const auto vScaleX = _pObj->GetScale().x / 2.f;
+    constexpr const float xLimit = 8192.f / 4.f;
+    if (xLimit * sector >= vPos.x - vScaleX)
+    {
+        _pObj->SetPos({ xLimit * sector + vScaleX ,vPos.y });
+        _pObj->SetWillPos(_pObj->GetPos());
+    }
+    else if (xLimit * (sector + 1) <= vPos.x + vScaleX)
+    {
+        _pObj->SetPos({ xLimit * (sector + 1) - vScaleX ,vPos.y });
+        _pObj->SetWillPos(_pObj->GetPos());
+    }
 }

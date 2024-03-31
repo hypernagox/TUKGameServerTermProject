@@ -84,9 +84,15 @@ void TRWorldRoom::Init()
 void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 {
 	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
-	m_worldObjectList[threadID][etoi(eType_)].AddItem(pObj_->GetObjID(), pObj_);
-
-	EnqueueAsync(&TRWorldRoom::AddObject, GROUP_TYPE{ eType_ }, std::move(pObj_), uint64{ threadID });
+	const uint64 objID = pObj_->GetObjID();
+	m_worldObjectList[threadID][etoi(eType_)].AddItem(objID, pObj_);
+	const auto pIsSession = pObj_->GetComp("SESSIONOBJECT");
+	if (pIsSession)
+	{
+		g_allPlayers[threadID].AddItem(objID, pIsSession->Cast<SessionObject>()->GetSession());
+	}
+	const auto& pSession = pObj_->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
+	EnqueueAsync(&TRWorldRoom::AddObject, GROUP_TYPE{ eType_ }, std::move(pObj_), uint64{ threadID }, bool(pIsSession));
 }
 
 //void TRWorldRoom::DeleteObjectEnqueue(const GROUP_TYPE eType_, const uint64 objID_)
@@ -97,13 +103,50 @@ void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 //	EnqueueAsync(&TRWorldRoom::DeleteObject, GROUP_TYPE{ eType_ }, uint64{ objID_ }, uint64{ threadID });
 //}
 
-void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_, const uint64 exceptThreadID)
+void TRWorldRoom::LeavePlayer(const uint64 playerID) noexcept
 {
-	const auto obj_id = pObj_->GetObjID();
+	const uint64 thID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
+	const auto player = m_worldObjectList[thID][etoi(GROUP_TYPE::PLAYER)].ExtractItem(playerID);
+	if (player)
+	{
+		const auto& pSession = player->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
+
+		for (const auto others : GetSessionList())
+		{
+			Protocol::s2c_LEAVE_OBJECT pkt;
+			pkt.set_is_player(true);
+			pkt.set_obj_id(others->GetSessionID());
+			pkt.set_sector(GetRoomID());
+			pSession << pkt;
+		}
+	}
 	for (int i = 0; i < CONTAINER_SIZE; ++i)
 	{
-		if (exceptThreadID == i)continue;
-		m_worldObjectList[i][etoi(eType_)].AddItem_endLock(obj_id, pObj_);
+		if (thID == i)continue;
+		m_worldObjectList[i][etoi(GROUP_TYPE::PLAYER)].EraseItem(playerID);
+	}
+}
+
+void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_, const uint64 exceptThreadID, const bool bIsSession)
+{
+	const auto obj_id = pObj_->GetObjID();
+	if (bIsSession)
+	{
+		const auto& pSession = pObj_->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
+		for (int i = 0; i < CONTAINER_SIZE; ++i)
+		{
+			if (exceptThreadID == i)continue;
+			m_worldObjectList[i][etoi(eType_)].AddItem_endLock(obj_id, pObj_);
+			g_allPlayers[i].AddItem_endLock(obj_id, pSession);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < CONTAINER_SIZE; ++i)
+		{
+			if (exceptThreadID == i)continue;
+			m_worldObjectList[i][etoi(eType_)].AddItem_endLock(obj_id, pObj_);
+		}
 	}
 }
 
@@ -130,6 +173,80 @@ void TRWorldRoom::UpdateWorldCollision()
 			}
 		}
 	}
+}
+
+void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManageable> beforeRoom, const S_ptr<ServerCore::PacketSession> pSession_) noexcept
+{
+	const uint64 thID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
+	const uint64 sessionID = pSession_->GetSessionID();
+	
+	const auto& player = static_cast<ClientSession* const>(pSession_.get())->GetPlayer();
+	const auto trBefromRoom = static_cast<TRWorldRoom* const>(beforeRoom.get());
+
+
+	trBefromRoom->LeavePlayerEnqueue(sessionID);
+
+	Protocol::s2c_LEAVE_OBJECT pkt1;
+	pkt1.set_is_player(true);
+	pkt1.set_obj_id(sessionID);
+	pkt1.set_sector(beforeRoom->GetRoomID());
+
+	trBefromRoom << pkt1;
+
+
+	Protocol::s2c_TRY_NEW_ROOM pkt3;
+	pSession_ << pkt3;
+
+	Protocol::s2c_APPEAR_NEW_OBJECT pkt2;
+	pkt2.set_is_player(true);
+	pkt2.set_sector(GetRoomID());
+	pkt2.set_obj_id(sessionID);
+
+	this << pkt2;
+
+	for (const auto others : GetSessionList())
+	{
+		Protocol::s2c_APPEAR_NEW_OBJECT pkt;
+		pkt.set_is_player(true);
+		pkt.set_sector(GetRoomID());
+		pkt.set_obj_id(others->GetSessionID());
+
+		pSession_ << pkt;
+	}
+	
+	AddObjectEnqueue(GROUP_TYPE::PLAYER, player);
+}
+
+void TRWorldRoom::BroadCastToWorld(const S_ptr<ServerCore::SendBuffer> pSendBuffer)
+{
+	const uint64 thID_ = Mgr(ThreadMgr)->GetCurThreadID() - 1;
+
+	const auto end_iter = g_allPlayers[thID_].cend_safe();
+	
+	for (auto iter = g_allPlayers[thID_].cbegin(); iter != end_iter;)
+	{
+		const auto pSession = (*iter);
+		if (pSession->IsConnected())
+		{
+			pSession->SendOnlyEnqueue(pSendBuffer);
+			m_vecForBroadCastToWorld.emplace_back(PoolNew<ServerCore::Task>(&ServerCore::Session::TryRegisterSend, pSession->SharedCastThis<ServerCore::Session>()));
+			++iter;
+		}
+		else
+		{
+			iter = g_allPlayers[thID_].EraseItemAndGetIter(pSession->GetSessionID());
+		}
+	}
+	if (const auto num = m_vecForBroadCastToWorld.size())
+	{
+		Mgr(ThreadMgr)->EnqueueGlobalTaskBulk(m_vecForBroadCastToWorld.data(), num);
+		m_vecForBroadCastToWorld.clear();
+	}
+}
+
+void TRWorldRoom::LeavePlayerEnqueue(const uint64 playerID) noexcept
+{
+	EnqueueAsync(&TRWorldRoom::LeavePlayer, uint64{ playerID });
 }
 
 void TRWorldRoom::TickTileCollision()
@@ -168,11 +285,11 @@ void TRWorldRoom::TickTileCollision()
 	//}
 }
 
-void TRWorldRoom::TryGetItem(Object* const pPlayer)
+void TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer)
 {
 	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
 	const auto pPlayerCollider = pPlayer->GetComp("COLLIDER")->Cast<Collider>();
-	const auto pSession = pPlayer->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
+	const auto& pSession = pPlayer->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
 
 	auto begin_iter = m_worldObjectList[threadID][etoi(GROUP_TYPE::DROP_ITEM)].cbegin();
 	const auto end_iter = m_worldObjectList[threadID][etoi(GROUP_TYPE::DROP_ITEM)].cend_safe();
@@ -234,7 +351,7 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 	const Vec2 delta_pos = (pObj_->GetPos() - pRigid->GetPrevPos()) / (float)try_num;
 	const Vec2 delta_vel = (pRigid->GetVelocity() - pRigid->GetPrevVelocity()) / (float)try_num;
 
-	const auto pTileMap = GetTileMap();
+	const auto pTileMap = GetTRWorld()->GetTileMap();
 
 	Vec2 temp_prev_pos;
 	//Vec2 temp_prev_vel;

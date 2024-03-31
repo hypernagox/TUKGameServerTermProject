@@ -134,13 +134,7 @@ public:
 		}
 	}
 
-	operator POINT()const
-	{
-		POINT temp{};
-		temp.x = std::lround(x);
-		temp.y = std::lround(y);
-		return temp;
-	}
+	operator POINT()const { return POINT{ std::lround(x) ,std::lround(y) }; }
 
 	operator Protocol::Vec2()const noexcept {
 		Protocol::Vec2 vec;
@@ -148,4 +142,8 @@ public:
 		vec.set_y(y);
 		return vec;
 	}
+
+	const Vec2 Perpendicular() const noexcept { return Vec2(y, -x); }
+
+	const float Dot(const Vec2& other) const noexcept{ return x * other.x + y * other.y; }
 };

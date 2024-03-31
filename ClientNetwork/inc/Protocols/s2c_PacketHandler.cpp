@@ -7,6 +7,9 @@
 #include "TRTileManager.h"
 #include "CDropItem.h"
 #include "CCollider.h"
+#include "CEventMgr.h"
+#include "CSceneMgr.h"
+#include "CScene.h"
 
 extern int g_TR_SEED;
 extern TRWorld* g_TRWorld;
@@ -22,12 +25,14 @@ namespace NetHelper
     {
         g_TR_SEED = pkt_.seed();
         NetMgr(NetworkMgr)->SetSessionID(pkt_.id());
+        //g_TRWorld->GetPlayer()->SetPlayerID(pkt_.id());
+
         return true;
     }
 
     const bool Handle_s2c_ENTER(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_ENTER& pkt_)
     {
-        g_TRWorld->AddNewPlayer(pkt_.player_id());
+        g_TRWorld->AddNewPlayer(pkt_.player_id(),0);
         return true;
     }
 
@@ -75,7 +80,7 @@ namespace NetHelper
 
     const bool NetHelper::Handle_s2c_MOVE(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_MOVE& pkt_)
     {
-        if (const auto other = g_TRWorld->GetOtherPlayer(pkt_.obj_id()))
+        if (const auto other = g_TRWorld->GetOtherPlayer(pkt_.obj_id(),sector))
         {
             other->SetMoveData(pkt_);
         }
@@ -118,5 +123,34 @@ namespace NetHelper
     const bool NetHelper::Handle_s2c_TRY_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_TRY_GET_ITEM& pkt_)
     {
         return false;
+    }
+
+    const bool NetHelper::Handle_s2c_TRY_NEW_ROOM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_TRY_NEW_ROOM& pkt_)
+    {
+        Mgr(CEventMgr)->AddEvent([]()
+            {
+                sector = (Mgr(CSceneMgr)->GetCurScene()->GetSectorNum() + 1) % 5;
+                Mgr(CSceneMgr)->GetCurScene()->ChangeSector(sector);
+            });
+        return true;
+    }
+
+    const bool NetHelper::Handle_s2c_ARRIVE_NEW_ROOM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_ARRIVE_NEW_ROOM& pkt_)
+    {
+        return true;
+    }
+
+    const bool NetHelper::Handle_s2c_APPEAR_NEW_OBJECT(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_APPEAR_NEW_OBJECT& pkt_)
+    {
+        if (NetMgr(NetworkMgr)->GetSessionID() == pkt_.obj_id())
+            return true;
+        g_TRWorld->AddNewPlayer(pkt_.obj_id(), pkt_.sector());
+        return true;
+    }
+
+    const bool NetHelper::Handle_s2c_LEAVE_OBJECT(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_LEAVE_OBJECT& pkt_)
+    {
+        g_TRWorld->EraseOtherPlayer(pkt_.obj_id(), pkt_.sector());
+        return true;
     }
 }

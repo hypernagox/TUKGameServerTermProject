@@ -11,8 +11,14 @@
 #include "TRItem.h"
 #include "CTimeMgr.h"
 #include "CCollider.h"
+#include "CCamera.h"
+#include "CSceneMgr.h"
+#include "CScene.h"
+#include "CEventMgr.h"
 
 extern void updateTileCollision(CObject* const _pObj, TRWorld* const _pTRWorld);
+
+int sector = 0;
 
 Hero::Hero(TRWorld* const _trWorld)
 	:CPlayer{ _trWorld }
@@ -34,7 +40,22 @@ void Hero::update()
 	{
 		return;
 	}
-
+	if (KEY_TAP(KEY::S))
+	{
+		
+		Protocol::c2s_TRY_NEW_ROOM pkt;
+		pkt.set_cur_sector_num(sector);
+		pkt.set_next_sector_num((sector + 1) % 5);
+		Send(pkt);
+		//Mgr(CEventMgr)->AddEvent([]()
+		//	{
+		//		sector = (Mgr(CSceneMgr)->GetCurScene()->GetSectorNum() + 1) % 5;
+		//		Mgr(CSceneMgr)->GetCurScene()->ChangeSector(sector);
+		//	});
+		
+		//sector = (sector + 1) % 5;
+	}
+	//std::cout << GetPos().x << ", " << GetPos().y << std::endl;
 	CObject::update();
 	auto pAnim = GetComp<CAnimator>();
 
@@ -220,7 +241,7 @@ void Hero::component_update()
 	{
 		return;
 	}
-	
+
 
 	CObject::component_update();
 	m_pAnimLeg->component_update();
@@ -236,12 +257,12 @@ void Hero::component_update()
 	//	}
 	//}
 	//else
-		SendMoveData();
+	SendMoveData();
 
-		const auto move_data = m_interpolator.GetInterPolatedData();
-		SetPos(move_data.pos);
-		//pRigid->SetVelocity(move_data.vel);
-		//SetWillPos(move_data.will_pos);
+	const auto move_data = m_interpolator.GetInterPolatedData();
+	SetPos(move_data.pos);
+	//pRigid->SetVelocity(move_data.vel);
+	//SetWillPos(move_data.will_pos);
 }
 
 

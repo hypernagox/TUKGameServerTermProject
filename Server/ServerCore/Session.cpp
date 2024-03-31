@@ -94,6 +94,8 @@ namespace ServerCore
 		// 세선 등록
 		if (GetService()->AddSession(pThisSessionPtr))
 		{
+			pThisSessionPtr->register_cache_shared_core(pThisSessionPtr);
+
 			m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = true;
 			std::atomic_thread_fence(std::memory_order_release);
 			m_bConnected.store(true);
@@ -134,6 +136,7 @@ namespace ServerCore
 		OnDisconnected();
 		GetService()->ReleaseSession(pThisSessionPtr);
 		CancelIoEx(reinterpret_cast<HANDLE>(m_sessionSocket), NULL);
+		// 캐시 쉐어드 리셋 해야됌
 	}
 
 	void Session::RegisterRecv(const S_ptr<PacketSession>& pThisSessionPtr)noexcept

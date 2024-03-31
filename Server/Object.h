@@ -7,17 +7,17 @@ class SessionObject
 	:public Component
 {
 public:
-	SessionObject(ClientSession*const pSession_,Object* const pOwner_)
+	SessionObject(S_ptr<ClientSession>&& pSession_,Object* const pOwner_)
 		: Component{ "SESSIONOBJECT",pOwner_ }
-		, m_pSession{ pSession_ }
+		, m_pSession{ std::move(pSession_) }
 	{}
 public:
 	void Update(const float)override{}
 
-	ClientSession* const GetSession()const noexcept { return m_pSession; }
+	const S_ptr<ClientSession>& GetSession()const noexcept { return m_pSession; }
 	
 private:
-	ClientSession* const m_pSession;
+	const S_ptr<ClientSession> m_pSession;
 };
 
 class Object

@@ -40,7 +40,7 @@ private:
 	int quick_bar_index;
 	bool toggle_inventory;
 
-	std::unordered_map<uint64_t, CPlayer*> m_mapOtherPlayer;
+	std::unordered_map<uint64_t, CPlayer*> m_mapOtherPlayer[etoi(SECTOR::END)];
 
 	std::unordered_map<uint64_t, CDropItem*> m_mapItem;
 public:
@@ -85,8 +85,9 @@ public:
 		return m_mapItem.end() != iter ? iter->second : nullptr;
 	}
 	
+	void EraseOtherPlayer(const uint64_t otherPlayerId,const uint64_t sector)noexcept;
 	void EraseItem(const uint64_t item_id)noexcept;
 public:
-	void AddNewPlayer(const uint64_t id);
-	CPlayer* GetOtherPlayer(const uint64_t id)noexcept { return m_mapOtherPlayer[id]; }
+	void AddNewPlayer(const uint64_t id, const uint64_t sector);
+	CPlayer* GetOtherPlayer(const uint64_t id,const uint64 sector_)noexcept { return m_mapOtherPlayer[sector_][id]; }
 };

@@ -50,7 +50,11 @@ protected:
     HDC m_hPlayerVeilDC; 
     HBITMAP m_hPlayerVeilBit;
     MoveInterpolator m_interpolator;
+    uint64 m_playerID;
 public:
+    const uint64 GetPlayerID()const noexcept { return m_playerID; }
+    void SetPlayerID(const uint64 id_)noexcept { m_playerID = id_; }
+
     bool IsHero()const noexcept { return m_bIsHero; }
     CPlayer(TRWorld* const _trWorld);
     CPlayer(const CPlayer& other);

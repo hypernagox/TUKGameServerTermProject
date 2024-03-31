@@ -1,6 +1,6 @@
 #include "ServerCorePch.h"
 #include "SessionManageable.h"
-#include "Session.h"
+#include "PacketSession.h"
 
 namespace ServerCore
 {
@@ -74,7 +74,11 @@ namespace ServerCore
 	{
 		if (auto session = m_linkedHashMapForSession.ExtractItem(sessionID))
 		{
-			pOtherRoom->EnqueueAsync(&SessionManageable::Enter, std::move(session));
+			pOtherRoom->EnqueueAsync([beforeRoom = SharedCastThis<SessionManageable>(), pOtherRoom, session = session->SharedCastThis<PacketSession>()]()mutable noexcept
+				{
+					pOtherRoom->Enter(session);
+					pOtherRoom->ImigrationAfterBehavior(std::move(beforeRoom), std::move(session));
+				});
 		}
 		else
 		{
@@ -86,7 +90,11 @@ namespace ServerCore
 	{
 		for (const auto pSession : m_linkedHashMapForSession)
 		{
-			pOtherRoom->EnqueueAsync(&SessionManageable::Enter, pSession->SharedCastThis<Session>());
+			pOtherRoom->EnqueueAsync([beforeRoom = SharedCastThis<SessionManageable>(), pOtherRoom, pSession = pSession->SharedCastThis<PacketSession>()]()mutable noexcept
+				{
+					pOtherRoom->Enter(pSession);
+					pOtherRoom->ImigrationAfterBehavior(std::move(beforeRoom), std::move(pSession));
+				});
 		}
 		m_linkedHashMapForSession.clear_unsafe();
 		if (bDestroyCurrentRoom)
