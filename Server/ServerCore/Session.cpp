@@ -38,10 +38,10 @@ namespace ServerCore
 	void Session::Disconnect(std::wstring cause)
 	{
 		LOG_MSG(std::move(cause));
-		if (false == m_bConnected.exchange(false))
+		if (false == m_bConnected.exchange(false,std::memory_order_acq_rel))
 			return;
 		m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
-		std::atomic_thread_fence(std::memory_order_release);
+		std::atomic_thread_fence(std::memory_order_seq_cst);
 		m_bConnected.store(false);
 		RegisterDisconnect();
 	}
@@ -97,7 +97,7 @@ namespace ServerCore
 			pThisSessionPtr->register_cache_shared_core(pThisSessionPtr);
 
 			m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = true;
-			std::atomic_thread_fence(std::memory_order_release);
+			std::atomic_thread_fence(std::memory_order_seq_cst);
 			m_bConnected.store(true);
 			// 컨텐츠 코드에서 오버로딩 해야함
 			// 입장시 해야할 일

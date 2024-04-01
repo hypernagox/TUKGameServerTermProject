@@ -45,7 +45,6 @@ namespace ServerCore
 			{
 			}
 			oldTail->next.store(value,std::memory_order_release);
-			std::atomic_thread_fence(std::memory_order_release);
 		}
 		const bool try_pop(T& _target)noexcept {
 			Node* oldHead;
@@ -83,7 +82,6 @@ namespace ServerCore
 			return true;
 		}
 		const bool try_pop_for_cv(T& _target, std::unique_lock<SpinLock>& cvLock)noexcept {
-			std::atomic_thread_fence(std::memory_order_acquire);
 			Node* const head_temp = head.load(std::memory_order_relaxed);
 			if (Node* const __restrict newHead = head_temp->next.load(std::memory_order_acquire))
 			{
@@ -100,7 +98,6 @@ namespace ServerCore
 			return false;
 		}
 		const bool try_pop_single(T& _target)noexcept {
-			std::atomic_thread_fence(std::memory_order_acquire);
 			Node* const head_temp = head.load(std::memory_order_relaxed);
 			if (Node* const __restrict newHead = head_temp->next.load(std::memory_order_acquire))
 			{
@@ -116,7 +113,6 @@ namespace ServerCore
 			return false;
 		}
 		const bool try_pop_single(Vector<T>& _targetForPushBack)noexcept {
-			std::atomic_thread_fence(std::memory_order_acquire);
 			Node* const head_temp = head.load(std::memory_order_relaxed);
 			if (Node* const __restrict newHead = head_temp->next.load(std::memory_order_acquire))
 			{
@@ -168,7 +164,6 @@ namespace ServerCore
 			return bIsEmpty;
 		}
 		const bool empty_single()const noexcept {
-			std::atomic_thread_fence(std::memory_order_acquire);
 			return tail.load(std::memory_order_acquire) == head.load(std::memory_order_acquire);
 		}
 		void clear() noexcept {

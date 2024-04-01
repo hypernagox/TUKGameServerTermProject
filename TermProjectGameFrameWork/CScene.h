@@ -14,6 +14,8 @@ enum class SECTOR
 	SECTOR_0,
 	SECTOR_1,
 	SECTOR_2,
+	SECTOR_3,
+	SECTOR_4,
 
 	END,
 };

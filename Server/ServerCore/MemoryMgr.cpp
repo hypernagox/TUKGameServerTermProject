@@ -74,7 +74,7 @@ namespace ServerCore
 		else
 		{
 			// 메모리 풀에서 꺼내온다
-			return MemoryHeader::AttachHeader(static_cast<MemoryHeader* const>(m_poolTable[allocSize]->allocate()),allocSize);
+			return MemoryHeader::AttachHeader(static_cast<MemoryHeader* const>(m_poolTable[allocSize]->allocate()), allocSize);
 		}
 #endif	
 	}

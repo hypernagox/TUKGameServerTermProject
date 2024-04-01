@@ -43,15 +43,16 @@ void Hero::update()
 	if (KEY_TAP(KEY::S))
 	{
 		
-		Protocol::c2s_TRY_NEW_ROOM pkt;
-		pkt.set_cur_sector_num(sector);
-		pkt.set_next_sector_num((sector + 1) % 5);
-		Send(pkt);
-		//Mgr(CEventMgr)->AddEvent([]()
-		//	{
-		//		sector = (Mgr(CSceneMgr)->GetCurScene()->GetSectorNum() + 1) % 5;
-		//		Mgr(CSceneMgr)->GetCurScene()->ChangeSector(sector);
-		//	});
+		//Protocol::c2s_TRY_NEW_ROOM pkt;
+		//pkt.set_cur_sector_num(sector);
+		//pkt.set_next_sector_num((sector + 1) % 5);
+		//Send(pkt);
+		std::cout << GetPos().x << ", " << GetPos().y << std::endl;
+		Mgr(CEventMgr)->AddEvent([]()
+			{
+				sector = (Mgr(CSceneMgr)->GetCurScene()->GetSectorNum() + 1) % 5;
+				Mgr(CSceneMgr)->GetCurScene()->ChangeSector(sector);
+			});
 		
 		//sector = (sector + 1) % 5;
 	}
