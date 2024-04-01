@@ -30,7 +30,7 @@ namespace ServerCore
 	{
 		// TODO: 어떻게 소멸시킬지 고민
 		IterateSession([](const S_ptr<Session>& p)noexcept {p->Disconnect(L"Bye"); });
-		reset_cache_shared();
+		//reset_cache_shared();
 	}
 
 	S_ptr<Session> Service::CreateSession()noexcept

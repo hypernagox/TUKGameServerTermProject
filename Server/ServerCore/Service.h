@@ -21,7 +21,6 @@ namespace ServerCore
 	using SessionFactory = std::function<S_ptr<Session>(void)>;
 
 	class Service
-		:public enable_shared_cache_this<Service>
 	{
 	public:
 		Service(const std::shared_ptr<IocpCore>& pIocp_, SERVICE_TYPE eServiceType_, NetAddress addr_, SessionFactory factory_, c_int32 maxSessionCount_ = 1);

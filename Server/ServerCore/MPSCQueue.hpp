@@ -19,12 +19,15 @@ namespace ServerCore
 		std::atomic<Node*> tail;
 	private:
 		void reset()noexcept {
-			Node* const headForClear = head.load(std::memory_order_acquire);
-			while (Node* const nextHead = headForClear->next.load(std::memory_order_acquire))
+			Node* curHead = head.load(std::memory_order_acquire);
+			const Node* const curTail = tail.load(std::memory_order_acquire);
+			while (curTail != curHead)
 			{
-				xdelete<Node>(head);
-				head.store(nextHead, std::memory_order_relaxed);
+				Node* const delHead = curHead;
+				curHead = curHead->next.load(std::memory_order_acquire);
+				xdelete<Node>(delHead);
 			}
+			head.store(curHead, std::memory_order_release);
 		}
 	public:
 		MPSCQueue()noexcept :head{ xnew<Node>() } {
@@ -33,7 +36,7 @@ namespace ServerCore
 		}
 		~MPSCQueue()noexcept {
 			reset();
-			xdelete<Node>(head);
+			xdelete<Node>(head.load(std::memory_order_relaxed));
 		}
 		template <typename... Args>
 		void emplace(Args&&... args) noexcept {

@@ -455,9 +455,9 @@ void updateTileCollision(CObject* const _pObj,TRWorld* const _pTRWorld)
         //_pObj->SetPos({ xLimit * sector + vScaleX - sector * 700.f ,vPos.y });
         //_pObj->SetWillPos(_pObj->GetPos());
     }
-    else if (xLimit * (sector + 1) - sector * 700.f <= vPos.x + vScaleX)
+    else if (xLimit * (sector + 1) - sector * 700.f <= vPos.x + vScaleX * 2)
     {
-        _pObj->SetPos({ xLimit * (sector + 1) - vScaleX - sector * 700.f ,vPos.y });
+        _pObj->SetPos({ xLimit * (sector + 1) - vScaleX * 2- sector * 700.f ,vPos.y });
         _pObj->SetWillPos(_pObj->GetPos());
     }
 }
