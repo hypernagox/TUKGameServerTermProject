@@ -46,6 +46,7 @@ public:
 	CObject* GetPlayer()const { return m_pPlayer; }
 	Hero* GetPlayerCast()const { return reinterpret_cast<Hero*>(m_pPlayer); }
 	void AddObject(CObject* const _pObj, GROUP_TYPE _eType);
+	void AddObject(CObject* const _pObj, GROUP_TYPE _eType,const int sector_);
 	const vector<unique_ptr<CObject>>& GetGroupObject(GROUP_TYPE _eType)const;
 	vector<unique_ptr<CObject>>& GetUIGroup();
 	auto& GetPlayerWeapon() { return m_vecObj[m_iSectorNum][etoi(GROUP_TYPE::PLAYER_WEAPON)]; }

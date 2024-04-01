@@ -195,6 +195,7 @@ void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManagea
 
 
 	Protocol::s2c_TRY_NEW_ROOM pkt3;
+	pkt3.set_next_sector_num(GetRoomID());
 	pSession_ << pkt3;
 
 	Protocol::s2c_APPEAR_NEW_OBJECT pkt2;
@@ -213,7 +214,7 @@ void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManagea
 
 		pSession_ << pkt;
 	}
-	
+
 	AddObjectEnqueue(GROUP_TYPE::PLAYER, player);
 }
 
@@ -306,8 +307,10 @@ void TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer)
 				pkt.set_obj_id(pSession->GetSessionID());
 				pkt.set_item_name(pItem->GetObjectName());
 				pkt.set_item_id(pItem->GetObjID());
+				pkt.set_sector(GetRoomID());
 
-				this << pkt;
+				BroadCastToWorld(ServerCore::c2s_PacketHandler::MakeSendBuffer(pkt));
+				//this << pkt;
 
 				pItem->SetInvalid();
 			}
@@ -317,7 +320,7 @@ void TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer)
 
 void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noexcept
 {
-	constexpr const int try_num = 5;
+	constexpr const int try_num = 4;
 	//if (pObj_->GetObjectGroup() == GROUP_TYPE::PLAYER)
 	//{
 	//	if (pObj_->GetComp("KEYINPUTHANDLER")->Cast<KeyInputHandler>()->GetKeyState(VK_SPACE) == KeyInputHandler::KEY_STATE::KEY_TAP)
@@ -376,7 +379,7 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 
 		//const Vec2 pre_pos = TRWorld::GlobalToWorld(pObj_->GetPos());
 
-		const Vec2 pre_pos = TRWorld::GlobalToWorld(seq_pos);
+		const Vec2 pre_pos = TRWorld::GlobalToWorld(seq_pos + delta_pos);
 
 		Vec2 post_pos = world_pos;
 		Vec2 post_vel = world_vel;

@@ -80,6 +80,7 @@ public:
 	void SpawnBoss();
 
 	void CreateItem(const uint64_t item_id,Vec2 world_pos, std::string_view item_key);
+	void CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_view item_key,const int sector_);
 	CDropItem* const GetDropItem(const uint64_t item_id)const {
 		const auto iter = m_mapItem.find(item_id);
 		return m_mapItem.end() != iter ? iter->second : nullptr;

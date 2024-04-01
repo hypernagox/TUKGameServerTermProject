@@ -93,6 +93,11 @@ void CScene::AddObject(CObject* const _pObj, GROUP_TYPE _eType)
 	m_vecObj[m_iSectorNum][(UINT)_eType].emplace_back(_pObj);
 }
 
+void CScene::AddObject(CObject* const _pObj, GROUP_TYPE _eType, const int sector_)
+{
+	m_vecObj[sector_][(UINT)_eType].emplace_back(_pObj);
+}
+
 const vector<unique_ptr<CObject>>& CScene::GetGroupObject(GROUP_TYPE _eType) const
 {
 	return m_vecObj[m_iSectorNum][(UINT)_eType];

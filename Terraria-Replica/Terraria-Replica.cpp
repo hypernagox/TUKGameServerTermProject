@@ -450,14 +450,24 @@ void updateTileCollision(CObject* const _pObj,TRWorld* const _pTRWorld)
     const auto vPos = _pObj->GetPos();
     const auto vScaleX = _pObj->GetScale().x / 2.f;
     constexpr const float xLimit = 8192.f / 4.f;
-    if (xLimit * sector >= vPos.x - vScaleX)
+    //if (xLimit * sector >= vPos.x - vScaleX)
+    //{
+    //    //_pObj->SetPos({ xLimit * sector + vScaleX - sector * 700.f ,vPos.y });
+    //    //_pObj->SetWillPos(_pObj->GetPos());
+    //}
+    //else if (xLimit * (sector + 1) - sector * 750.f <= vPos.x + vScaleX * 2)
+    //{
+    //    _pObj->SetPos({ xLimit * (sector + 1) - vScaleX * 2- sector * 0.f ,vPos.y });
+    //    _pObj->SetWillPos(_pObj->GetPos());
+    //}
+    if (vPos.x + vScaleX >= 2000 + sector * 1350)
     {
-        //_pObj->SetPos({ xLimit * sector + vScaleX - sector * 700.f ,vPos.y });
-        //_pObj->SetWillPos(_pObj->GetPos());
+        _pObj->SetPos(Vec2{ 2000.f + sector * 1350.f - vScaleX ,vPos.y});
+        _pObj->SetWillPos(_pObj->GetPos());
     }
-    else if (xLimit * (sector + 1) - sector * 700.f <= vPos.x + vScaleX * 2)
+    else if (vPos.x - vScaleX <= 2000 + (sector-1) * 1350 + 50.f)
     {
-        _pObj->SetPos({ xLimit * (sector + 1) - vScaleX * 2- sector * 700.f ,vPos.y });
+        _pObj->SetPos(Vec2{ 2000.f + (sector - 1) * 1350.f + vScaleX + 50.f ,vPos.y });
         _pObj->SetWillPos(_pObj->GetPos());
     }
 }

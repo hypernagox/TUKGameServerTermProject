@@ -2842,6 +2842,7 @@ class s2c_CREATE_ITEM final :
     kItemNameFieldNumber = 3,
     kPosFieldNumber = 2,
     kObjIdFieldNumber = 1,
+    kSectorFieldNumber = 4,
   };
   // string item_name = 3;
   void clear_item_name();
@@ -2884,6 +2885,15 @@ class s2c_CREATE_ITEM final :
   void _internal_set_obj_id(uint64_t value);
   public:
 
+  // int32 sector = 4;
+  void clear_sector();
+  int32_t sector() const;
+  void set_sector(int32_t value);
+  private:
+  int32_t _internal_sector() const;
+  void _internal_set_sector(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Protocol.s2c_CREATE_ITEM)
  private:
   class _Internal;
@@ -2895,6 +2905,7 @@ class s2c_CREATE_ITEM final :
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr item_name_;
     ::Protocol::Vec2* pos_;
     uint64_t obj_id_;
+    int32_t sector_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -3145,6 +3156,7 @@ class s2c_GET_ITEM final :
     kPosFieldNumber = 2,
     kObjIdFieldNumber = 1,
     kItemIdFieldNumber = 4,
+    kSectorFieldNumber = 5,
   };
   // string item_name = 3;
   void clear_item_name();
@@ -3196,6 +3208,15 @@ class s2c_GET_ITEM final :
   void _internal_set_item_id(uint64_t value);
   public:
 
+  // int32 sector = 5;
+  void clear_sector();
+  int32_t sector() const;
+  void set_sector(int32_t value);
+  private:
+  int32_t _internal_sector() const;
+  void _internal_set_sector(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Protocol.s2c_GET_ITEM)
  private:
   class _Internal;
@@ -3208,6 +3229,7 @@ class s2c_GET_ITEM final :
     ::Protocol::Vec2* pos_;
     uint64_t obj_id_;
     uint64_t item_id_;
+    int32_t sector_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -3938,9 +3960,10 @@ class c2s_TRY_NEW_ROOM final :
 // -------------------------------------------------------------------
 
 class s2c_TRY_NEW_ROOM final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:Protocol.s2c_TRY_NEW_ROOM) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.s2c_TRY_NEW_ROOM) */ {
  public:
   inline s2c_TRY_NEW_ROOM() : s2c_TRY_NEW_ROOM(nullptr) {}
+  ~s2c_TRY_NEW_ROOM() override;
   explicit PROTOBUF_CONSTEXPR s2c_TRY_NEW_ROOM(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   s2c_TRY_NEW_ROOM(const s2c_TRY_NEW_ROOM& from);
@@ -4013,15 +4036,29 @@ class s2c_TRY_NEW_ROOM final :
   s2c_TRY_NEW_ROOM* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<s2c_TRY_NEW_ROOM>(arena);
   }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const s2c_TRY_NEW_ROOM& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const s2c_TRY_NEW_ROOM& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const s2c_TRY_NEW_ROOM& from) {
+    s2c_TRY_NEW_ROOM::MergeImpl(*this, from);
   }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const s2c_TRY_NEW_ROOM& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
-  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
   public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(s2c_TRY_NEW_ROOM* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
@@ -4042,6 +4079,28 @@ class s2c_TRY_NEW_ROOM final :
 
   // accessors -------------------------------------------------------
 
+  enum : int {
+    kCurSectorNumFieldNumber = 1,
+    kNextSectorNumFieldNumber = 2,
+  };
+  // int32 cur_sector_num = 1;
+  void clear_cur_sector_num();
+  int32_t cur_sector_num() const;
+  void set_cur_sector_num(int32_t value);
+  private:
+  int32_t _internal_cur_sector_num() const;
+  void _internal_set_cur_sector_num(int32_t value);
+  public:
+
+  // int32 next_sector_num = 2;
+  void clear_next_sector_num();
+  int32_t next_sector_num() const;
+  void set_next_sector_num(int32_t value);
+  private:
+  int32_t _internal_next_sector_num() const;
+  void _internal_set_next_sector_num(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Protocol.s2c_TRY_NEW_ROOM)
  private:
   class _Internal;
@@ -4050,7 +4109,11 @@ class s2c_TRY_NEW_ROOM final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    int32_t cur_sector_num_;
+    int32_t next_sector_num_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
+  union { Impl_ _impl_; };
   friend struct ::TableStruct_Protocol_2eproto;
 };
 // -------------------------------------------------------------------
@@ -6574,6 +6637,26 @@ inline void s2c_CREATE_ITEM::set_allocated_item_name(std::string* item_name) {
   // @@protoc_insertion_point(field_set_allocated:Protocol.s2c_CREATE_ITEM.item_name)
 }
 
+// int32 sector = 4;
+inline void s2c_CREATE_ITEM::clear_sector() {
+  _impl_.sector_ = 0;
+}
+inline int32_t s2c_CREATE_ITEM::_internal_sector() const {
+  return _impl_.sector_;
+}
+inline int32_t s2c_CREATE_ITEM::sector() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_CREATE_ITEM.sector)
+  return _internal_sector();
+}
+inline void s2c_CREATE_ITEM::_internal_set_sector(int32_t value) {
+  
+  _impl_.sector_ = value;
+}
+inline void s2c_CREATE_ITEM::set_sector(int32_t value) {
+  _internal_set_sector(value);
+  // @@protoc_insertion_point(field_set:Protocol.s2c_CREATE_ITEM.sector)
+}
+
 // -------------------------------------------------------------------
 
 // c2s_GET_ITEM
@@ -6755,6 +6838,26 @@ inline void s2c_GET_ITEM::_internal_set_item_id(uint64_t value) {
 inline void s2c_GET_ITEM::set_item_id(uint64_t value) {
   _internal_set_item_id(value);
   // @@protoc_insertion_point(field_set:Protocol.s2c_GET_ITEM.item_id)
+}
+
+// int32 sector = 5;
+inline void s2c_GET_ITEM::clear_sector() {
+  _impl_.sector_ = 0;
+}
+inline int32_t s2c_GET_ITEM::_internal_sector() const {
+  return _impl_.sector_;
+}
+inline int32_t s2c_GET_ITEM::sector() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_GET_ITEM.sector)
+  return _internal_sector();
+}
+inline void s2c_GET_ITEM::_internal_set_sector(int32_t value) {
+  
+  _impl_.sector_ = value;
+}
+inline void s2c_GET_ITEM::set_sector(int32_t value) {
+  _internal_set_sector(value);
+  // @@protoc_insertion_point(field_set:Protocol.s2c_GET_ITEM.sector)
 }
 
 // -------------------------------------------------------------------
@@ -6965,6 +7068,46 @@ inline void c2s_TRY_NEW_ROOM::set_next_sector_num(int32_t value) {
 // -------------------------------------------------------------------
 
 // s2c_TRY_NEW_ROOM
+
+// int32 cur_sector_num = 1;
+inline void s2c_TRY_NEW_ROOM::clear_cur_sector_num() {
+  _impl_.cur_sector_num_ = 0;
+}
+inline int32_t s2c_TRY_NEW_ROOM::_internal_cur_sector_num() const {
+  return _impl_.cur_sector_num_;
+}
+inline int32_t s2c_TRY_NEW_ROOM::cur_sector_num() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_TRY_NEW_ROOM.cur_sector_num)
+  return _internal_cur_sector_num();
+}
+inline void s2c_TRY_NEW_ROOM::_internal_set_cur_sector_num(int32_t value) {
+  
+  _impl_.cur_sector_num_ = value;
+}
+inline void s2c_TRY_NEW_ROOM::set_cur_sector_num(int32_t value) {
+  _internal_set_cur_sector_num(value);
+  // @@protoc_insertion_point(field_set:Protocol.s2c_TRY_NEW_ROOM.cur_sector_num)
+}
+
+// int32 next_sector_num = 2;
+inline void s2c_TRY_NEW_ROOM::clear_next_sector_num() {
+  _impl_.next_sector_num_ = 0;
+}
+inline int32_t s2c_TRY_NEW_ROOM::_internal_next_sector_num() const {
+  return _impl_.next_sector_num_;
+}
+inline int32_t s2c_TRY_NEW_ROOM::next_sector_num() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_TRY_NEW_ROOM.next_sector_num)
+  return _internal_next_sector_num();
+}
+inline void s2c_TRY_NEW_ROOM::_internal_set_next_sector_num(int32_t value) {
+  
+  _impl_.next_sector_num_ = value;
+}
+inline void s2c_TRY_NEW_ROOM::set_next_sector_num(int32_t value) {
+  _internal_set_next_sector_num(value);
+  // @@protoc_insertion_point(field_set:Protocol.s2c_TRY_NEW_ROOM.next_sector_num)
+}
 
 // -------------------------------------------------------------------
 

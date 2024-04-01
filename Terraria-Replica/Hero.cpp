@@ -40,22 +40,40 @@ void Hero::update()
 	{
 		return;
 	}
-	if (KEY_TAP(KEY::S))
+	
+	if (KEY_TAP(KEY::W))
 	{
-		
+		const auto vPos = GetPos();
+		const auto vScale = GetScale();
+		const auto vScaleX = vScale.x / 2.f;
+		if (vPos.x + vScaleX >= 2000 + sector * 1350 && vPos.x <= 2000 + sector * 1350)
+		{
+			if (sector == 4)
+				return;
+			Protocol::c2s_TRY_NEW_ROOM pkt;
+			pkt.set_cur_sector_num(sector);
+			pkt.set_next_sector_num((sector + 1) % 5);
+			Send(pkt);
+		}
+		else if (vPos.x - vScaleX <= 2000 + (sector - 1) * 1350 + 50.f && vPos.x >= 2000 + (sector - 1) * 1350 + 50.f)
+		{
+			if (sector == 0)
+				return;
+			Protocol::c2s_TRY_NEW_ROOM pkt;
+			pkt.set_cur_sector_num(sector);
+			pkt.set_next_sector_num(wrapAround(sector - 1, 0, 5));
+			Send(pkt);
+		}
 		//Protocol::c2s_TRY_NEW_ROOM pkt;
 		//pkt.set_cur_sector_num(sector);
 		//pkt.set_next_sector_num((sector + 1) % 5);
 		//Send(pkt);
-		std::cout << GetPos().x << ", " << GetPos().y << std::endl;
-		Mgr(CEventMgr)->AddEvent([]()
-			{
-				sector = (Mgr(CSceneMgr)->GetCurScene()->GetSectorNum() + 1) % 5;
-				Mgr(CSceneMgr)->GetCurScene()->ChangeSector(sector);
-			});
+		//std::cout << GetPos().x << ", " << GetPos().y << std::endl;
 		
+
 		//sector = (sector + 1) % 5;
 	}
+	
 	//std::cout << GetPos().x << ", " << GetPos().y << std::endl;
 	CObject::update();
 	auto pAnim = GetComp<CAnimator>();

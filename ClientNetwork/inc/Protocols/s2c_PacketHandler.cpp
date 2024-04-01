@@ -100,7 +100,7 @@ namespace NetHelper
 
     const bool NetHelper::Handle_s2c_CREATE_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_CREATE_ITEM& pkt_)
     {
-        g_TRWorld->CreateItem(pkt_.obj_id(), ::ToOriginVec2(pkt_.pos()), pkt_.item_name());
+        g_TRWorld->CreateItem(pkt_.obj_id(), ::ToOriginVec2(pkt_.pos()), pkt_.item_name(),pkt_.sector());
         return true;
     }
 
@@ -127,11 +127,20 @@ namespace NetHelper
 
     const bool NetHelper::Handle_s2c_TRY_NEW_ROOM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_TRY_NEW_ROOM& pkt_)
     {
-        Mgr(CEventMgr)->AddEvent([]()
+        const int nextSector = pkt_.next_sector_num();
+        Mgr(CEventMgr)->AddEvent([nextSector]()
             {
-                sector = (Mgr(CSceneMgr)->GetCurScene()->GetSectorNum() + 1) % 5;
-                Mgr(CSceneMgr)->GetCurScene()->ChangeSector(sector);
+               if(const auto player = g_TRWorld->GetPlayer())
+                {
+                    const int prevSector = sector;
+                    sector = nextSector;
+                    Mgr(CSceneMgr)->GetCurScene()->ChangeSector(nextSector);
+                    const int s = nextSector > prevSector ? 1 : -1;
+                    player->SetPos(player->GetPos() + Vec2{ 100.f, 0.f } *(float)s + Vec2{ 0.f,-100.f });
+                    player->SetWillPos(player->GetWillPos() + Vec2{ 100.f, 0.f } *(float)s + Vec2{ 0.f,-100.f });
+                }
             });
+        
         return true;
     }
 

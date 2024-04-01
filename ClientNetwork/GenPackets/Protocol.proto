@@ -115,6 +115,7 @@ message s2c_CREATE_ITEM
 	uint64 obj_id=1;
 	Vec2 pos=2;
 	string item_name=3;
+	int32 sector=4;
 }
 
 message c2s_GET_ITEM
@@ -128,6 +129,7 @@ message s2c_GET_ITEM
 	Vec2 pos=2;
 	string item_name=3;
 	uint64 item_id=4;
+	int32 sector=5;
 }
 
 message c2s_INPUT_KEY
@@ -160,7 +162,8 @@ message c2s_TRY_NEW_ROOM
 
 message s2c_TRY_NEW_ROOM
 {
-
+	int32 cur_sector_num=1;
+	int32 next_sector_num=2;
 }
 
 message c2s_ARRIVE_NEW_ROOM

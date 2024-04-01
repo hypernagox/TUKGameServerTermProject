@@ -542,6 +542,27 @@ void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_vie
 	m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM);
 }
 
+void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_view item_key, const int sector_)
+{
+	const auto key = ::Utf8ToWide(item_key);
+	auto item = TRItemStack(Mgr(TRItemManager)->GetItemByKey(key), 1);
+
+	if (item.Null())
+		return;
+
+
+	//drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
+	const int x = TRWorld::WORLD_WIDTH / 2;
+
+	CDropItem* drop_item = new CDropItem(this, item);
+
+	drop_item->SetItemId(item_id);
+
+	m_mapItem.emplace(item_id, drop_item);
+	drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
+	m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM,sector_);
+}
+
 void TRWorld::EraseOtherPlayer(const uint64_t otherPlayerId, const uint64_t sector) noexcept
 {
 	if (const auto iter = m_mapOtherPlayer[sector].extract(otherPlayerId))

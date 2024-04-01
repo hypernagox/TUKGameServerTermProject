@@ -115,10 +115,11 @@ namespace ServerCore
                 *item_pkt.mutable_pos() = Vec2{ (float)x ,(float)y + .5f };
                 item_pkt.set_item_name(temp);
                 item_pkt.set_obj_id(IDGenerator::GenerateID());
+                item_pkt.set_sector(session_room->GetRoomID());
 
                 session_room->AddObjectEnqueue(GROUP_TYPE::DROP_ITEM, ObjectFactory::CreateDropItem(item_pkt.obj_id(), temp, item_pos, session_room));
 
-                session_room << item_pkt;
+                session_room->BroadCastToWorld(c2s_PacketHandler::MakeSendBuffer(item_pkt));
 
                 Protocol::s2c_MOVE pkt2;
                 *pkt2.mutable_obj_pos() = item_pos;
