@@ -25,7 +25,7 @@ namespace ServerCore
 	ThreadMgr::ThreadMgr()
 	{
 		// Main Thread
-		//InitTLS();
+		InitTLS();
 		LThreadId = 1;
 	}
 
@@ -73,13 +73,15 @@ namespace ServerCore
 					DestroyTLS();
 				});
 		}
+		std::string strFin(32, 0);
 		if (SERVICE_TYPE::SERVER == pService->GetServiceType())
 		{
 			static std::atomic_bool registerFinish = false;
 			while (!m_bStopRequest)
 			{
-				std::this_thread::sleep_for(std::chrono::seconds(5));
-				if (::GetAsyncKeyState(VK_END))
+				std::cin >> strFin;
+
+				if ("EXIT" == strFin)
 				{
 					if (false == registerFinish.exchange(true))
 					{
@@ -89,6 +91,17 @@ namespace ServerCore
 						Join();
 					}
 				}
+				//std::this_thread::sleep_for(std::chrono::seconds(5));
+				//if (::GetAsyncKeyState(VK_END))
+				//{
+				//	if (false == registerFinish.exchange(true))
+				//	{
+				//		pService->CloseService();
+				//		Mgr(Logger)->m_bStopRequest = true;
+				//		std::this_thread::sleep_for(std::chrono::seconds(5));
+				//		Join();
+				//	}
+				//}
 			}
 		}
 	}

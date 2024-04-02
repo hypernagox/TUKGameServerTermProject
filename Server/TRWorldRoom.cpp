@@ -202,7 +202,8 @@ void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManagea
 	pkt2.set_is_player(true);
 	pkt2.set_sector(GetRoomID());
 	pkt2.set_obj_id(sessionID);
-
+	*pkt2.mutable_appear_pos() = player->GetPos();
+	pkt2.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
 	this << pkt2;
 
 	for (const auto others : GetSessionList())
@@ -211,7 +212,8 @@ void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManagea
 		pkt.set_is_player(true);
 		pkt.set_sector(GetRoomID());
 		pkt.set_obj_id(others->GetSessionID());
-
+		*pkt.mutable_appear_pos() = static_cast<const ClientSession* const>(others)->GetPlayer()->GetPos();
+		pkt.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
 		pSession_ << pkt;
 	}
 

@@ -10,6 +10,7 @@
 #include "CEventMgr.h"
 #include "CSceneMgr.h"
 #include "CScene.h"
+#include "Vec2Int.hpp"
 
 extern int g_TR_SEED;
 extern TRWorld* g_TRWorld;
@@ -32,7 +33,9 @@ namespace NetHelper
 
     const bool Handle_s2c_ENTER(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_ENTER& pkt_)
     {
-        g_TRWorld->AddNewPlayer(pkt_.player_id(),0);
+        constexpr const int x = TRWorld::WORLD_WIDTH / 2;
+        const Vec2 vPos = TRWorld::WorldToGlobal(Vec2Int(x, g_TRWorld->GetTileMap()->GetTopYpos(x))) - Vec2(20.0f, 28.0f);
+        g_TRWorld->AddNewPlayer(pkt_.player_id(),0,vPos);
         return true;
     }
 
@@ -153,7 +156,14 @@ namespace NetHelper
     {
         if (NetMgr(NetworkMgr)->GetSessionID() == pkt_.obj_id())
             return true;
-        g_TRWorld->AddNewPlayer(pkt_.obj_id(), pkt_.sector());
+        if (pkt_.is_player())
+        {
+           const auto player = g_TRWorld->AddNewPlayer(pkt_.obj_id(), pkt_.sector(),ToOriginVec2(pkt_.appear_pos()));
+           player->SetPos(ToOriginVec2(pkt_.appear_pos()));
+           player->GetInterPolator().GetCurData().pos = ToOriginVec2(pkt_.appear_pos());
+           player->GetInterPolator().GetNewData().pos = ToOriginVec2(pkt_.appear_pos());
+           player->GetInterPolator().UpdateOnlyTimeStamp(pkt_.time_stamp());
+        }
         return true;
     }
 

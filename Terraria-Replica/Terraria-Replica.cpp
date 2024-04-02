@@ -90,16 +90,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     freopen_s(&fp, "CONIN$", "r", stdin);
 
     std::wstring inputIP;
-   // do {
-   // RE_INPUT:
-   //     std::wcout << L"Input IP Address: ";
-   //     std::wcin >> inputIP;
-   //     if (!isValidIPAddress(inputIP))
-   //     {
-   //         std::wcout << L"Invalid Address !'\n";
-   //         goto RE_INPUT;
-   //     }
-   // } while (!NetMgr(NetworkMgr)->Connect<ServerSession>(inputIP, 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
+    //do {
+    //RE_INPUT:
+    //    std::wcout << L"Input IP Address: ";
+    //    std::wcin >> inputIP;
+    //    if (!isValidIPAddress(inputIP))
+    //    {
+    //        std::wcout << L"Invalid Address !'\n";
+    //        goto RE_INPUT;
+    //    }
+    //} while (!NetMgr(NetworkMgr)->Connect<ServerSession>(inputIP, 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
 
     NET_NAGOX_ASSERT(NetMgr(NetworkMgr)->Connect<ServerSession>(L"127.0.0.1", 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
 

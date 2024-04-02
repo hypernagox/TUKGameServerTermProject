@@ -187,6 +187,8 @@ message s2c_APPEAR_NEW_OBJECT
 	uint32 sector=2;
 	uint64 obj_id=3;
 	string obj_name=4;
+	Vec2 appear_pos=5;
+	uint64 time_stamp=6;
 }
 
 message c2s_LEAVE_OBJECT

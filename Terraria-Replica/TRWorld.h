@@ -89,6 +89,6 @@ public:
 	void EraseOtherPlayer(const uint64_t otherPlayerId,const uint64_t sector)noexcept;
 	void EraseItem(const uint64_t item_id)noexcept;
 public:
-	void AddNewPlayer(const uint64_t id, const uint64_t sector);
+	CPlayer* const AddNewPlayer(const uint64_t id, const uint64_t sector,const Vec2 vPos_);
 	CPlayer* GetOtherPlayer(const uint64_t id,const uint64 sector_)noexcept { return m_mapOtherPlayer[sector_][id]; }
 };

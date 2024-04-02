@@ -579,14 +579,18 @@ void TRWorld::EraseItem(const uint64_t item_id) noexcept
 	DeleteObj(m_mapItem.extract(item_id).mapped());
 }
 
-void TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector)
+CPlayer* const TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector,const Vec2 vPos_)
 {
 	const auto player = new CPlayer{ this };
+	player->SetPos(vPos_);
+	player->SetWillPos(vPos_);
 	const int x = TRWorld::WORLD_WIDTH / 2;
-	player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x, tile_map->GetTopYpos(x))) - Vec2(20.0f, 28.0f));
+	//player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x, tile_map->GetTopYpos(x))) - Vec2(20.0f, 28.0f));
 	player->SetScale(Vec2{ 40.f, 56.f });
 	//Mgr(CSceneMgr)->GetCurScene()->AddObject(player, GROUP_TYPE::PLAYER);
 	m_pScene->AddObject(player, GROUP_TYPE::PLAYER);
 	player->SetPlayerID(id);
 	m_mapOtherPlayer[sector].emplace(id, player);
+
+	return player;
 }

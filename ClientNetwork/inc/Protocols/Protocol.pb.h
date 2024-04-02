@@ -4594,9 +4594,11 @@ class s2c_APPEAR_NEW_OBJECT final :
 
   enum : int {
     kObjNameFieldNumber = 4,
+    kAppearPosFieldNumber = 5,
     kIsPlayerFieldNumber = 1,
     kSectorFieldNumber = 2,
     kObjIdFieldNumber = 3,
+    kTimeStampFieldNumber = 6,
   };
   // string obj_name = 4;
   void clear_obj_name();
@@ -4611,6 +4613,24 @@ class s2c_APPEAR_NEW_OBJECT final :
   inline PROTOBUF_ALWAYS_INLINE void _internal_set_obj_name(const std::string& value);
   std::string* _internal_mutable_obj_name();
   public:
+
+  // .Protocol.Vec2 appear_pos = 5;
+  bool has_appear_pos() const;
+  private:
+  bool _internal_has_appear_pos() const;
+  public:
+  void clear_appear_pos();
+  const ::Protocol::Vec2& appear_pos() const;
+  PROTOBUF_NODISCARD ::Protocol::Vec2* release_appear_pos();
+  ::Protocol::Vec2* mutable_appear_pos();
+  void set_allocated_appear_pos(::Protocol::Vec2* appear_pos);
+  private:
+  const ::Protocol::Vec2& _internal_appear_pos() const;
+  ::Protocol::Vec2* _internal_mutable_appear_pos();
+  public:
+  void unsafe_arena_set_allocated_appear_pos(
+      ::Protocol::Vec2* appear_pos);
+  ::Protocol::Vec2* unsafe_arena_release_appear_pos();
 
   // bool is_player = 1;
   void clear_is_player();
@@ -4639,6 +4659,15 @@ class s2c_APPEAR_NEW_OBJECT final :
   void _internal_set_obj_id(uint64_t value);
   public:
 
+  // uint64 time_stamp = 6;
+  void clear_time_stamp();
+  uint64_t time_stamp() const;
+  void set_time_stamp(uint64_t value);
+  private:
+  uint64_t _internal_time_stamp() const;
+  void _internal_set_time_stamp(uint64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:Protocol.s2c_APPEAR_NEW_OBJECT)
  private:
   class _Internal;
@@ -4648,9 +4677,11 @@ class s2c_APPEAR_NEW_OBJECT final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr obj_name_;
+    ::Protocol::Vec2* appear_pos_;
     bool is_player_;
     uint32_t sector_;
     uint64_t obj_id_;
+    uint64_t time_stamp_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -7233,6 +7264,111 @@ inline void s2c_APPEAR_NEW_OBJECT::set_allocated_obj_name(std::string* obj_name)
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:Protocol.s2c_APPEAR_NEW_OBJECT.obj_name)
+}
+
+// .Protocol.Vec2 appear_pos = 5;
+inline bool s2c_APPEAR_NEW_OBJECT::_internal_has_appear_pos() const {
+  return this != internal_default_instance() && _impl_.appear_pos_ != nullptr;
+}
+inline bool s2c_APPEAR_NEW_OBJECT::has_appear_pos() const {
+  return _internal_has_appear_pos();
+}
+inline const ::Protocol::Vec2& s2c_APPEAR_NEW_OBJECT::_internal_appear_pos() const {
+  const ::Protocol::Vec2* p = _impl_.appear_pos_;
+  return p != nullptr ? *p : reinterpret_cast<const ::Protocol::Vec2&>(
+      ::Protocol::_Vec2_default_instance_);
+}
+inline const ::Protocol::Vec2& s2c_APPEAR_NEW_OBJECT::appear_pos() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_APPEAR_NEW_OBJECT.appear_pos)
+  return _internal_appear_pos();
+}
+inline void s2c_APPEAR_NEW_OBJECT::unsafe_arena_set_allocated_appear_pos(
+    ::Protocol::Vec2* appear_pos) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.appear_pos_);
+  }
+  _impl_.appear_pos_ = appear_pos;
+  if (appear_pos) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Protocol.s2c_APPEAR_NEW_OBJECT.appear_pos)
+}
+inline ::Protocol::Vec2* s2c_APPEAR_NEW_OBJECT::release_appear_pos() {
+  
+  ::Protocol::Vec2* temp = _impl_.appear_pos_;
+  _impl_.appear_pos_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::Protocol::Vec2* s2c_APPEAR_NEW_OBJECT::unsafe_arena_release_appear_pos() {
+  // @@protoc_insertion_point(field_release:Protocol.s2c_APPEAR_NEW_OBJECT.appear_pos)
+  
+  ::Protocol::Vec2* temp = _impl_.appear_pos_;
+  _impl_.appear_pos_ = nullptr;
+  return temp;
+}
+inline ::Protocol::Vec2* s2c_APPEAR_NEW_OBJECT::_internal_mutable_appear_pos() {
+  
+  if (_impl_.appear_pos_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Protocol::Vec2>(GetArenaForAllocation());
+    _impl_.appear_pos_ = p;
+  }
+  return _impl_.appear_pos_;
+}
+inline ::Protocol::Vec2* s2c_APPEAR_NEW_OBJECT::mutable_appear_pos() {
+  ::Protocol::Vec2* _msg = _internal_mutable_appear_pos();
+  // @@protoc_insertion_point(field_mutable:Protocol.s2c_APPEAR_NEW_OBJECT.appear_pos)
+  return _msg;
+}
+inline void s2c_APPEAR_NEW_OBJECT::set_allocated_appear_pos(::Protocol::Vec2* appear_pos) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.appear_pos_);
+  }
+  if (appear_pos) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(appear_pos));
+    if (message_arena != submessage_arena) {
+      appear_pos = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, appear_pos, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.appear_pos_ = appear_pos;
+  // @@protoc_insertion_point(field_set_allocated:Protocol.s2c_APPEAR_NEW_OBJECT.appear_pos)
+}
+
+// uint64 time_stamp = 6;
+inline void s2c_APPEAR_NEW_OBJECT::clear_time_stamp() {
+  _impl_.time_stamp_ = uint64_t{0u};
+}
+inline uint64_t s2c_APPEAR_NEW_OBJECT::_internal_time_stamp() const {
+  return _impl_.time_stamp_;
+}
+inline uint64_t s2c_APPEAR_NEW_OBJECT::time_stamp() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_APPEAR_NEW_OBJECT.time_stamp)
+  return _internal_time_stamp();
+}
+inline void s2c_APPEAR_NEW_OBJECT::_internal_set_time_stamp(uint64_t value) {
+  
+  _impl_.time_stamp_ = value;
+}
+inline void s2c_APPEAR_NEW_OBJECT::set_time_stamp(uint64_t value) {
+  _internal_set_time_stamp(value);
+  // @@protoc_insertion_point(field_set:Protocol.s2c_APPEAR_NEW_OBJECT.time_stamp)
 }
 
 // -------------------------------------------------------------------

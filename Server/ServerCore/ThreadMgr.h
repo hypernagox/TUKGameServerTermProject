@@ -98,7 +98,7 @@ namespace ServerCore
 		bool m_bStopRequest = false;
 		Vector<std::jthread>	m_threads;
 		SpinLock m_heartBeatFuncLock;
-		static inline Atomic<uint32> g_threadID = 1;
+		static inline Atomic<uint32> g_threadID = 0;
 
 		moodycamel::ConcurrentQueue<S_ptr<TaskQueueable>, LFQueueAllocator> m_globalTaskQueue{ 32 };
 		moodycamel::ConcurrentQueue<Task*, LFQueueAllocator> m_globalTask{ 1024 };
