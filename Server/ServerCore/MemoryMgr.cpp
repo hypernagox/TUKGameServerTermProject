@@ -9,72 +9,88 @@ namespace ServerCore
 {
 	MemoryMgr::MemoryMgr()
 	{
-		m_pools.reserve(64);
-
-		int32 size = 0;
-		int32 tableIndex = 0;
-
-		for (size = 32; size <= 1024; size += 32)
+		for (int i = 0; i < ServerCore::NUM_OF_THREADS; ++i)
 		{
-			AtomicNonTemplate* const pool = new (m_poolAllocator.allocate())AtomicNonTemplate(size);
-			m_pools.emplace_back(pool);
+			auto& pools = m_pools[i];
 
-			while (tableIndex <= size)
+			pools.reserve(64);
+
+			int32 size = 0;
+			int32 tableIndex = 0;
+
+			for (size = 32; size <= 1024; size += 32)
 			{
-				m_poolTable[tableIndex] = pool;
-				tableIndex++;
+				AtomicNonTemplate* const pool = new (m_poolAllocator.allocate())AtomicNonTemplate(size);
+				pools.emplace_back(pool);
+
+				while (tableIndex <= size)
+				{
+					m_poolTable[i][tableIndex] = pool;
+					tableIndex++;
+				}
 			}
-		}
-		size -= 32;
-		for (; size <= 2048; size += 128)
-		{
-			AtomicNonTemplate* const pool = new (m_poolAllocator.allocate())AtomicNonTemplate(size);
-			m_pools.emplace_back(pool);
-
-			while (tableIndex <= size)
+			size -= 32;
+			for (; size <= 2048; size += 128)
 			{
-				m_poolTable[tableIndex] = pool;
-				tableIndex++;
+				AtomicNonTemplate* const pool = new (m_poolAllocator.allocate())AtomicNonTemplate(size);
+				pools.emplace_back(pool);
+
+				while (tableIndex <= size)
+				{
+					m_poolTable[i][tableIndex] = pool;
+					tableIndex++;
+				}
 			}
-		}
-		size -= 128;
-		for (; size <= 4096; size += 256)
-		{
-			AtomicNonTemplate* const pool = new (m_poolAllocator.allocate())AtomicNonTemplate(size);
-			m_pools.emplace_back(pool);
-
-			while (tableIndex <= size)
+			size -= 128;
+			for (; size <= 4096; size += 256)
 			{
-				m_poolTable[tableIndex] = pool;
-				tableIndex++;
+				AtomicNonTemplate* const pool = new (m_poolAllocator.allocate())AtomicNonTemplate(size);
+				pools.emplace_back(pool);
+
+				while (tableIndex <= size)
+				{
+					m_poolTable[i][tableIndex] = pool;
+					tableIndex++;
+				}
 			}
 		}
 	}
 
 	MemoryMgr::~MemoryMgr()
 	{
-		for (auto& pool : m_pools)
+		for (const auto& pools : m_pools)
 		{
-			pool->~AtomicNonTemplate();
-			m_poolAllocator.deallocate(pool);
+			for(auto& pool:pools)
+			{
+				pool->~AtomicNonTemplate();
+				m_poolAllocator.deallocate(pool);
+			}
 		}
 	}
 
 	void* const MemoryMgr::Allocate(const size_t size)const noexcept
 	{
-		const size_t allocSize = size + sizeof(MemoryHeader);
+		//const size_t allocSize = size + sizeof(MemoryHeader);
+		
+		const int32 allocSize = static_cast<c_int32>(size + sizeof(MemoryHeader));
+		const thread_local int32 thID = GetCurThreadIdx() % ServerCore::NUM_OF_THREADS;
+
+		
+		//static std::atomic_int g_th_id = 0;
+		//const thread_local int32 thID = g_th_id.fetch_add(1);
+
 #ifdef _STOMP
 		return MemoryHeader::AttachHeader(static_cast<MemoryHeader* const>(StompAllocator::Alloc(allocSize)), allocSize);
 #else
 		if (allocSize > MAX_ALLOC_SIZE)
 		{
 			// 메모리 풀링 최대 크기를 벗어나면 일반 할당
-			return MemoryHeader::AttachHeader(static_cast<MemoryHeader* const>(::_aligned_malloc(allocSize, std::hardware_constructive_interference_size)),allocSize);
+			return MemoryHeader::AttachHeader(static_cast<MemoryHeader* const>(::_aligned_malloc(allocSize, std::hardware_constructive_interference_size)), allocSize, thID);
 		}
 		else
 		{
 			// 메모리 풀에서 꺼내온다
-			return MemoryHeader::AttachHeader(static_cast<MemoryHeader* const>(m_poolTable[allocSize]->allocate()), allocSize);
+			return MemoryHeader::AttachHeader(static_cast<MemoryHeader* const>(m_poolTable[thID][allocSize]->allocate()), allocSize, thID);
 		}
 #endif	
 	}
@@ -82,8 +98,10 @@ namespace ServerCore
 	void MemoryMgr::Release(void* const ptr)const noexcept
 	{
 		MemoryHeader* const __restrict header = MemoryHeader::DetachHeader(ptr);
-		const size_t allocSize = header->allocSize;
+		//const size_t allocSize = header->allocSize;
 
+		const int32 allocSize = header->allocSize;
+		
 		NAGOX_ASSERT(allocSize > 0);
 
 		header->allocSize = 0;
@@ -98,7 +116,7 @@ namespace ServerCore
 		else
 		{
 			// 메모리 풀에 반납한다
-			m_poolTable[allocSize]->deallocate(header);
+			m_poolTable[header->allocThread][allocSize]->deallocate(header);
 		}
 #endif	
 	}

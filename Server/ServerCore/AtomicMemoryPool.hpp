@@ -1,6 +1,7 @@
 #pragma once
 #include "ServerCorePch.h"
 #include <Windows.h>
+#include "MemoryHeader.hpp"
 
 namespace ServerCore
 {
@@ -72,7 +73,7 @@ namespace ServerCore
         struct alignas(8) AlignedStorage { alignas(8) Block pad; alignas(8)std::byte data[sizeof(T)]; };
     public:
         AtomicMemoryPool(const size_t count = DEFAULT_MEM_POOL_SIZE)
-            : blockSize{ (sizeof(T) + sizeof(Block) + CACHE_LINE_MINUS_ONE) & ~CACHE_LINE_MINUS_ONE }
+            : blockSize{ (sizeof(MemoryHeader) + sizeof(T) + sizeof(Block) + CACHE_LINE_MINUS_ONE) & ~CACHE_LINE_MINUS_ONE }
             , maxBlockCount{ count }
             , poolTop{ nullptr }
         {

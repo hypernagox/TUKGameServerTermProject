@@ -82,7 +82,7 @@ void RigidBody::Update(const float dt_)
 
 		if (m_vVelocity.length() <= vFriction.length())
 		{
-			m_vVelocity = Vec2{ 0.,0. };
+			m_vVelocity = Vec2{ 0.f,0.f };
 		}
 		else
 		{
@@ -98,7 +98,7 @@ void RigidBody::Update(const float dt_)
 		m_vVelocity.y = m_vVelocity.y / bitwise_absf(m_vVelocity.y) * bitwise_absf(m_vMaxVelocity.y);
 	}
 	Move(dt_);
-	m_vForce = Vec2{ 0.,0. };
+	m_vForce = Vec2{ 0.f,0.f };
 }
 
 void RigidBody::update_gravity()

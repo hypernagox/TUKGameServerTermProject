@@ -135,7 +135,7 @@ void CWeapon::update_weapon()
 
 	const auto vPos = m_pPlayer->GetPos();
 	m_iFlip = m_pPlayer->GetComp<CAnimator>()->GetAnimDir();
-	static Vec2 vLTpos;
+	Vec2 vLTpos;
 
 	if (m_iFlip)
 	{

@@ -57,7 +57,7 @@ namespace ServerCore
 					const bool& bStopRequest = m_bStopRequest;
 					const auto pIocpCore = pService->GetIocpCore().get();
 					const auto taskTimer = Mgr(TaskTimerMgr);
-					const auto threadMgr = Mgr(ThreadMgr);
+					//const auto threadMgr = Mgr(ThreadMgr);
 					for (;;)
 					{
 						if (bStopRequest) [[unlikely]]
@@ -67,7 +67,7 @@ namespace ServerCore
 
 						if (false == pIocpCore->Dispatch(INFINITE))
 						{
-							threadMgr->TryGlobalQueueTask();
+							this->TryGlobalQueueTask();
 						}
 
 						//taskTimer->DistributeTask();
@@ -134,10 +134,11 @@ namespace ServerCore
 			return;
 		m_bStopRequest = true;
 		std::atomic_thread_fence(std::memory_order_seq_cst);
+		for (int i = 0; i < NUM_OF_THREADS; ++i)
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		for (auto& t : m_threads)
 		{
-			for(int i=0;i<1000;++i)
-				PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 			t.join();
 		}
 		m_timerThread.join();

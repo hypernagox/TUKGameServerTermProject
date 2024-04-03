@@ -115,7 +115,7 @@ CoRoutine DelayCoRoutine(function<void(void)> _fp, float _fDelayTime)
 
 BOOL TransparentBltSafe(HDC hdcDest, const short xoriginDest, const short yoriginDest, const short wDest, const short hDest,
 	HDC hdcSrc, const short xoriginSrc, const short yoriginSrc, const short wSrc, const short hSrc,
-	const short wBit, const short hBit, UINT crTransparent)
+	const short wBit, const short hBit, UINT crTransparent)noexcept
 {
 	const short os_left = max(-xoriginSrc, 0);
 	const short os_top = max(-yoriginSrc, 0);

@@ -16,6 +16,12 @@ TRWorldRoom::TRWorldRoom(const SECTOR sector_)
 
 TRWorldRoom::~TRWorldRoom()
 {
+	static std::atomic_bool bDelOnce = false;
+	if (false == bDelOnce.exchange(true))
+	{
+		for (auto& i : g_allPlayers)
+			i.clear_unsafe();
+	}
 }
 
 void TRWorldRoom::Update(const uint64 tick_ms)
@@ -288,7 +294,7 @@ void TRWorldRoom::TickTileCollision()
 	//}
 }
 
-void TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer)
+void TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer, const Vec2 offset_)
 {
 	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
 	const auto pPlayerCollider = pPlayer->GetComp("COLLIDER")->Cast<Collider>();
@@ -301,7 +307,7 @@ void TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer)
 		const auto pItem = (*begin_iter);
 		const auto pCol = pItem->GetComp("COLLIDER")->Cast<Collider>();
 
-		if (CollisionChecker::IsCollision(pPlayerCollider, pCol))
+		if (CollisionChecker::IsCollision(pPlayerCollider, pCol,offset_))
 		{
 			if (pItem->GetComp("ACQUIREITEM")->Cast<AcquireItem>()->TryGetItem())
 			{

@@ -2,6 +2,10 @@
 
 namespace ServerCore
 {
+	
+	template<typename T>
+	using S_ptr = std::shared_ptr<T>;
+
 	class SendBuffer;
 	class SessionManageable;
 	class Session;
@@ -15,6 +19,8 @@ namespace ServerCore
 	void PrintError(const char* const msg, const int err_no)noexcept;
 	
 	void LogStackTrace()noexcept;
+
+	const uint32 GetCurThreadIdx()noexcept;
 
 	template<typename T>
 	class AllocateSharedSizeTrait

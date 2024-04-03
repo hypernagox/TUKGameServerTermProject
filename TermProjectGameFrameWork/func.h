@@ -116,7 +116,7 @@ BOOL TransparentBltSafe(HDC hdcDest
 	, const short hSrc
 	, const short wBit
 	, const short hBit
-	, UINT crTransparent);
+	, UINT crTransparent)noexcept;
 
 void renderText(HDC _dc,COLORREF _rgb ,Vec2 _vGlobalLT, wstring_view _wstrText);
 

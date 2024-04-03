@@ -3,9 +3,9 @@
 #include "PhysicsComponent.h"
 #include "Object.h"
 
-bool CollisionChecker::IsCollision(const Collider* const _pLeftCol, const Collider* const _pRightCol) noexcept
+bool CollisionChecker::IsCollision(const Collider* const _pLeftCol, const Collider* const _pRightCol, const Vec2 offSet_) noexcept
 {
-	const Vec2 vLeftPos = _pLeftCol->GetFinalPos();
+	const Vec2 vLeftPos = _pLeftCol->GetFinalPos() + offSet_;
 	const Vec2 vLeftScale = _pLeftCol->GetScale();
 
 	const Vec2 vRightPos = _pRightCol->GetFinalPos();

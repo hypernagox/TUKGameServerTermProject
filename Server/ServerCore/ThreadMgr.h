@@ -29,9 +29,10 @@ namespace ServerCore
 			static inline void free(void* const ptr)noexcept { Mgr(MemoryMgr)->Release(ptr); }
 		};
 	public:
-		static constexpr const uint64 NUM_OF_THREADS = 6;
+		static constexpr const uint64 NUM_OF_THREADS = ServerCore::NUM_OF_THREADS;
 		void Launch(S_ptr<Service> pService);
-		c_uint32 GetCurThreadID()const noexcept { return LThreadId; }
+		static c_uint32 GetCurThreadID()noexcept { return LThreadId; }
+		static c_uint32 GetCurThreadIdx()noexcept { return LThreadId - 1; }
 		const bool IsServerFinish()const noexcept { return m_bStopRequest; }
 	public:
 		void PushGlobalQueue(S_ptr<TaskQueueable>&& qPtr_)noexcept
@@ -107,7 +108,7 @@ namespace ServerCore
 		void TryGlobalQueueTask()noexcept;
 	private:
 		bool m_bStopRequest = false;
-		const HANDLE m_iocpHandle;
+		HANDLE m_iocpHandle;
 		Vector<std::jthread>	m_threads;
 		std::jthread m_timerThread;
 		SpinLock m_heartBeatFuncLock;

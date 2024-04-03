@@ -1,5 +1,6 @@
 #include "ServerCorePch.h"
 #include "func.h"
+#include "ThreadMgr.h"
 
 namespace ServerCore
 {
@@ -39,6 +40,11 @@ namespace ServerCore
 
 		free(symbol);
 		SymCleanup(GetCurrentProcess());
+	}
+
+	const uint32 GetCurThreadIdx() noexcept
+	{
+		return Mgr(ThreadMgr)->GetCurThreadIdx();
 	}
 
 	S_ptr<SendBuffer> CreateHeartBeatSendBuffer(const HEART_BEAT eHeartBeatType_) noexcept

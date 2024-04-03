@@ -259,7 +259,7 @@ namespace ServerCore
 
         if (const auto& player = GetClientSession(pSession_)->GetPlayer())
         {
-            session_room->TryGetItem(GetClientSession(pSession_)->GetPlayer());
+            session_room->TryGetItem(GetClientSession(pSession_)->GetPlayer(),ToOriginVec2(pkt_.obj_pos()));
         }
         return true;
     }

@@ -1,5 +1,7 @@
 #pragma once
 #include "AtomicMemoryPool.hpp"
+#include "MemoryHeader.hpp"
+#include "func.h"
 
 namespace ServerCore
 {
@@ -16,16 +18,25 @@ namespace ServerCore
 
 		constexpr static T* const allocate(const size_t size)noexcept
 		{
-			return static_cast<T* const>(allocator_once.allocate());
+			const thread_local int32 thID = GetCurThreadIdx() % ServerCore::NUM_OF_THREADS;
+			return reinterpret_cast<T* const>(new (reinterpret_cast<void* const>(allocator_once[thID].allocate()))MemoryHeader{ thID } + 1);
 		}
 
 		constexpr static void deallocate(T* const ptr, const size_t count)noexcept
 		{
-			allocator_once.deallocate(ptr);
+			MemoryHeader* const __restrict header = reinterpret_cast<MemoryHeader* const>(ptr) - 1;
+			allocator_once[header->allocThread].deallocate(reinterpret_cast<T* const>(header));
 		}
 
 	private:
-		static inline AtomicMemoryPool<T> allocator_once{ DEFAULT_MEM_POOL_SIZE };
+		static inline AtomicMemoryPool<T> allocator_once[ServerCore::NUM_OF_THREADS]
+		{	DEFAULT_MEM_POOL_SIZE,
+			DEFAULT_MEM_POOL_SIZE,
+			DEFAULT_MEM_POOL_SIZE,
+			DEFAULT_MEM_POOL_SIZE,
+			DEFAULT_MEM_POOL_SIZE,
+			DEFAULT_MEM_POOL_SIZE,
+		};
 	};
 
 	template<typename T, typename... Args>

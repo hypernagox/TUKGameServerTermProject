@@ -21,5 +21,6 @@ public:
 	const float GetSectorDT(const SECTOR eType_)const noexcept;
 private:
 	ServerCore::ConcurrentHashMap<SECTOR, S_ptr<TRWorldRoom>> m_mapWorld;
+	std::array<S_ptr<TRWorldRoom>, etoi(SECTOR::END)> m_arrRoom;
 };
 

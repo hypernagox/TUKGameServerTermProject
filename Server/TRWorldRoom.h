@@ -9,6 +9,8 @@ class ClientSession;
 class TRWorldRoom
 	: public ServerCore::SessionManageable
 {
+	friend class TRWorldMgr;
+
 	static inline TRWorld g_trWorld;
 	static constexpr inline const uint64 CONTAINER_SIZE = ServerCore::ThreadMgr::NUM_OF_THREADS;
 	static inline ServerCore::LinkedHashMap<uint64, ClientSession> g_allPlayers[CONTAINER_SIZE];
@@ -26,7 +28,7 @@ public:
 	void AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_);
 	//void DeleteObjectEnqueue(const GROUP_TYPE eType_, const uint64 objID_);
 	void TickTileCollision();
-	void TryGetItem(const S_ptr<Object>& pPlayer);
+	void TryGetItem(const S_ptr<Object>& pPlayer,const Vec2 offset_ = Vec2{});
 	void BroadCastToWorld(const S_ptr<ServerCore::SendBuffer> pSendBuffer);
 	void LeavePlayerEnqueue(const uint64 playerID)noexcept;
 private:

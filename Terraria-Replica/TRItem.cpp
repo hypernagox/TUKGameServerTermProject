@@ -6,6 +6,8 @@
 #include "CSoundMgr.h"
 #include "Protocol.pb.h"
 #include "s2c_PacketHandler.h"
+#include "CPlayer.h"
+#include "CAnimator.h"
 
 TRItem::TRItem(std::wstring name, std::wstring k_element)
 {
@@ -174,6 +176,18 @@ TRItemSword::~TRItemSword()
 
 bool TRItemSword::OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target_pos)
 {
+	// 무기의 좌표 ( 유저 코앞 )
+	// 무기의 크기
+	const int dir = user->GetComp<CAnimator>()->GetAnimDir() == 0 ? 1 : -1;
+
+	const Vec2 wepon_pos = user->GetPos() + Vec2{ 8.f,0.f } *(float)dir;
+
+	Protocol::c2s_TRY_GET_ITEM pkt;
+	pkt.set_time_stamp(NetHelper::GetTimeStampMilliseconds());
+	*pkt.mutable_obj_pos() = ::ToProtoVec2(Vec2{ user->GetScale().x,0.f } * (float)dir);
+
+	Send(pkt);
+
 	return false;
 }
 

@@ -112,7 +112,7 @@ void Hero::updateState()
 	{
 		Protocol::c2s_TRY_GET_ITEM pkt;
 		pkt.set_time_stamp(NetHelper::GetTimeStampMilliseconds());
-		*pkt.mutable_obj_pos() = ::ToProtoVec2(GetPos());
+		*pkt.mutable_obj_pos() = ::ToProtoVec2(Vec2{});
 		Send(pkt);
 	}
 

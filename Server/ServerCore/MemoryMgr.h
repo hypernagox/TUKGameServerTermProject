@@ -28,11 +28,11 @@ namespace ServerCore
 		void* const	Allocate(const size_t size)const noexcept;
 		void Release(void* const ptr)const noexcept;
 	private:
-		std::vector<AtomicNonTemplate*> m_pools;
+		std::vector<AtomicNonTemplate*> m_pools[ServerCore::NUM_OF_THREADS];
 		// 메모리 크기 <-> 메모리 풀
 		// O(1) 빠르게 찾기 위한 테이블
-		AtomicNonTemplate* m_poolTable[MAX_ALLOC_SIZE + 1];
-		AtomicMemoryPool<AtomicNonTemplate> m_poolAllocator{ 64 };
+		AtomicNonTemplate* m_poolTable[ServerCore::NUM_OF_THREADS][MAX_ALLOC_SIZE + 1];
+		AtomicMemoryPool<AtomicNonTemplate> m_poolAllocator{ 64 * ServerCore::NUM_OF_THREADS };
 	};
 
 	template<typename Type, typename... Args>

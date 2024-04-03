@@ -8,6 +8,10 @@ TRWorldMgr::TRWorldMgr()
 
 TRWorldMgr::~TRWorldMgr()
 {
+	for (auto& room : m_arrRoom)
+	{
+		room->reset_cache_shared();
+	}
 }
 
 void TRWorldMgr::Init() noexcept
@@ -28,6 +32,8 @@ void TRWorldMgr::RegisterWorld(const SECTOR worldID_, std::shared_ptr<TRWorldRoo
 	m_mapWorld.emplace_no_return(worldID_, world_);
 
 	world_->Update();
+
+	m_arrRoom[etoi(worldID_)] = std::move(world_);
 }
 
 const float TRWorldMgr::GetSectorDT(const SECTOR eType_) const noexcept
