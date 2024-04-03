@@ -23,6 +23,7 @@ namespace ServerCore
 	thread_local moodycamel::ConsumerToken* LCon_tokenGlobalTask;
 
 	ThreadMgr::ThreadMgr()
+		:m_iocpHandle{ Mgr(CoreGlobal)->GetIocpCore()->GetIocpHandle() }
 	{
 		// Main Thread
 		InitTLS();
@@ -62,17 +63,38 @@ namespace ServerCore
 						if (bStopRequest) [[unlikely]]
 							break;
 
-						LEndTickCount = ::GetTickCount64() + WORKER_TICK;
+						//LEndTickCount = ::GetTickCount64() + WORKER_TICK;
 
-						pIocpCore->Dispatch(0);
+						if (false == pIocpCore->Dispatch(INFINITE))
+						{
+							threadMgr->TryGlobalQueueTask();
+						}
 
-						taskTimer->DistributeTask();
-
-						threadMgr->TryGlobalQueueTask();
+						//taskTimer->DistributeTask();
 					}
 					DestroyTLS();
 				});
 		}
+
+		while (g_threadID.load(std::memory_order_seq_cst) <= NUM_OF_THREADS);
+
+		m_timerThread = std::jthread{ [this]()noexcept
+			{
+				InitTLS();
+				const bool& bStopRequest = m_bStopRequest;
+				const auto taskTimer = Mgr(TaskTimerMgr);
+				for (;;)
+				{
+					if (bStopRequest) [[unlikely]]
+						break;
+
+					taskTimer->DistributeTask();
+
+					std::this_thread::yield();
+				}
+				DestroyTLS();
+			} };
+		
 		std::string strFin(32, 0);
 		if (SERVICE_TYPE::SERVER == pService->GetServiceType())
 		{
@@ -114,8 +136,11 @@ namespace ServerCore
 		std::atomic_thread_fence(std::memory_order_seq_cst);
 		for (auto& t : m_threads)
 		{
+			for(int i=0;i<1000;++i)
+				PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 			t.join();
 		}
+		m_timerThread.join();
 	}
 
 	void ThreadMgr::InitTLS()

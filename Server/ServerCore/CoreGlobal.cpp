@@ -11,18 +11,21 @@
 namespace ServerCore
 {
 	CoreGlobal::CoreGlobal()
+		:m_iocpCore{ SocketUtils::Init() }
 	{
-		SocketUtils::Init();
+	}
+
+	CoreGlobal::~CoreGlobal()
+	{
+		SocketUtils::Clear();
+	}
+	void CoreGlobal::Init() noexcept
+	{
 		Mgr(Logger)->Init();
 		Mgr(MemoryMgr)->Init();
 		Mgr(ThreadMgr)->Init();
 		Mgr(DeadLockProfiler)->Init();
 		Mgr(TaskTimerMgr)->Init();
 		Mgr(SendBufferMgr)->Init();
-	}
-
-	CoreGlobal::~CoreGlobal()
-	{
-		SocketUtils::Clear();
 	}
 }

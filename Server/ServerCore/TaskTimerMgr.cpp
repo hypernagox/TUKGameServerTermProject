@@ -28,8 +28,8 @@ namespace ServerCore
 
 	void TaskTimerMgr::DistributeTask()noexcept
 	{
-		if (true == m_bIsDistribute.exchange(true, std::memory_order_acq_rel))
-			return;
+		//if (true == m_bIsDistribute.exchange(true, std::memory_order_acq_rel))
+		//	return;
 
 		TimerTask task;
 		while (m_timerTaskQueue.try_pop(task))
@@ -45,6 +45,6 @@ namespace ServerCore
 			}
 		}
 
-		m_bIsDistribute.store(false, std::memory_order_release);
+		//m_bIsDistribute.store(false, std::memory_order_release);
 	}
 }

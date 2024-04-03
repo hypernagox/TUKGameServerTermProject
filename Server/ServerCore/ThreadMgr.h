@@ -37,47 +37,57 @@ namespace ServerCore
 		void PushGlobalQueue(S_ptr<TaskQueueable>&& qPtr_)noexcept
 		{
 			m_globalTaskQueue.enqueue(*LPro_token, std::move(qPtr_));
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		template<typename T, typename U, typename Ret, typename... Args> requires std::derived_from<U, T>
 		void EnqueueGlobalTask(Ret(T::* const memFunc)(Args...)noexcept, const S_ptr<U>& memFuncInstance, Args&&... args)noexcept
 		{
 			m_globalTask.enqueue(*LPro_tokenGlobalTask, PoolNew<Task>(memFunc, memFuncInstance, std::forward<Args>(args)...));
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		template<typename T, typename U, typename Ret, typename... Args> requires std::derived_from<U, T>
 		void EnqueueGlobalTask(Ret(T::* const memFunc)(Args...)noexcept, S_ptr<U>&& memFuncInstance, Args&&... args)noexcept
 		{
 			m_globalTask.enqueue(*LPro_tokenGlobalTask, PoolNew<Task>(memFunc, std::move(memFuncInstance), std::forward<Args>(args)...));
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		template<typename T, typename U, typename Ret, typename... Args> requires EnableSharedFromThis<U>&& std::derived_from<U, T>
 		void EnqueueGlobalTask(Ret(T::* const memFunc)(Args...)noexcept, U* const memFuncInstance, Args&&... args)noexcept
 		{
 			m_globalTask.enqueue(*LPro_tokenGlobalTask, PoolNew<Task>(memFunc, memFuncInstance, std::forward<Args>(args)...));
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		template<typename T, typename U, typename Ret, typename... Args> requires std::derived_from<U,T>
 		void EnqueueGlobalTask(Ret(T::* const memFunc)(Args...), const S_ptr<U>& memFuncInstance, Args&&... args)noexcept
 		{
 			m_globalTask.enqueue(*LPro_tokenGlobalTask, PoolNew<Task>(memFunc, memFuncInstance, std::forward<Args>(args)...));
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		template<typename T, typename U, typename Ret, typename... Args> requires std::derived_from<U, T>
 		void EnqueueGlobalTask(Ret(T::* const memFunc)(Args...), S_ptr<U>&& memFuncInstance, Args&&... args)noexcept
 		{
 			m_globalTask.enqueue(*LPro_tokenGlobalTask, PoolNew<Task>(memFunc, std::move(memFuncInstance), std::forward<Args>(args)...));
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		template<typename T, typename U, typename Ret, typename... Args> requires EnableSharedFromThis<U> && std::derived_from<U, T>
 		void EnqueueGlobalTask(Ret(T::* const memFunc)(Args...), U* const memFuncInstance, Args&&... args)noexcept
 		{
 			m_globalTask.enqueue(*LPro_tokenGlobalTask, PoolNew<Task>(memFunc, memFuncInstance, std::forward<Args>(args)...));
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		template<typename Func, typename... Args> requires std::invocable<Func, Args...>&& IsNotMemFunc<Func>
 		void EnqueueGlobalTask(Func&& fp, Args&&... args)noexcept
 		{
 			m_globalTask.enqueue(*LPro_tokenGlobalTask, PoolNew<Task>(std::forward<Func>(fp), std::forward<Args>(args)...));
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		void EnqueueGlobalTask(Task* const task_)noexcept {
 			m_globalTask.enqueue(*LPro_tokenGlobalTask, task_);
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		void EnqueueGlobalTaskBulk(Task** const taskBulks, const std::size_t num_of_task)noexcept {
 			m_globalTask.enqueue_bulk(*LPro_tokenGlobalTask, taskBulks, num_of_task);
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 		}
 		template<typename Func, typename... Args>
 			requires std::invocable<Func, Args...>
@@ -87,6 +97,7 @@ namespace ServerCore
 			auto task = ::MakeUnique<std::packaged_task<return_type(void)>>(std::bind_front(std::forward<Func>(fp), std::forward<Args>(args)...));
 			std::future<return_type> res_future = task->get_future();
 			EnqueueGlobalTask(PoolNew<Task>(([task = std::move(task)]() noexcept {(*task)(); })));
+			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 			return res_future;
 		}
 	private:
@@ -96,7 +107,9 @@ namespace ServerCore
 		void TryGlobalQueueTask()noexcept;
 	private:
 		bool m_bStopRequest = false;
+		const HANDLE m_iocpHandle;
 		Vector<std::jthread>	m_threads;
+		std::jthread m_timerThread;
 		SpinLock m_heartBeatFuncLock;
 		static inline Atomic<uint32> g_threadID = 0;
 

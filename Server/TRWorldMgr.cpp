@@ -25,9 +25,9 @@ void TRWorldMgr::RegisterWorld(const SECTOR worldID_, std::shared_ptr<TRWorldRoo
 
 	world_->register_cache_shared();
 
-	world_->Update();
+	m_mapWorld.emplace_no_return(worldID_, world_);
 
-	m_mapWorld.emplace_no_return(worldID_, std::move(world_));
+	world_->Update();
 }
 
 const float TRWorldMgr::GetSectorDT(const SECTOR eType_) const noexcept

@@ -19,7 +19,7 @@ namespace ServerCore
 		static LPFN_ACCEPTEX		AcceptEx;
 
 	public:
-		static void Init()noexcept;
+		static S_ptr<class IocpCore> Init()noexcept;
 		static void Clear()noexcept;
 
 		static bool BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* const fn)noexcept;

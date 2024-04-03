@@ -17,7 +17,7 @@ int main()
 
 	const auto pServerService = ServerCore::MakeShared<ServerCore::ServerService>
 		(
-			  ServerCore::MakeShared<ServerCore::IocpCore>()
+			  Mgr(CoreGlobal)->GetIocpCore()
 			, ServerCore::NetAddress{ L"0.0.0.0",7777 }
 			, ServerCore::MakePoolShared<ClientSession>
 			, 100

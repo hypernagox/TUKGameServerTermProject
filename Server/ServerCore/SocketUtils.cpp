@@ -1,5 +1,6 @@
 #include "ServerCorePch.h"
 #include "SocketUtils.h"
+#include "IocpCore.h"
 
 /*----------------
 	SocketUtils
@@ -11,7 +12,7 @@ namespace ServerCore
 	LPFN_DISCONNECTEX	SocketUtils::DisconnectEx = nullptr;
 	LPFN_ACCEPTEX		SocketUtils::AcceptEx = nullptr;
 
-	void SocketUtils::Init()noexcept
+	S_ptr<class IocpCore> SocketUtils::Init()noexcept
 	{
 		WSADATA wsaData;
 		NAGOX_ASSERT(::WSAStartup(MAKEWORD(2, 2), OUT & wsaData) == 0);
@@ -22,6 +23,10 @@ namespace ServerCore
 		NAGOX_ASSERT(BindWindowsFunction(dummySocket, WSAID_DISCONNECTEX, reinterpret_cast<LPVOID*>(&DisconnectEx)));
 		NAGOX_ASSERT(BindWindowsFunction(dummySocket, WSAID_ACCEPTEX, reinterpret_cast<LPVOID*>(&AcceptEx)));
 		Close(dummySocket);
+
+		std::atomic_thread_fence(std::memory_order_seq_cst);
+
+		return ServerCore::MakeShared<IocpCore>();
 	}
 
 	void SocketUtils::Clear()noexcept
