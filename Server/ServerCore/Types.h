@@ -68,5 +68,5 @@ namespace ServerCore
 
 	static constexpr const size_t DEFAULT_MEM_POOL_SIZE = 256;
 
-	static constexpr const int32 NUM_OF_THREADS = 6;
+	static constexpr const int32 NUM_OF_THREADS = 6 - 1;
 }

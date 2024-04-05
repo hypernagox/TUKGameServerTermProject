@@ -108,7 +108,7 @@ namespace ServerCore
 		void TryGlobalQueueTask()noexcept;
 	private:
 		bool m_bStopRequest = false;
-		HANDLE m_iocpHandle;
+		const HANDLE m_iocpHandle;
 		Vector<std::jthread>	m_threads;
 		std::jthread m_timerThread;
 		SpinLock m_heartBeatFuncLock;

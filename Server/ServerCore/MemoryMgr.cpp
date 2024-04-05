@@ -71,8 +71,8 @@ namespace ServerCore
 	void* const MemoryMgr::Allocate(const size_t size)const noexcept
 	{
 		//const size_t allocSize = size + sizeof(MemoryHeader);
-		
-		const int32 allocSize = static_cast<c_int32>(size + sizeof(MemoryHeader));
+		constexpr const int32 header_size = static_cast<c_int32>(sizeof(MemoryHeader));
+		const int32 allocSize = static_cast<c_int32>(size) + header_size;
 		const thread_local int32 thID = GetCurThreadIdx() % ServerCore::NUM_OF_THREADS;
 
 		

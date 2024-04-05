@@ -77,6 +77,7 @@ namespace ServerCore
 		}
 
 		while (g_threadID.load(std::memory_order_seq_cst) <= NUM_OF_THREADS);
+		std::atomic_thread_fence(std::memory_order_seq_cst);
 
 		m_timerThread = std::jthread{ [this]()noexcept
 			{

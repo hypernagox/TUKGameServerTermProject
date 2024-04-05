@@ -35,7 +35,6 @@ namespace ServerCore
 			DEFAULT_MEM_POOL_SIZE,
 			DEFAULT_MEM_POOL_SIZE,
 			DEFAULT_MEM_POOL_SIZE,
-			DEFAULT_MEM_POOL_SIZE,
 		};
 	};
 
