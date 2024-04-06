@@ -8,6 +8,7 @@
 #include "BroadCaster.h"
 #include "ItemComponent.h"
 #include "ClientSession.h"
+#include "IDGenerator.hpp"
 
 S_ptr<Object> ObjectFactory::CreatePlayer(ClientSession* const pSession_, const uint64 id)
 {
@@ -137,4 +138,41 @@ S_ptr<Object> ObjectFactory::CreateDropItem(const uint64 id, std::string_view st
 	drop_item->AddComponent(std::move(acq));
 
 	return drop_item;
+}
+
+S_ptr<Object> ObjectFactory::CreateMissle(const Vec2 vPos, ServerCore::SessionManageable* const pRoom_)
+{
+	auto missle = MakePoolShared<Object>(IDGenerator::GenerateID(), GROUP_TYPE::PROJ_PLAYER, "MISSLE");
+	missle->SetPos(vPos);
+	missle->SetScale(Vec2{ 32.f,32.f });
+
+	auto rigidbody = MakeShared<RigidBody>(missle.get());
+
+	rigidbody->SetGravity(false);
+
+	rigidbody->SetFriction(0.f);
+
+	rigidbody->SetLimitBreak();
+
+	missle->AddComponent(std::move(rigidbody));
+
+	auto collider = MakeShared<Collider>(missle.get());
+
+	auto collisionHandler = MakeShared<PlayerCollisionHandler>();
+
+	collider->SetCollisionHandler(std::move(collisionHandler));
+
+	missle->AddComponent(std::move(collider));
+	
+	auto broadcaster = MakeShared<MoveBroadCaster>(missle.get(), pRoom_);
+
+	missle->AddComponent(std::move(broadcaster));
+
+	auto atk = MakeShared<Attackable>(missle.get());
+	
+	missle->AddComponent(std::move(atk));
+
+	missle->register_cache_shared_core(missle);
+
+	return missle;
 }

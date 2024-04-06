@@ -33,10 +33,12 @@ public:
 	~Object();
 public:
 	void Update(const float dt_) {
+		//m_positionComponent.Update(dt_);
 		for (const auto& pComp : m_vecComponentList)
 			pComp->Update(dt_);
 	}
 	void PostUpdate(const float dt_)noexcept {
+		m_positionComponent.PostUpdate(dt_);
 		for (const auto& pComp : m_vecComponentList)
 			pComp->PostUpdate(dt_);
 	}

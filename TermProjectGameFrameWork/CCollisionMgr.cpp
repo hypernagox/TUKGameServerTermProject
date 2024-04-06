@@ -46,7 +46,7 @@ void CCollisionMgr::update()
 		{
 			if (m_bitColTable[iRow][iCol])
 			{
-				CollisionUpdateGroup(static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
+				//CollisionUpdateGroup(static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
 				//Mgr(CThreadMgr)->EnqueueUpdate(&CCollisionMgr::CollisionUpdateGroup,this, static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
 			}
 		}
@@ -135,6 +135,7 @@ void CCollisionMgr::CollisionUpdateGroup(GROUP_TYPE _eLeft, GROUP_TYPE _eRight)
 					{
 						pLeftCol->OnCollisionExit(pRightCol);
 						pRightCol->OnCollisionExit(pLeftCol);
+						m_mapColPrev.erase(iter);
 					}
 					else
 					{
@@ -151,6 +152,10 @@ void CCollisionMgr::CollisionUpdateGroup(GROUP_TYPE _eLeft, GROUP_TYPE _eRight)
 						pRightCol->OnCollisionEnter(pLeftCol);
 						iter->second = true;
 					}
+					else
+					{
+						m_mapColPrev.erase(iter);
+					}
 				}
 			}
 			else
@@ -160,6 +165,10 @@ void CCollisionMgr::CollisionUpdateGroup(GROUP_TYPE _eLeft, GROUP_TYPE _eRight)
 					pLeftCol->OnCollisionExit(pRightCol);
 					pRightCol->OnCollisionExit(pLeftCol);
 					iter->second = false;
+				}
+				if (vecLeft[i]->IsDead() || vecRight[j]->IsDead())
+				{
+					m_mapColPrev.erase(iter);
 				}
 			}
 		}

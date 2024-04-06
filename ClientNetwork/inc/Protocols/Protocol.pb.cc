@@ -443,8 +443,36 @@ struct s2c_LEAVE_OBJECTDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 s2c_LEAVE_OBJECTDefaultTypeInternal _s2c_LEAVE_OBJECT_default_instance_;
+PROTOBUF_CONSTEXPR c2s_CREATE_MISSILE::c2s_CREATE_MISSILE(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.obj_pos_)*/nullptr
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct c2s_CREATE_MISSILEDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR c2s_CREATE_MISSILEDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~c2s_CREATE_MISSILEDefaultTypeInternal() {}
+  union {
+    c2s_CREATE_MISSILE _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 c2s_CREATE_MISSILEDefaultTypeInternal _c2s_CREATE_MISSILE_default_instance_;
+PROTOBUF_CONSTEXPR s2c_CREATE_MISSILE::s2c_CREATE_MISSILE(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.obj_pos_)*/nullptr
+  , /*decltype(_impl_.obj_id_)*/uint64_t{0u}
+  , /*decltype(_impl_.time_stamp_)*/uint64_t{0u}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct s2c_CREATE_MISSILEDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR s2c_CREATE_MISSILEDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~s2c_CREATE_MISSILEDefaultTypeInternal() {}
+  union {
+    s2c_CREATE_MISSILE _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 s2c_CREATE_MISSILEDefaultTypeInternal _s2c_CREATE_MISSILE_default_instance_;
 }  // namespace Protocol
-static ::_pb::Metadata file_level_metadata_Protocol_2eproto[30];
+static ::_pb::Metadata file_level_metadata_Protocol_2eproto[32];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_Protocol_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_Protocol_2eproto = nullptr;
 
@@ -700,6 +728,22 @@ const uint32_t TableStruct_Protocol_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE
   PROTOBUF_FIELD_OFFSET(::Protocol::s2c_LEAVE_OBJECT, _impl_.is_player_),
   PROTOBUF_FIELD_OFFSET(::Protocol::s2c_LEAVE_OBJECT, _impl_.obj_id_),
   PROTOBUF_FIELD_OFFSET(::Protocol::s2c_LEAVE_OBJECT, _impl_.sector_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Protocol::c2s_CREATE_MISSILE, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::Protocol::c2s_CREATE_MISSILE, _impl_.obj_pos_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::Protocol::s2c_CREATE_MISSILE, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::Protocol::s2c_CREATE_MISSILE, _impl_.obj_id_),
+  PROTOBUF_FIELD_OFFSET(::Protocol::s2c_CREATE_MISSILE, _impl_.obj_pos_),
+  PROTOBUF_FIELD_OFFSET(::Protocol::s2c_CREATE_MISSILE, _impl_.time_stamp_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::Protocol::c2s_LOGIN)},
@@ -732,6 +776,8 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 221, -1, -1, sizeof(::Protocol::s2c_APPEAR_NEW_OBJECT)},
   { 233, -1, -1, sizeof(::Protocol::c2s_LEAVE_OBJECT)},
   { 242, -1, -1, sizeof(::Protocol::s2c_LEAVE_OBJECT)},
+  { 251, -1, -1, sizeof(::Protocol::c2s_CREATE_MISSILE)},
+  { 258, -1, -1, sizeof(::Protocol::s2c_CREATE_MISSILE)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -765,6 +811,8 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::Protocol::_s2c_APPEAR_NEW_OBJECT_default_instance_._instance,
   &::Protocol::_c2s_LEAVE_OBJECT_default_instance_._instance,
   &::Protocol::_s2c_LEAVE_OBJECT_default_instance_._instance,
+  &::Protocol::_c2s_CREATE_MISSILE_default_instance_._instance,
+  &::Protocol::_s2c_CREATE_MISSILE_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_Protocol_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -819,7 +867,11 @@ const char descriptor_table_protodef_Protocol_2eproto[] PROTOBUF_SECTION_VARIABL
   "VE_OBJECT\022\021\n\tis_player\030\001 \001(\010\022\016\n\006obj_id\030\002"
   " \001(\004\022\016\n\006sector\030\003 \001(\005\"E\n\020s2c_LEAVE_OBJECT"
   "\022\021\n\tis_player\030\001 \001(\010\022\016\n\006obj_id\030\002 \001(\004\022\016\n\006s"
-  "ector\030\003 \001(\005b\006proto3"
+  "ector\030\003 \001(\005\"5\n\022c2s_CREATE_MISSILE\022\037\n\007obj"
+  "_pos\030\001 \001(\0132\016.Protocol.Vec2\"Y\n\022s2c_CREATE"
+  "_MISSILE\022\016\n\006obj_id\030\001 \001(\004\022\037\n\007obj_pos\030\002 \001("
+  "\0132\016.Protocol.Vec2\022\022\n\ntime_stamp\030\003 \001(\004b\006p"
+  "roto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_Protocol_2eproto_deps[2] = {
   &::descriptor_table_Enum_2eproto,
@@ -827,9 +879,9 @@ static const ::_pbi::DescriptorTable* const descriptor_table_Protocol_2eproto_de
 };
 static ::_pbi::once_flag descriptor_table_Protocol_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_Protocol_2eproto = {
-    false, false, 2059, descriptor_table_protodef_Protocol_2eproto,
+    false, false, 2205, descriptor_table_protodef_Protocol_2eproto,
     "Protocol.proto",
-    &descriptor_table_Protocol_2eproto_once, descriptor_table_Protocol_2eproto_deps, 2, 30,
+    &descriptor_table_Protocol_2eproto_once, descriptor_table_Protocol_2eproto_deps, 2, 32,
     schemas, file_default_instances, TableStruct_Protocol_2eproto::offsets,
     file_level_metadata_Protocol_2eproto, file_level_enum_descriptors_Protocol_2eproto,
     file_level_service_descriptors_Protocol_2eproto,
@@ -6771,6 +6823,463 @@ void s2c_LEAVE_OBJECT::InternalSwap(s2c_LEAVE_OBJECT* other) {
       file_level_metadata_Protocol_2eproto[29]);
 }
 
+// ===================================================================
+
+class c2s_CREATE_MISSILE::_Internal {
+ public:
+  static const ::Protocol::Vec2& obj_pos(const c2s_CREATE_MISSILE* msg);
+};
+
+const ::Protocol::Vec2&
+c2s_CREATE_MISSILE::_Internal::obj_pos(const c2s_CREATE_MISSILE* msg) {
+  return *msg->_impl_.obj_pos_;
+}
+void c2s_CREATE_MISSILE::clear_obj_pos() {
+  if (GetArenaForAllocation() == nullptr && _impl_.obj_pos_ != nullptr) {
+    delete _impl_.obj_pos_;
+  }
+  _impl_.obj_pos_ = nullptr;
+}
+c2s_CREATE_MISSILE::c2s_CREATE_MISSILE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:Protocol.c2s_CREATE_MISSILE)
+}
+c2s_CREATE_MISSILE::c2s_CREATE_MISSILE(const c2s_CREATE_MISSILE& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  c2s_CREATE_MISSILE* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.obj_pos_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  if (from._internal_has_obj_pos()) {
+    _this->_impl_.obj_pos_ = new ::Protocol::Vec2(*from._impl_.obj_pos_);
+  }
+  // @@protoc_insertion_point(copy_constructor:Protocol.c2s_CREATE_MISSILE)
+}
+
+inline void c2s_CREATE_MISSILE::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.obj_pos_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+c2s_CREATE_MISSILE::~c2s_CREATE_MISSILE() {
+  // @@protoc_insertion_point(destructor:Protocol.c2s_CREATE_MISSILE)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void c2s_CREATE_MISSILE::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  if (this != internal_default_instance()) delete _impl_.obj_pos_;
+}
+
+void c2s_CREATE_MISSILE::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void c2s_CREATE_MISSILE::Clear() {
+// @@protoc_insertion_point(message_clear_start:Protocol.c2s_CREATE_MISSILE)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  if (GetArenaForAllocation() == nullptr && _impl_.obj_pos_ != nullptr) {
+    delete _impl_.obj_pos_;
+  }
+  _impl_.obj_pos_ = nullptr;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* c2s_CREATE_MISSILE::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // .Protocol.Vec2 obj_pos = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          ptr = ctx->ParseMessage(_internal_mutable_obj_pos(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* c2s_CREATE_MISSILE::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Protocol.c2s_CREATE_MISSILE)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .Protocol.Vec2 obj_pos = 1;
+  if (this->_internal_has_obj_pos()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(1, _Internal::obj_pos(this),
+        _Internal::obj_pos(this).GetCachedSize(), target, stream);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Protocol.c2s_CREATE_MISSILE)
+  return target;
+}
+
+size_t c2s_CREATE_MISSILE::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Protocol.c2s_CREATE_MISSILE)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // .Protocol.Vec2 obj_pos = 1;
+  if (this->_internal_has_obj_pos()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *_impl_.obj_pos_);
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData c2s_CREATE_MISSILE::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    c2s_CREATE_MISSILE::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*c2s_CREATE_MISSILE::GetClassData() const { return &_class_data_; }
+
+
+void c2s_CREATE_MISSILE::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<c2s_CREATE_MISSILE*>(&to_msg);
+  auto& from = static_cast<const c2s_CREATE_MISSILE&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:Protocol.c2s_CREATE_MISSILE)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_has_obj_pos()) {
+    _this->_internal_mutable_obj_pos()->::Protocol::Vec2::MergeFrom(
+        from._internal_obj_pos());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void c2s_CREATE_MISSILE::CopyFrom(const c2s_CREATE_MISSILE& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Protocol.c2s_CREATE_MISSILE)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool c2s_CREATE_MISSILE::IsInitialized() const {
+  return true;
+}
+
+void c2s_CREATE_MISSILE::InternalSwap(c2s_CREATE_MISSILE* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.obj_pos_, other->_impl_.obj_pos_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata c2s_CREATE_MISSILE::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_Protocol_2eproto_getter, &descriptor_table_Protocol_2eproto_once,
+      file_level_metadata_Protocol_2eproto[30]);
+}
+
+// ===================================================================
+
+class s2c_CREATE_MISSILE::_Internal {
+ public:
+  static const ::Protocol::Vec2& obj_pos(const s2c_CREATE_MISSILE* msg);
+};
+
+const ::Protocol::Vec2&
+s2c_CREATE_MISSILE::_Internal::obj_pos(const s2c_CREATE_MISSILE* msg) {
+  return *msg->_impl_.obj_pos_;
+}
+void s2c_CREATE_MISSILE::clear_obj_pos() {
+  if (GetArenaForAllocation() == nullptr && _impl_.obj_pos_ != nullptr) {
+    delete _impl_.obj_pos_;
+  }
+  _impl_.obj_pos_ = nullptr;
+}
+s2c_CREATE_MISSILE::s2c_CREATE_MISSILE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:Protocol.s2c_CREATE_MISSILE)
+}
+s2c_CREATE_MISSILE::s2c_CREATE_MISSILE(const s2c_CREATE_MISSILE& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  s2c_CREATE_MISSILE* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.obj_pos_){nullptr}
+    , decltype(_impl_.obj_id_){}
+    , decltype(_impl_.time_stamp_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  if (from._internal_has_obj_pos()) {
+    _this->_impl_.obj_pos_ = new ::Protocol::Vec2(*from._impl_.obj_pos_);
+  }
+  ::memcpy(&_impl_.obj_id_, &from._impl_.obj_id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.time_stamp_) -
+    reinterpret_cast<char*>(&_impl_.obj_id_)) + sizeof(_impl_.time_stamp_));
+  // @@protoc_insertion_point(copy_constructor:Protocol.s2c_CREATE_MISSILE)
+}
+
+inline void s2c_CREATE_MISSILE::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.obj_pos_){nullptr}
+    , decltype(_impl_.obj_id_){uint64_t{0u}}
+    , decltype(_impl_.time_stamp_){uint64_t{0u}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+s2c_CREATE_MISSILE::~s2c_CREATE_MISSILE() {
+  // @@protoc_insertion_point(destructor:Protocol.s2c_CREATE_MISSILE)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void s2c_CREATE_MISSILE::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  if (this != internal_default_instance()) delete _impl_.obj_pos_;
+}
+
+void s2c_CREATE_MISSILE::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void s2c_CREATE_MISSILE::Clear() {
+// @@protoc_insertion_point(message_clear_start:Protocol.s2c_CREATE_MISSILE)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  if (GetArenaForAllocation() == nullptr && _impl_.obj_pos_ != nullptr) {
+    delete _impl_.obj_pos_;
+  }
+  _impl_.obj_pos_ = nullptr;
+  ::memset(&_impl_.obj_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.time_stamp_) -
+      reinterpret_cast<char*>(&_impl_.obj_id_)) + sizeof(_impl_.time_stamp_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* s2c_CREATE_MISSILE::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint64 obj_id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.obj_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // .Protocol.Vec2 obj_pos = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          ptr = ctx->ParseMessage(_internal_mutable_obj_pos(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // uint64 time_stamp = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _impl_.time_stamp_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* s2c_CREATE_MISSILE::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Protocol.s2c_CREATE_MISSILE)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint64 obj_id = 1;
+  if (this->_internal_obj_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_obj_id(), target);
+  }
+
+  // .Protocol.Vec2 obj_pos = 2;
+  if (this->_internal_has_obj_pos()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(2, _Internal::obj_pos(this),
+        _Internal::obj_pos(this).GetCachedSize(), target, stream);
+  }
+
+  // uint64 time_stamp = 3;
+  if (this->_internal_time_stamp() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(3, this->_internal_time_stamp(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Protocol.s2c_CREATE_MISSILE)
+  return target;
+}
+
+size_t s2c_CREATE_MISSILE::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Protocol.s2c_CREATE_MISSILE)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // .Protocol.Vec2 obj_pos = 2;
+  if (this->_internal_has_obj_pos()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *_impl_.obj_pos_);
+  }
+
+  // uint64 obj_id = 1;
+  if (this->_internal_obj_id() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_obj_id());
+  }
+
+  // uint64 time_stamp = 3;
+  if (this->_internal_time_stamp() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_time_stamp());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData s2c_CREATE_MISSILE::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    s2c_CREATE_MISSILE::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*s2c_CREATE_MISSILE::GetClassData() const { return &_class_data_; }
+
+
+void s2c_CREATE_MISSILE::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<s2c_CREATE_MISSILE*>(&to_msg);
+  auto& from = static_cast<const s2c_CREATE_MISSILE&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:Protocol.s2c_CREATE_MISSILE)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_has_obj_pos()) {
+    _this->_internal_mutable_obj_pos()->::Protocol::Vec2::MergeFrom(
+        from._internal_obj_pos());
+  }
+  if (from._internal_obj_id() != 0) {
+    _this->_internal_set_obj_id(from._internal_obj_id());
+  }
+  if (from._internal_time_stamp() != 0) {
+    _this->_internal_set_time_stamp(from._internal_time_stamp());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void s2c_CREATE_MISSILE::CopyFrom(const s2c_CREATE_MISSILE& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Protocol.s2c_CREATE_MISSILE)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool s2c_CREATE_MISSILE::IsInitialized() const {
+  return true;
+}
+
+void s2c_CREATE_MISSILE::InternalSwap(s2c_CREATE_MISSILE* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(s2c_CREATE_MISSILE, _impl_.time_stamp_)
+      + sizeof(s2c_CREATE_MISSILE::_impl_.time_stamp_)
+      - PROTOBUF_FIELD_OFFSET(s2c_CREATE_MISSILE, _impl_.obj_pos_)>(
+          reinterpret_cast<char*>(&_impl_.obj_pos_),
+          reinterpret_cast<char*>(&other->_impl_.obj_pos_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata s2c_CREATE_MISSILE::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_Protocol_2eproto_getter, &descriptor_table_Protocol_2eproto_once,
+      file_level_metadata_Protocol_2eproto[31]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace Protocol
 PROTOBUF_NAMESPACE_OPEN
@@ -6893,6 +7402,14 @@ Arena::CreateMaybeMessage< ::Protocol::c2s_LEAVE_OBJECT >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::Protocol::s2c_LEAVE_OBJECT*
 Arena::CreateMaybeMessage< ::Protocol::s2c_LEAVE_OBJECT >(Arena* arena) {
   return Arena::CreateMessageInternal< ::Protocol::s2c_LEAVE_OBJECT >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Protocol::c2s_CREATE_MISSILE*
+Arena::CreateMaybeMessage< ::Protocol::c2s_CREATE_MISSILE >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Protocol::c2s_CREATE_MISSILE >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Protocol::s2c_CREATE_MISSILE*
+Arena::CreateMaybeMessage< ::Protocol::s2c_CREATE_MISSILE >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Protocol::s2c_CREATE_MISSILE >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

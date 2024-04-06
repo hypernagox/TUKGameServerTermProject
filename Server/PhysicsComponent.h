@@ -11,7 +11,7 @@ public:
 		:Component{ "POSITION",pOwner_ }
 	{}
 public:
-	void Update(const float dt_)override{}
+	void Update(const float dt_)override{ m_vPrevPosition = m_vPos; }
 	void PostUpdate(const float dt_)noexcept override { m_vPrevPosition = m_vPos; }
 public:
 	void SetPos(const Vec2 v_)noexcept { m_vPos = v_; }
@@ -43,7 +43,7 @@ private:
 	//Vec2				m_vScale = {};
 	const UINT			m_iID;
 	int			m_iColCnt = {};
-	bool m_bIsDead = false;
+	volatile bool m_bIsDead = false;
 	S_ptr<CollisionHandler> m_pCollisionHandler;
 public:
 	const bool IsDead()const noexcept { return m_bIsDead; }

@@ -64,7 +64,7 @@ namespace ServerCore
         start_room->EnterEnqueue(pSession_);
 
         Protocol::s2c_CREATE_ITEM pkt;
-        const auto item_pos = Vec2{ 4100.f,0.f };;
+        const auto item_pos = Vec2{ 4100.f/4.f,0.f };;
         *pkt.mutable_pos() = item_pos;
         pkt.set_item_name("armor_iron_head");
         pkt.set_obj_id(IDGenerator::GenerateID());
@@ -94,7 +94,7 @@ namespace ServerCore
         const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
-        const Vec2 item_pos = TRWorld::WorldToGlobal(Vec2{ (float)x,(float)y + .5f });
+        const Vec2 item_pos = TRWorld::WorldToGlobal(Vec2{ (float)x,(float)y});
 
         std::string temp;
 
@@ -292,6 +292,30 @@ namespace ServerCore
     const bool Handle_c2s_LEAVE_OBJECT(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_LEAVE_OBJECT& pkt_)
     {
         return false;
+    }
+
+    const bool Handle_c2s_CREATE_MISSILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CREATE_MISSILE& pkt_)
+    {
+        const auto cur_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+        auto pMissle = ObjectFactory::CreateMissle(ToOriginVec2(pkt_.obj_pos()), cur_room);
+        
+
+        cur_room->AddObjectEnqueue(GROUP_TYPE::PROJ_PLAYER, pMissle);
+
+        Protocol::s2c_CREATE_MISSILE pkt;
+        pkt.set_obj_id(pMissle->GetObjID());
+        *pkt.mutable_obj_pos() = pkt_.obj_pos();
+
+        //pMissle->PostUpdate(.2f);
+        cur_room << pkt;
+
+       //Protocol::s2c_MOVE pkt2;
+       //pkt2.set_obj_id(pMissle->GetObjID());
+       //*pkt2.mutable_obj_pos() = pMissle->GetPos() + Vec2{ 1000.f,0.f }*0.1f;
+       //
+       //cur_room << pkt2;
+
+        return true;
     }
 
 }

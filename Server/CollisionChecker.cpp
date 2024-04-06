@@ -20,6 +20,40 @@ bool CollisionChecker::IsCollision(const Collider* const _pLeftCol, const Collid
 	return false;
 }
 
+bool CollisionChecker::IsCollisionCCD(const Collider* const _pLeftCol, const Collider* const _pRightCol) noexcept
+{
+	// 거리 너무 과하면 바로 쳐냄
+
+	constexpr const int try_num = 5;
+
+	const Vec2 vPrev_A = _pLeftCol->GetPrevPos();
+	const Vec2 vPrev_B = _pRightCol->GetPrevPos();
+
+	const Vec2 vScale_A = _pLeftCol->GetScale() / 2.f;
+	const Vec2 vScale_B = _pRightCol->GetScale() / 2.f;
+
+	const Vec2 vDelta_A = (_pLeftCol->GetFinalPos() - vPrev_A) / (float)try_num;
+	const Vec2 vDelta_B = (_pRightCol->GetFinalPos() - vPrev_B) / (float)try_num;
+
+	for (int i = 1; i <= try_num; ++i)
+	{
+		const Vec2 seq_A = vPrev_A + vDelta_A * (float)i;
+
+		for (int j = 1; j <= try_num; ++j)
+		{
+			const Vec2 seq_B = vPrev_B + vDelta_B * (float)j;
+
+			if (bitwise_absf(seq_A.x - seq_B.x) <= vScale_A.x + vScale_B.x
+				&& bitwise_absf(seq_A.y - seq_B.y) <= vScale_A.y + vScale_B.y)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 void CollisionChecker::CollisionUpdateGroup(const ServerCore::LinkedHashMap<uint64, Object>& a, const ServerCore::LinkedHashMap<uint64, Object>& b)
 {
 	const auto& left_list = a.GetItemListRef();
@@ -44,8 +78,11 @@ void CollisionChecker::CollisionUpdateGroup(const ServerCore::LinkedHashMap<uint
 				| static_cast<const ULONGLONG>(pRightCol->GetID())
 			};
 
+			if (pLeftCol->IsDead() || pRightCol->IsDead())
+				continue;
+
 			const auto iter = m_mapColPrev.try_emplace(ID.ID, false).first;
-			const bool nowCollision = IsCollision(pLeftCol, pRightCol);
+			const bool nowCollision = IsCollisionCCD(pLeftCol, pRightCol);
 
 			if (nowCollision)
 			{
@@ -55,6 +92,7 @@ void CollisionChecker::CollisionUpdateGroup(const ServerCore::LinkedHashMap<uint
 					{
 						pLeftCol->OnCollisionExit(pRightCol);
 						pRightCol->OnCollisionExit(pLeftCol);
+						m_mapColPrev.erase(iter);
 					}
 					else
 					{
@@ -70,6 +108,10 @@ void CollisionChecker::CollisionUpdateGroup(const ServerCore::LinkedHashMap<uint
 						pRightCol->OnCollisionEnter(pLeftCol);
 						iter->second = true;
 					}
+					else
+					{
+						m_mapColPrev.erase(iter);
+					}
 				}
 			}
 			else
@@ -79,6 +121,10 @@ void CollisionChecker::CollisionUpdateGroup(const ServerCore::LinkedHashMap<uint
 					pLeftCol->OnCollisionExit(pRightCol);
 					pRightCol->OnCollisionExit(pLeftCol);
 					iter->second = false;
+				}
+				if (pLeftCol->IsDead() || pRightCol->IsDead())
+				{
+					m_mapColPrev.erase(iter);
 				}
 			}
 		}

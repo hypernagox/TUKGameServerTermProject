@@ -32,9 +32,7 @@ public:
 	{}
 public:
 	void Update(const float dt_)override {}
-	const bool TryGetItem()noexcept {
-		return m_bCanGet.exchange(false, std::memory_order_acq_rel);
-	}
+	const bool TryGetItem()noexcept;
 private:
 	std::atomic_bool m_bCanGet = true;
 };
@@ -43,10 +41,11 @@ class Attackable
 	:public Useable
 {
 public:
-	Attackable(std::string_view compName_, Object* const pOwner_);
+	Attackable(Object* const pOwner_);
 	~Attackable();
 public:
 	void Update(const float dt_)override;
+	void PostUpdate(const float dt_)noexcept override;
 	void Use(const float dt_)override;
 
 private:

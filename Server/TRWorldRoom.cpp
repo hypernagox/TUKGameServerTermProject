@@ -69,7 +69,7 @@ void TRWorldRoom::Update(const uint64 tick_ms)
 		//while (0 != m_jobCount.load(std::memory_order_relaxed)) { std::this_thread::yield(); };
 	}
 
-	//for (const auto& obj_list : m_worldObjectList)
+	//for (const auto& obj_list : m_worldObjectList[threadID])
 	//{
 	//	for (const auto obj : obj_list.GetItemListRef())
 	//	{
@@ -85,6 +85,8 @@ void TRWorldRoom::Init()
 	//EnqueueAsyncTimer(5000, &TRWorldRoom::Update, uint64{ 30 });
 
 	//RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::DROP_ITEM);
+
+	RegisterGroup(GROUP_TYPE::PROJ_PLAYER, GROUP_TYPE::DROP_ITEM);
 }
 
 void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
@@ -97,7 +99,7 @@ void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 	{
 		g_allPlayers[threadID].AddItem(objID, pIsSession->Cast<SessionObject>()->GetSession());
 	}
-	const auto& pSession = pObj_->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
+	//const auto& pSession = pObj_->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
 	EnqueueAsync(&TRWorldRoom::AddObject, GROUP_TYPE{ eType_ }, std::move(pObj_), uint64{ threadID }, bool(pIsSession));
 }
 
@@ -328,7 +330,7 @@ void TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer, const Vec2 offset_)
 
 void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noexcept
 {
-	constexpr const int try_num = 4;
+	constexpr const int try_num = 2;
 	//if (pObj_->GetObjectGroup() == GROUP_TYPE::PLAYER)
 	//{
 	//	if (pObj_->GetComp("KEYINPUTHANDLER")->Cast<KeyInputHandler>()->GetKeyState(VK_SPACE) == KeyInputHandler::KEY_STATE::KEY_TAP)
@@ -337,7 +339,13 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 	//	}
 	//}
 
+	
 	const auto pRigid = pObj_->GetComp("RIGIDBODY")->Cast<RigidBody>();
+
+	//if (!pRigid->IsGravity()) {
+	//	pObj_->PostUpdate(m_timer.GetDT());
+	//	return;
+	//}
 	const auto pCol = pObj_->GetComp("COLLIDER")->Cast<Collider>();
 
 	if (pCol == nullptr || "Monster_CthulhuEye" == pObj_->GetObjectName())[[unlikely]]
@@ -345,7 +353,9 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 		pObj_->SetPos(pObj_->GetWillPos());
 		return;
 	}
-	
+	//if (pRigid == nullptr || !pRigid->IsGravity())
+	//	return;
+
 	//if (pObj_->GetObjectGroup() == GROUP_TYPE::PLAYER)
 	//{
 	//	if (pObj_->GetComp("KEYINPUTHANDLER")->Cast<KeyInputHandler>()->GetKeyState(VK_SPACE) == KeyInputHandler::KEY_STATE::KEY_TAP)
@@ -498,6 +508,7 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 		{
 			pObj_->SetPos(TRWorld::WorldToGlobal((post_pos)));
 			pRigid->SetVelocity((post_vel));
+			pRigid->SetVelocity(Vec2{0.f,-2000.f});
 			//pRigid->SetIsGround(prev_landed);
 			prev_landed = landed;
 			bCollide = true;
@@ -513,7 +524,7 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 		pObj_->SetPos(TRWorld::WorldToGlobal(temp_prev_pos));
 
 	pRigid->SetIsGround(prev_landed);
-
+	pRigid->AddVelocity(Vec2{ 0.f,-200.f });
 	pObj_->SetPrevPos(pObj_->GetPos());
 	pRigid->SetPrevVelocity(pRigid->GetVelocity());
 	

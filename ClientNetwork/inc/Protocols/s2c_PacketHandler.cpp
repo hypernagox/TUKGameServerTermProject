@@ -11,9 +11,11 @@
 #include "CSceneMgr.h"
 #include "CScene.h"
 #include "Vec2Int.hpp"
+#include "Missle.h"
 
 extern int g_TR_SEED;
 extern TRWorld* g_TRWorld;
+extern uint64 time_stamp;
 
 namespace NetHelper
 {
@@ -97,6 +99,10 @@ namespace NetHelper
             {
                 pItem->SetMoveData(pkt_);
             }
+            else if (const auto pMissle = g_TRWorld->GetMissle(pkt_.obj_id()))
+            {
+                pMissle->SetMoveData(pkt_);
+            }
         }
         return true;
     }
@@ -170,6 +176,13 @@ namespace NetHelper
     const bool NetHelper::Handle_s2c_LEAVE_OBJECT(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_LEAVE_OBJECT& pkt_)
     {
         g_TRWorld->EraseOtherPlayer(pkt_.obj_id(), pkt_.sector());
+        return true;
+    }
+
+    const bool NetHelper::Handle_s2c_CREATE_MISSILE(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_CREATE_MISSILE& pkt_)
+    {
+        time_stamp = pkt_.time_stamp();
+        g_TRWorld->CreateMissle(pkt_.obj_id(), ToOriginVec2(pkt_.obj_pos()));
         return true;
     }
 }

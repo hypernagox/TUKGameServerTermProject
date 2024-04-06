@@ -33,6 +33,7 @@
 #include "CParticleMgr.h"
 #include "CSceneMgr.h"
 #include "CEventMgr.h"
+#include "Missle.h"
 
 TRWorld* g_TRWorld = nullptr;
 extern bool g_bStopToken;
@@ -593,4 +594,11 @@ CPlayer* const TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector,con
 	m_mapOtherPlayer[sector].emplace(id, player);
 
 	return player;
+}
+
+void TRWorld::CreateMissle(const uint64_t id_, const Vec2 vPos_)
+{
+	auto p = new Missle{ vPos_ };
+	m_mapMissle.emplace(id_, p);
+	Mgr(CSceneMgr)->GetScene(SCENE_TYPE::START)->AddObject(p, GROUP_TYPE::PROJ_PLAYER);
 }

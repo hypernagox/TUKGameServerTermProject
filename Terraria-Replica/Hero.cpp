@@ -15,6 +15,7 @@
 #include "CSceneMgr.h"
 #include "CScene.h"
 #include "CEventMgr.h"
+#include "Missle.h"
 
 extern void updateTileCollision(CObject* const _pObj, TRWorld* const _pTRWorld);
 
@@ -40,7 +41,12 @@ void Hero::update()
 	{
 		return;
 	}
-	
+	if (KEY_TAP(KEY::RBTN))
+	{
+		Protocol::c2s_CREATE_MISSILE pkt;
+		*pkt.mutable_obj_pos() = ToProtoVec2(GetPos());
+		Send(pkt);
+	}
 	if (KEY_TAP(KEY::W))
 	{
 		const auto vPos = GetPos();

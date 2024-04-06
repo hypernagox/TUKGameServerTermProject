@@ -112,6 +112,9 @@
     <Filter Include="Interpolator">
       <UniqueIdentifier>{621dbc25-7360-4cc2-961c-b39f5cbef2af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CObject\Player\Missle">
+      <UniqueIdentifier>{43538e18-b37a-4e51-ae8a-90e72d87ddef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -267,6 +270,9 @@
     <ClInclude Include="MoveInterpolator.h">
       <Filter>Interpolator</Filter>
     </ClInclude>
+    <ClInclude Include="Missle.h">
+      <Filter>CObject\Player\Missle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TRMain.cpp">
@@ -397,6 +403,9 @@
     </ClCompile>
     <ClCompile Include="MoveInterpolator.cpp">
       <Filter>Interpolator</Filter>
+    </ClCompile>
+    <ClCompile Include="Missle.cpp">
+      <Filter>CObject\Player\Missle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

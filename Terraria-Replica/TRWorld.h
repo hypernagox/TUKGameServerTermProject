@@ -16,6 +16,8 @@ class CHealthIndicator;
 class CInventoryVisualizer;
 class CDropItem;
 
+class Missle;
+
 class TRWorld
 {
 public:
@@ -43,6 +45,7 @@ private:
 	std::unordered_map<uint64_t, CPlayer*> m_mapOtherPlayer[etoi(SECTOR::END)];
 
 	std::unordered_map<uint64_t, CDropItem*> m_mapItem;
+	std::unordered_map<uint64_t, Missle*> m_mapMissle;
 public:
 	void FindAndModifyItemStack(std::string_view itemName, const int mount_,const bool bIsWall = false)noexcept;
 public:
@@ -91,4 +94,12 @@ public:
 public:
 	CPlayer* const AddNewPlayer(const uint64_t id, const uint64_t sector,const Vec2 vPos_);
 	CPlayer* GetOtherPlayer(const uint64_t id,const uint64 sector_)noexcept { return m_mapOtherPlayer[sector_][id]; }
+
+
+
+	void CreateMissle(const uint64_t id_, const Vec2 vPos_);
+	Missle* const GetMissle(const uint64_t item_id)const {
+		const auto iter = m_mapMissle.find(item_id);
+		return m_mapMissle.end() != iter ? iter->second : nullptr;
+	}
 };

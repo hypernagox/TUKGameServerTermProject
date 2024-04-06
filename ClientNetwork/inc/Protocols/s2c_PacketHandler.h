@@ -39,6 +39,8 @@ namespace NetHelper
 		s2c_APPEAR_NEW_OBJECT = 1027,
 		c2s_LEAVE_OBJECT = 1028,
 		s2c_LEAVE_OBJECT = 1029,
+		c2s_CREATE_MISSILE = 1030,
+		s2c_CREATE_MISSILE = 1031,
 	};
 	
 	class PacketSession;
@@ -62,6 +64,7 @@ namespace NetHelper
 	const bool Handle_s2c_ARRIVE_NEW_ROOM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_ARRIVE_NEW_ROOM& pkt_);
 	const bool Handle_s2c_APPEAR_NEW_OBJECT(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_APPEAR_NEW_OBJECT& pkt_);
 	const bool Handle_s2c_LEAVE_OBJECT(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_LEAVE_OBJECT& pkt_);
+	const bool Handle_s2c_CREATE_MISSILE(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_CREATE_MISSILE& pkt_);
 	
 	class s2c_PacketHandler
 	{
@@ -85,6 +88,7 @@ namespace NetHelper
 			g_fpPacketHandler[net_etoi(PKT_ID::s2c_ARRIVE_NEW_ROOM)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_ARRIVE_NEW_ROOM>(Handle_s2c_ARRIVE_NEW_ROOM, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::s2c_APPEAR_NEW_OBJECT)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_APPEAR_NEW_OBJECT>(Handle_s2c_APPEAR_NEW_OBJECT, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::s2c_LEAVE_OBJECT)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_LEAVE_OBJECT>(Handle_s2c_LEAVE_OBJECT, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::s2c_CREATE_MISSILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_CREATE_MISSILE>(Handle_s2c_CREATE_MISSILE, pSession_, pBuff_, len_); };
 			for (auto& fpHandlerFunc : g_fpPacketHandler) 
 			{
 				if (nullptr == fpHandlerFunc)
@@ -120,6 +124,7 @@ namespace NetHelper
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_ARRIVE_NEW_ROOM& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_ARRIVE_NEW_ROOM); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_APPEAR_NEW_OBJECT& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_APPEAR_NEW_OBJECT); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_LEAVE_OBJECT& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_LEAVE_OBJECT); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_CREATE_MISSILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_CREATE_MISSILE); }
 	
 	private:
 		template<typename PacketType, typename ProcessFunc>

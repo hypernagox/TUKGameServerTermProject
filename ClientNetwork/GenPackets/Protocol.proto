@@ -205,3 +205,14 @@ message s2c_LEAVE_OBJECT
 	int32 sector=3;
 }
 
+message c2s_CREATE_MISSILE
+{
+	Vec2 obj_pos=1;
+}
+
+message s2c_CREATE_MISSILE
+{
+	uint64 obj_id=1;
+	Vec2 obj_pos=2;
+	uint64 time_stamp=3;
+}

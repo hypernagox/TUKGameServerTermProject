@@ -178,6 +178,7 @@
     <ClInclude Include="CHealthIndicator.h" />
     <ClInclude Include="func.h" />
     <ClInclude Include="Hero.h" />
+    <ClInclude Include="Missle.h" />
     <ClInclude Include="MoveInterpolator.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PerlinNoise.hpp" />
@@ -244,6 +245,7 @@
     <ClCompile Include="CHealthIndicator.cpp" />
     <ClCompile Include="func.cpp" />
     <ClCompile Include="Hero.cpp" />
+    <ClCompile Include="Missle.cpp" />
     <ClCompile Include="MoveInterpolator.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
