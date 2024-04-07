@@ -115,6 +115,9 @@
     <Filter Include="CObject\Player\Missle">
       <UniqueIdentifier>{43538e18-b37a-4e51-ae8a-90e72d87ddef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CObject\ServerObject">
+      <UniqueIdentifier>{9bc9849c-0cb7-44bc-854a-d88c1a827cb1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -270,8 +273,11 @@
     <ClInclude Include="MoveInterpolator.h">
       <Filter>Interpolator</Filter>
     </ClInclude>
-    <ClInclude Include="Missle.h">
+    <ClInclude Include="Missile.h">
       <Filter>CObject\Player\Missle</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerObject.h">
+      <Filter>CObject\ServerObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -404,8 +410,11 @@
     <ClCompile Include="MoveInterpolator.cpp">
       <Filter>Interpolator</Filter>
     </ClCompile>
-    <ClCompile Include="Missle.cpp">
+    <ClCompile Include="Missile.cpp">
       <Filter>CObject\Player\Missle</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerObject.cpp">
+      <Filter>CObject\ServerObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

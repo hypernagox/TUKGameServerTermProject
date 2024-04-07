@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Missle.h"
+#include "Missile.h"
 #include "CSceneMgr.h"
 #include "CScene.h"
 #include "CRigidBody.h"
@@ -7,9 +7,7 @@
 #include "CTimeMgr.h"
 #include "s2c_PacketHandler.h"
 
-uint64 time_stamp = 0;
-
-Missle::Missle(const Vec2 vPos_)
+Missile::Missile(const Vec2 vPos_)
 {
 	//SetPos(vPos_ + Vec2{ 8.f,0.f });
 	SetPos(vPos_);
@@ -28,7 +26,7 @@ Missle::Missle(const Vec2 vPos_)
 	//m_interpolator.UpdateOnlyTimeStamp(time_stamp);
 }
 
-void Missle::update()
+void Missile::update()
 {
 	CObject::update();
 	
@@ -44,40 +42,16 @@ void Missle::update()
 	//}
 }
 
-void Missle::component_update()
+void Missile::component_update()
 {
 	//CObject::component_update();
 	
 }
 
-void Missle::render(HDC dc_) const
+void Missile::render(HDC dc_) const
 {
 	//if (!m_bFirst)
 	//	return;
 	Mgr(CResMgr)->renderImg(dc_, m_pMissleImg, this, {}, Vec2((float)m_pMissleImg->GetWidth(), (float)m_pMissleImg->GetHeight()));
 }
 
-void Missle::SetMoveData(Protocol::s2c_MOVE movePkt_)
-{
-	m_bFirst = true;
-	MoveData moveData
-	{
-		.pos = (ToOriginVec2(movePkt_.obj_pos())),
-		.will_pos = (ToOriginVec2(movePkt_.wiil_pos())),
-		.vel = (ToOriginVec2(movePkt_.vel()))
-	};
-
-	
-	//if (false == std::exchange(m_bFirst, true))
-	//{
-	//	moveData.pos = GetPos();
-	//	SetPos((moveData.pos));
-	//	m_interpolator.GetNewData().pos = GetPos();
-	//}
-	//else
-	{
-		//SetPos((moveData.pos));
-	}
-	
-	m_interpolator.UpdateNewData(moveData, movePkt_.time_stamp());
-}

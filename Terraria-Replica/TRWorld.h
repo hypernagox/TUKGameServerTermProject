@@ -15,8 +15,7 @@ class CQuickBarVisualizer;
 class CHealthIndicator;
 class CInventoryVisualizer;
 class CDropItem;
-
-class Missle;
+class ServerObject;
 
 class TRWorld
 {
@@ -44,8 +43,7 @@ private:
 
 	std::unordered_map<uint64_t, CPlayer*> m_mapOtherPlayer[etoi(SECTOR::END)];
 
-	std::unordered_map<uint64_t, CDropItem*> m_mapItem;
-	std::unordered_map<uint64_t, Missle*> m_mapMissle;
+	std::unordered_map<uint64_t, ServerObject*> m_mapServerObject;
 public:
 	void FindAndModifyItemStack(std::string_view itemName, const int mount_,const bool bIsWall = false)noexcept;
 public:
@@ -84,22 +82,18 @@ public:
 
 	void CreateItem(const uint64_t item_id,Vec2 world_pos, std::string_view item_key);
 	void CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_view item_key,const int sector_);
-	CDropItem* const GetDropItem(const uint64_t item_id)const {
-		const auto iter = m_mapItem.find(item_id);
-		return m_mapItem.end() != iter ? iter->second : nullptr;
-	}
 	
 	void EraseOtherPlayer(const uint64_t otherPlayerId,const uint64_t sector)noexcept;
 	void EraseItem(const uint64_t item_id)noexcept;
 public:
 	CPlayer* const AddNewPlayer(const uint64_t id, const uint64_t sector,const Vec2 vPos_);
 	CPlayer* GetOtherPlayer(const uint64_t id,const uint64 sector_)noexcept { return m_mapOtherPlayer[sector_][id]; }
-
-
-
 	void CreateMissle(const uint64_t id_, const Vec2 vPos_);
-	Missle* const GetMissle(const uint64_t item_id)const {
-		const auto iter = m_mapMissle.find(item_id);
-		return m_mapMissle.end() != iter ? iter->second : nullptr;
+
+
+	ServerObject* GetServerObject(const uint64_t id_)const noexcept {
+		const auto iter = m_mapServerObject.find(id_);
+		return m_mapServerObject.end() != iter ? iter->second : nullptr;
 	}
+	
 };

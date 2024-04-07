@@ -145,7 +145,8 @@ namespace ServerCore
 		for (const auto pSession : m_linkedHashMapForSession)
 		{
 			pSession->SendOnlyEnqueue(pSendBuffer);
-			m_vecTaskBulks.emplace_back(PoolNew<Task>(&Session::TryRegisterSend, pSession->SharedCastThis<Session>()));
+			if(pSession->CanRegisterSend())
+				m_vecTaskBulks.emplace_back(PoolNew<Task>(&Session::TryRegisterSend, pSession->SharedCastThis<Session>()));
 		}
 		if (const auto num = m_vecTaskBulks.size()) [[likely]]
 		{
@@ -167,7 +168,8 @@ namespace ServerCore
 		{
 			auto pSession = (*start_iter)->SharedCastThis<Session>();
 			pSession->SendOnlyEnqueue(pSendBuffer);
-			m_vecTaskBulks.emplace_back(PoolNew<Task>(&Session::TryRegisterSend, std::move(pSession)));
+			if (pSession->CanRegisterSend())
+				m_vecTaskBulks.emplace_back(PoolNew<Task>(&Session::TryRegisterSend, std::move(pSession)));
 		}
 		if (const auto num = m_vecTaskBulks.size())
 		{

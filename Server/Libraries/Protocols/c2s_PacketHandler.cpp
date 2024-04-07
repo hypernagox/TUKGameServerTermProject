@@ -229,6 +229,7 @@ namespace ServerCore
             player->SetWillPos(::ToOriginVec2(pkt.wiil_pos()));
             player->GetComp("RIGIDBODY")->Cast<RigidBody>()->SetVelocity(::ToOriginVec2(pkt.vel()));
             player->GetComp("RIGIDBODY")->Cast<RigidBody>()->SetIsGround(pkt.ground());
+            player->SetState(pkt.state());
         }
         return true;
     }

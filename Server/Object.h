@@ -60,12 +60,14 @@ public:
 	const std::string& GetObjectName()const noexcept { return m_strObjectName; }
 	const std::string& GetImgName()const noexcept { return m_strImgName; }
 	PositionComponent& GetPositionComponent()noexcept { return m_positionComponent; }
+	const int32 GetState()const noexcept { return m_state; }
 public:
 	void SetPrevPos(const Vec2 v_)noexcept { m_positionComponent.SetPrevPos(v_); }
 	void SetPos(const Vec2 v_)noexcept { m_positionComponent.SetPos(v_); }
 	void SetWillPos(const Vec2 v_)noexcept { m_positionComponent.SetWillPos(v_); }
 	void SetScale(const Vec2 v_)noexcept { m_positionComponent.SetScale(v_); }
 	void SetImageName(std::string_view imgName_)noexcept { m_strImgName = imgName_; }
+	void SetState(const int32 state_)noexcept { m_state = state_; }
 public:
 	const Vec2 GetPos()const noexcept { return m_positionComponent.GetPos(); }
 	const Vec2 GetWillPos()const noexcept { return m_positionComponent.GetWillPos(); }
@@ -79,6 +81,7 @@ private:
 	ServerCore::HashMap<std::string, Component*> m_mapComponent;
 
 	PositionComponent m_positionComponent;
+	int32 m_state = 0;
 	std::atomic_bool m_bIsValid = true;
 	const uint64 m_objID;
 	const GROUP_TYPE m_eObjectGroup;

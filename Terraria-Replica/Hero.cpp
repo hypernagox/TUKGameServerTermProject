@@ -15,7 +15,7 @@
 #include "CSceneMgr.h"
 #include "CScene.h"
 #include "CEventMgr.h"
-#include "Missle.h"
+#include "Missile.h"
 
 extern void updateTileCollision(CObject* const _pObj, TRWorld* const _pTRWorld);
 
@@ -284,13 +284,8 @@ void Hero::component_update()
 	//else
 	SendMoveData();
 
-	const auto move_data = m_interpolator.GetInterPolatedData();
-	SetPos(move_data.pos);
-	//pRigid->SetVelocity(move_data.vel);
-	//SetWillPos(move_data.will_pos);
+	UpdateMoveData();
 }
-
-
 
 void Hero::UseItem()
 {
@@ -300,27 +295,30 @@ void Hero::UseItem()
 	m_bRequestAttack = true;
 }
 
+void Hero::SetNewMoveData(const Protocol::s2c_MOVE& movePkt_) noexcept
+{
+	const MoveData moveData
+	{
+		.pos = ToOriginVec2(movePkt_.obj_pos()),
+		.will_pos = ToOriginVec2(movePkt_.wiil_pos()),
+		.vel = ToOriginVec2(movePkt_.vel())
+	};
+
+	GetInterPolator().UpdateNewData(moveData, movePkt_.time_stamp());
+}
+
 void Hero::SendMoveData() noexcept
 {
 	m_fAccTime += DT;
 	
 	if (m_bDirtyFlag || 0.1f <= m_fAccTime)
 	{
-		//const float dt_rtt = m_interpolator.GetPredictRTT();
-		const float dt_rtt = 0.f;
 		m_fAccTime = 0.f;
 		m_bDirtyFlag = false;
-		Protocol::c2s_MOVE pkt;
-		const auto vVelocity = GetComp<CRigidBody>()->GetVelocity();
-		*pkt.mutable_obj_pos() = ToProtoVec2(GetPos()+ GetComp<CRigidBody>()->GetVelocity() * dt_rtt);
-		*pkt.mutable_wiil_pos() = ToProtoVec2(GetWillPos());
-		*pkt.mutable_scale() = ToProtoVec2(GetComp<CCollider>()->GetScale());
-		*pkt.mutable_vel() = ToProtoVec2(GetComp<CRigidBody>()->GetVelocity() + GetComp<CRigidBody>()->GetAccel()* dt_rtt);
+		Protocol::c2s_MOVE pkt = ServerObject::MakeSendData();
 		pkt.set_state((Protocol::PLAYER_STATE)m_eCurState);
 		pkt.set_anim_dir(GetComp<CAnimator>()->GetAnimDir());
-		pkt.set_ground(GetComp<CRigidBody>()->IsGround());
-		*pkt.mutable_accel() = ToProtoVec2(GetPos() + GetComp<CRigidBody>()->GetAccel() * dt_rtt);
-		m_interpolator.SetCurrentTimeStampRTT();
+		SetCurrentTimeStampRTT();
 
 		Send(pkt);
 	}

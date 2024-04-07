@@ -33,7 +33,7 @@
 #include "CParticleMgr.h"
 #include "CSceneMgr.h"
 #include "CEventMgr.h"
-#include "Missle.h"
+#include "Missile.h"
 
 TRWorld* g_TRWorld = nullptr;
 extern bool g_bStopToken;
@@ -536,9 +536,9 @@ void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_vie
 
 	CDropItem* drop_item = new CDropItem(this, item);
 
-	drop_item->SetItemId(item_id);
+	drop_item->SetObjID(item_id);
 
-	m_mapItem.emplace(item_id, drop_item);
+	m_mapServerObject.emplace(item_id, drop_item);
 	drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
 	m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM);
 }
@@ -556,10 +556,9 @@ void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_vie
 	const int x = TRWorld::WORLD_WIDTH / 2;
 
 	CDropItem* drop_item = new CDropItem(this, item);
+	drop_item->SetObjID(item_id);
 
-	drop_item->SetItemId(item_id);
-
-	m_mapItem.emplace(item_id, drop_item);
+	m_mapServerObject.emplace(item_id, drop_item);
 	drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
 	m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM,sector_);
 }
@@ -570,14 +569,14 @@ void TRWorld::EraseOtherPlayer(const uint64_t otherPlayerId, const uint64_t sect
 	{
 		std::erase_if(m_pScene->GetSectorObject(sector)[etoi(GROUP_TYPE::PLAYER)], [otherPlayerId](const std::unique_ptr<CObject>& obj) {
 			const auto player = static_cast<CPlayer* const>(obj.get());
-			return player->GetPlayerID() == otherPlayerId;
+			return player->GetObjID() == otherPlayerId;
 			});
 	}
 }
 
 void TRWorld::EraseItem(const uint64_t item_id) noexcept
 {
-	DeleteObj(m_mapItem.extract(item_id).mapped());
+	DeleteObj(m_mapServerObject.extract(item_id).mapped());
 }
 
 CPlayer* const TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector,const Vec2 vPos_)
@@ -590,7 +589,9 @@ CPlayer* const TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector,con
 	player->SetScale(Vec2{ 40.f, 56.f });
 	//Mgr(CSceneMgr)->GetCurScene()->AddObject(player, GROUP_TYPE::PLAYER);
 	m_pScene->AddObject(player, GROUP_TYPE::PLAYER);
-	player->SetPlayerID(id);
+
+	player->SetObjID(id);
+
 	m_mapOtherPlayer[sector].emplace(id, player);
 
 	return player;
@@ -598,7 +599,8 @@ CPlayer* const TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector,con
 
 void TRWorld::CreateMissle(const uint64_t id_, const Vec2 vPos_)
 {
-	auto p = new Missle{ vPos_ };
-	m_mapMissle.emplace(id_, p);
+	auto p = new Missile{ vPos_ };
+	p->SetObjID(id_);
+	m_mapServerObject.emplace(id_, p);
 	Mgr(CSceneMgr)->GetScene(SCENE_TYPE::START)->AddObject(p, GROUP_TYPE::PROJ_PLAYER);
 }

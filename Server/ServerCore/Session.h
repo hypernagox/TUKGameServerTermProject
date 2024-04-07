@@ -74,6 +74,7 @@ namespace ServerCore
 		Service* const GetService()const noexcept { return m_pService; }
 		void SetService(Service* const pService_)noexcept { m_pService = pService_; }
 		bool SetNagle(const bool bTrueIsOff_FalseIsOn)const noexcept;
+		const bool CanRegisterSend()const noexcept { return !m_bIsSendRegistered.load(std::memory_order_relaxed); }
 	public:
 		void SetNetAddress(NetAddress netAddr_)noexcept { m_sessionAddr = netAddr_; }
 		NetAddress GetAddress()const noexcept{ return m_sessionAddr; }

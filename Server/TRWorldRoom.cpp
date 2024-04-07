@@ -240,7 +240,8 @@ void TRWorldRoom::BroadCastToWorld(const S_ptr<ServerCore::SendBuffer> pSendBuff
 		if (pSession->IsConnected())
 		{
 			pSession->SendOnlyEnqueue(pSendBuffer);
-			m_vecForBroadCastToWorld.emplace_back(PoolNew<ServerCore::Task>(&ServerCore::Session::TryRegisterSend, pSession->SharedCastThis<ServerCore::Session>()));
+			if (pSession->CanRegisterSend())
+				m_vecForBroadCastToWorld.emplace_back(PoolNew<ServerCore::Task>(&ServerCore::Session::TryRegisterSend, pSession->SharedCastThis<ServerCore::Session>()));
 			++iter;
 		}
 		else

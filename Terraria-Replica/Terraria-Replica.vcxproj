@@ -178,12 +178,13 @@
     <ClInclude Include="CHealthIndicator.h" />
     <ClInclude Include="func.h" />
     <ClInclude Include="Hero.h" />
-    <ClInclude Include="Missle.h" />
+    <ClInclude Include="Missile.h" />
     <ClInclude Include="MoveInterpolator.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PerlinNoise.hpp" />
     <ClInclude Include="Registry.hpp" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ServerObject.h" />
     <ClInclude Include="ServerSession.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Terraria-Replica.h" />
@@ -245,12 +246,13 @@
     <ClCompile Include="CHealthIndicator.cpp" />
     <ClCompile Include="func.cpp" />
     <ClCompile Include="Hero.cpp" />
-    <ClCompile Include="Missle.cpp" />
+    <ClCompile Include="Missile.cpp" />
     <ClCompile Include="MoveInterpolator.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ServerObject.cpp" />
     <ClCompile Include="ServerSession.cpp" />
     <ClCompile Include="Terraria-Replica.cpp" />
     <ClCompile Include="TRItem.cpp" />

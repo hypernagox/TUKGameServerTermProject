@@ -39,9 +39,7 @@ void CDropItem::update()
 	//if (dist < 80.0f)
 	//	rBody->AddForce((t_vPos - m_vPos).Normalize() * 5000.0f);
 
-	const auto moveData = m_interpolator.GetInterPolatedData();
-	//SetWillPos(moveData.will_pos);
-	SetPos(moveData.pos);
+	UpdateMoveData();
 	//pRigid->SetVelocity(moveData.vel);
 }
 
@@ -96,16 +94,3 @@ void CDropItem::OnCollisionExit(CCollider* const _pOther)
 
 }
 
-void CDropItem::SetMoveData(Protocol::s2c_MOVE movePkt_)
-{
-	const MoveData moveData
-	{
-		.pos =(ToOriginVec2(movePkt_.obj_pos())),
-		.will_pos =(ToOriginVec2(movePkt_.wiil_pos())),
-		.vel = (ToOriginVec2(movePkt_.vel()))
-	};
-	
-	SetPos((moveData.pos));
-	m_interpolator.UpdateNewData(moveData, movePkt_.time_stamp());
-
-}

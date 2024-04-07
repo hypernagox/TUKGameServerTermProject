@@ -11,11 +11,10 @@
 #include "CSceneMgr.h"
 #include "CScene.h"
 #include "Vec2Int.hpp"
-#include "Missle.h"
+#include "Missile.h"
 
 extern int g_TR_SEED;
 extern TRWorld* g_TRWorld;
-extern uint64 time_stamp;
 
 namespace NetHelper
 {
@@ -87,21 +86,17 @@ namespace NetHelper
     {
         if (const auto other = g_TRWorld->GetOtherPlayer(pkt_.obj_id(),sector))
         {
-            other->SetMoveData(pkt_);
+            other->SetNewMoveData(pkt_);
         }
         else if(NetMgr(NetworkMgr)->GetSessionID()==pkt_.obj_id())
         {
-            g_TRWorld->GetPlayer()->SetMoveData(pkt_);
+            g_TRWorld->GetPlayer()->SetNewMoveData(pkt_);
         }
         else
         {
-            if (const auto pItem = g_TRWorld->GetDropItem(pkt_.obj_id()))
+            if (const auto pItem = g_TRWorld->GetServerObject(pkt_.obj_id()))
             {
-                pItem->SetMoveData(pkt_);
-            }
-            else if (const auto pMissle = g_TRWorld->GetMissle(pkt_.obj_id()))
-            {
-                pMissle->SetMoveData(pkt_);
+                pItem->SetNewMoveData(pkt_);
             }
         }
         return true;
@@ -115,7 +110,7 @@ namespace NetHelper
 
     const bool NetHelper::Handle_s2c_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_GET_ITEM& pkt_)
     {
-        if (const auto pItem = g_TRWorld->GetDropItem(pkt_.item_id()))
+        if (const auto pItem = g_TRWorld->GetServerObject(pkt_.item_id()))
         {
             g_TRWorld->EraseItem(pkt_.item_id());
             if(pSession_->GetSessionID() == pkt_.obj_id())
@@ -181,7 +176,6 @@ namespace NetHelper
 
     const bool NetHelper::Handle_s2c_CREATE_MISSILE(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_CREATE_MISSILE& pkt_)
     {
-        time_stamp = pkt_.time_stamp();
         g_TRWorld->CreateMissle(pkt_.obj_id(), ToOriginVec2(pkt_.obj_pos()));
         return true;
     }

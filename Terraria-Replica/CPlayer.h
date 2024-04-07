@@ -1,8 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "CObject.h"
-#include "Protocol.pb.h"
-#include "Interpolator.hpp"
+#include "ServerObject.h"
 
 class CTexture;
 class CAnimation;
@@ -23,7 +21,7 @@ enum class PLAYER_STATE
 class CWeapon;
 
 class CPlayer :
-    public CObject
+    public ServerObject
 {
     friend class CScene_Intro;
 protected:
@@ -49,12 +47,7 @@ protected:
     int m_iMonColCnt = 0;
     HDC m_hPlayerVeilDC; 
     HBITMAP m_hPlayerVeilBit;
-    MoveInterpolator m_interpolator;
-    uint64 m_playerID;
 public:
-    const uint64 GetPlayerID()const noexcept { return m_playerID; }
-    void SetPlayerID(const uint64 id_)noexcept { m_playerID = id_; }
-
     bool IsHero()const noexcept { return m_bIsHero; }
     CPlayer(TRWorld* const _trWorld);
     CPlayer(const CPlayer& other);
@@ -74,8 +67,7 @@ public:
     virtual void OnCollision(CCollider* const _pOther);
     virtual void OnCollisionEnter(CCollider* const _pOther);
     virtual void OnCollisionExit(CCollider* const _pOther);
-    auto& GetInterPolator()noexcept { return m_interpolator; }
-
+   
     void updateDmgCoolDown();
 
     bool IsCanHit()const { return 0.f >= m_fDmgCoolDown || 1.f <= m_fDmgCoolDown; }
@@ -87,6 +79,6 @@ public:
 public:
     void updateQuickBarState(const int _idx);
    
-    void SetMoveData(const Protocol::s2c_MOVE& movePkt_)noexcept;
+    virtual void SetNewMoveData(const Protocol::s2c_MOVE& movePkt_)noexcept override;
 };
 

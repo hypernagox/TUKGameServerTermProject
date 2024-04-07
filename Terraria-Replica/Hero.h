@@ -36,8 +36,9 @@ public:
     void SetQuickBarIdx(const int _idx) { m_iCurQuickBarIdx = _idx; }
     int GetQuickBarIdx()const { return m_iCurQuickBarIdx; }
 
-    void SendMoveData() noexcept;
-    
+public:
+    virtual void SetNewMoveData(const Protocol::s2c_MOVE& movePkt_)noexcept override;
+    void SendMoveData()noexcept;
 private:
 
 };

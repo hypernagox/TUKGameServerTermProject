@@ -17,6 +17,8 @@ void MoveBroadCaster::PostUpdate(const float) noexcept
 	*pkt.mutable_vel() = ::ToProtoVec2(pRigid->GetVelocity());
 	pkt.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
 	*pkt.mutable_accel()= ::ToProtoVec2(pRigid->GetAccel());
+	pkt.set_state((Protocol::PLAYER_STATE)obj->GetState());
+
 	if (obj->GetObjectGroup() == GROUP_TYPE::DROP_ITEM)
 	{
 		//std::cout << obj->GetPos().x << ", " << obj->GetPos().y << std::endl;
