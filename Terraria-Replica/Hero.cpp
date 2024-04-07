@@ -306,8 +306,8 @@ void Hero::SendMoveData() noexcept
 	
 	if (m_bDirtyFlag || 0.1f <= m_fAccTime)
 	{
-		const float dt_rtt = m_interpolator.GetPredictRTT();
-
+		//const float dt_rtt = m_interpolator.GetPredictRTT();
+		const float dt_rtt = 0.f;
 		m_fAccTime = 0.f;
 		m_bDirtyFlag = false;
 		Protocol::c2s_MOVE pkt;
@@ -319,7 +319,7 @@ void Hero::SendMoveData() noexcept
 		pkt.set_state((Protocol::PLAYER_STATE)m_eCurState);
 		pkt.set_anim_dir(GetComp<CAnimator>()->GetAnimDir());
 		pkt.set_ground(GetComp<CRigidBody>()->IsGround());
-
+		*pkt.mutable_accel() = ToProtoVec2(GetPos() + GetComp<CRigidBody>()->GetAccel() * dt_rtt);
 		m_interpolator.SetCurrentTimeStampRTT();
 
 		Send(pkt);

@@ -2231,6 +2231,7 @@ class c2s_MOVE final :
     kObjPosFieldNumber = 2,
     kVelFieldNumber = 3,
     kScaleFieldNumber = 4,
+    kAccelFieldNumber = 8,
     kStateFieldNumber = 5,
     kAnimDirFieldNumber = 6,
     kGroundFieldNumber = 7,
@@ -2307,6 +2308,24 @@ class c2s_MOVE final :
       ::Protocol::Vec2* scale);
   ::Protocol::Vec2* unsafe_arena_release_scale();
 
+  // .Protocol.Vec2 accel = 8;
+  bool has_accel() const;
+  private:
+  bool _internal_has_accel() const;
+  public:
+  void clear_accel();
+  const ::Protocol::Vec2& accel() const;
+  PROTOBUF_NODISCARD ::Protocol::Vec2* release_accel();
+  ::Protocol::Vec2* mutable_accel();
+  void set_allocated_accel(::Protocol::Vec2* accel);
+  private:
+  const ::Protocol::Vec2& _internal_accel() const;
+  ::Protocol::Vec2* _internal_mutable_accel();
+  public:
+  void unsafe_arena_set_allocated_accel(
+      ::Protocol::Vec2* accel);
+  ::Protocol::Vec2* unsafe_arena_release_accel();
+
   // .Protocol.PLAYER_STATE state = 5;
   void clear_state();
   ::Protocol::PLAYER_STATE state() const;
@@ -2346,6 +2365,7 @@ class c2s_MOVE final :
     ::Protocol::Vec2* obj_pos_;
     ::Protocol::Vec2* vel_;
     ::Protocol::Vec2* scale_;
+    ::Protocol::Vec2* accel_;
     int state_;
     int32_t anim_dir_;
     bool ground_;
@@ -2480,6 +2500,7 @@ class s2c_MOVE final :
     kObjPosFieldNumber = 2,
     kVelFieldNumber = 3,
     kWiilPosFieldNumber = 7,
+    kAccelFieldNumber = 9,
     kObjIdFieldNumber = 1,
     kGroundFieldNumber = 4,
     kStateFieldNumber = 5,
@@ -2540,6 +2561,24 @@ class s2c_MOVE final :
       ::Protocol::Vec2* wiil_pos);
   ::Protocol::Vec2* unsafe_arena_release_wiil_pos();
 
+  // .Protocol.Vec2 accel = 9;
+  bool has_accel() const;
+  private:
+  bool _internal_has_accel() const;
+  public:
+  void clear_accel();
+  const ::Protocol::Vec2& accel() const;
+  PROTOBUF_NODISCARD ::Protocol::Vec2* release_accel();
+  ::Protocol::Vec2* mutable_accel();
+  void set_allocated_accel(::Protocol::Vec2* accel);
+  private:
+  const ::Protocol::Vec2& _internal_accel() const;
+  ::Protocol::Vec2* _internal_mutable_accel();
+  public:
+  void unsafe_arena_set_allocated_accel(
+      ::Protocol::Vec2* accel);
+  ::Protocol::Vec2* unsafe_arena_release_accel();
+
   // uint64 obj_id = 1;
   void clear_obj_id();
   uint64_t obj_id() const;
@@ -2596,6 +2635,7 @@ class s2c_MOVE final :
     ::Protocol::Vec2* obj_pos_;
     ::Protocol::Vec2* vel_;
     ::Protocol::Vec2* wiil_pos_;
+    ::Protocol::Vec2* accel_;
     uint64_t obj_id_;
     bool ground_;
     int state_;
@@ -6490,6 +6530,91 @@ inline void c2s_MOVE::set_ground(bool value) {
   // @@protoc_insertion_point(field_set:Protocol.c2s_MOVE.ground)
 }
 
+// .Protocol.Vec2 accel = 8;
+inline bool c2s_MOVE::_internal_has_accel() const {
+  return this != internal_default_instance() && _impl_.accel_ != nullptr;
+}
+inline bool c2s_MOVE::has_accel() const {
+  return _internal_has_accel();
+}
+inline const ::Protocol::Vec2& c2s_MOVE::_internal_accel() const {
+  const ::Protocol::Vec2* p = _impl_.accel_;
+  return p != nullptr ? *p : reinterpret_cast<const ::Protocol::Vec2&>(
+      ::Protocol::_Vec2_default_instance_);
+}
+inline const ::Protocol::Vec2& c2s_MOVE::accel() const {
+  // @@protoc_insertion_point(field_get:Protocol.c2s_MOVE.accel)
+  return _internal_accel();
+}
+inline void c2s_MOVE::unsafe_arena_set_allocated_accel(
+    ::Protocol::Vec2* accel) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.accel_);
+  }
+  _impl_.accel_ = accel;
+  if (accel) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Protocol.c2s_MOVE.accel)
+}
+inline ::Protocol::Vec2* c2s_MOVE::release_accel() {
+  
+  ::Protocol::Vec2* temp = _impl_.accel_;
+  _impl_.accel_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::Protocol::Vec2* c2s_MOVE::unsafe_arena_release_accel() {
+  // @@protoc_insertion_point(field_release:Protocol.c2s_MOVE.accel)
+  
+  ::Protocol::Vec2* temp = _impl_.accel_;
+  _impl_.accel_ = nullptr;
+  return temp;
+}
+inline ::Protocol::Vec2* c2s_MOVE::_internal_mutable_accel() {
+  
+  if (_impl_.accel_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Protocol::Vec2>(GetArenaForAllocation());
+    _impl_.accel_ = p;
+  }
+  return _impl_.accel_;
+}
+inline ::Protocol::Vec2* c2s_MOVE::mutable_accel() {
+  ::Protocol::Vec2* _msg = _internal_mutable_accel();
+  // @@protoc_insertion_point(field_mutable:Protocol.c2s_MOVE.accel)
+  return _msg;
+}
+inline void c2s_MOVE::set_allocated_accel(::Protocol::Vec2* accel) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.accel_);
+  }
+  if (accel) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(accel));
+    if (message_arena != submessage_arena) {
+      accel = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, accel, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.accel_ = accel;
+  // @@protoc_insertion_point(field_set_allocated:Protocol.c2s_MOVE.accel)
+}
+
 // -------------------------------------------------------------------
 
 // s2c_MOVE
@@ -6847,6 +6972,91 @@ inline void s2c_MOVE::_internal_set_anim_dir(int32_t value) {
 inline void s2c_MOVE::set_anim_dir(int32_t value) {
   _internal_set_anim_dir(value);
   // @@protoc_insertion_point(field_set:Protocol.s2c_MOVE.anim_dir)
+}
+
+// .Protocol.Vec2 accel = 9;
+inline bool s2c_MOVE::_internal_has_accel() const {
+  return this != internal_default_instance() && _impl_.accel_ != nullptr;
+}
+inline bool s2c_MOVE::has_accel() const {
+  return _internal_has_accel();
+}
+inline const ::Protocol::Vec2& s2c_MOVE::_internal_accel() const {
+  const ::Protocol::Vec2* p = _impl_.accel_;
+  return p != nullptr ? *p : reinterpret_cast<const ::Protocol::Vec2&>(
+      ::Protocol::_Vec2_default_instance_);
+}
+inline const ::Protocol::Vec2& s2c_MOVE::accel() const {
+  // @@protoc_insertion_point(field_get:Protocol.s2c_MOVE.accel)
+  return _internal_accel();
+}
+inline void s2c_MOVE::unsafe_arena_set_allocated_accel(
+    ::Protocol::Vec2* accel) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.accel_);
+  }
+  _impl_.accel_ = accel;
+  if (accel) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Protocol.s2c_MOVE.accel)
+}
+inline ::Protocol::Vec2* s2c_MOVE::release_accel() {
+  
+  ::Protocol::Vec2* temp = _impl_.accel_;
+  _impl_.accel_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::Protocol::Vec2* s2c_MOVE::unsafe_arena_release_accel() {
+  // @@protoc_insertion_point(field_release:Protocol.s2c_MOVE.accel)
+  
+  ::Protocol::Vec2* temp = _impl_.accel_;
+  _impl_.accel_ = nullptr;
+  return temp;
+}
+inline ::Protocol::Vec2* s2c_MOVE::_internal_mutable_accel() {
+  
+  if (_impl_.accel_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Protocol::Vec2>(GetArenaForAllocation());
+    _impl_.accel_ = p;
+  }
+  return _impl_.accel_;
+}
+inline ::Protocol::Vec2* s2c_MOVE::mutable_accel() {
+  ::Protocol::Vec2* _msg = _internal_mutable_accel();
+  // @@protoc_insertion_point(field_mutable:Protocol.s2c_MOVE.accel)
+  return _msg;
+}
+inline void s2c_MOVE::set_allocated_accel(::Protocol::Vec2* accel) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.accel_);
+  }
+  if (accel) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(accel));
+    if (message_arena != submessage_arena) {
+      accel = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, accel, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.accel_ = accel;
+  // @@protoc_insertion_point(field_set_allocated:Protocol.s2c_MOVE.accel)
 }
 
 // -------------------------------------------------------------------

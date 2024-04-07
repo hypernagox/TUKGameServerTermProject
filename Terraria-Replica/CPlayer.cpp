@@ -361,13 +361,16 @@ void CPlayer::SetMoveData(const Protocol::s2c_MOVE& movePkt_) noexcept
 	}
 	else
 	{
+		const Vec2 vFutureVel = ToOriginVec2(movePkt_.vel()) + ToOriginVec2(movePkt_.accel()) * DT;
+
+		const Vec2 vFuturePos = ToOriginVec2(movePkt_.obj_pos()) + ToOriginVec2(movePkt_.vel()) * DT + ToOriginVec2(movePkt_.accel()) * DT * DT * 0.5f;
+		//std::cout << vFuturePos.x << ", " << vFuturePos.y << std::endl;
 		const MoveData moveData
 		{
-			.pos = ToOriginVec2(movePkt_.obj_pos()),
-			.will_pos = ToOriginVec2(movePkt_.wiil_pos()),
-			.vel = ToOriginVec2(movePkt_.vel())
+			.pos = vFuturePos, 
+			.will_pos = ToOriginVec2(movePkt_.wiil_pos()), 
+			.vel = vFutureVel 
 		};
-	
 		m_interpolator.UpdateNewData(moveData, movePkt_.time_stamp());
 		//SetPos(moveData.pos);
 		SetState((PLAYER_STATE)movePkt_.state());

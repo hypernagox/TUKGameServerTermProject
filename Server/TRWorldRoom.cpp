@@ -330,7 +330,7 @@ void TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer, const Vec2 offset_)
 
 void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noexcept
 {
-	constexpr const int try_num = 2;
+	const int try_num = pObj_->GetObjectGroup() == GROUP_TYPE::DROP_ITEM ? 2 : 5;
 	//if (pObj_->GetObjectGroup() == GROUP_TYPE::PLAYER)
 	//{
 	//	if (pObj_->GetComp("KEYINPUTHANDLER")->Cast<KeyInputHandler>()->GetKeyState(VK_SPACE) == KeyInputHandler::KEY_STATE::KEY_TAP)
@@ -524,7 +524,8 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 		pObj_->SetPos(TRWorld::WorldToGlobal(temp_prev_pos));
 
 	pRigid->SetIsGround(prev_landed);
-	pRigid->AddVelocity(Vec2{ 0.f,-200.f });
+	if (pObj_->GetObjectGroup() == GROUP_TYPE::DROP_ITEM)
+		pRigid->AddVelocity(Vec2{ 0.f,-100.f });
 	pObj_->SetPrevPos(pObj_->GetPos());
 	pRigid->SetPrevVelocity(pRigid->GetVelocity());
 	

@@ -19,7 +19,7 @@ public:
 	~TRWorldRoom();
 	static TRWorld* const GetTRWorld()noexcept { return &g_trWorld; }
 public:
-	void Update(const uint64 tick_ms = 200);
+	void Update(const uint64 tick_ms = 100);
 
 	void Init();
 public:

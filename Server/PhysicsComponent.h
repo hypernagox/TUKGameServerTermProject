@@ -136,6 +136,8 @@ public:
 	constexpr inline void AddVelocity(Vec2 _v) { m_vVelocity += _v; }
 	constexpr inline Vec2 GetForce()const { return m_vForce; }
 	constexpr inline void SetForce(Vec2 _v) { m_vForce = _v; }
+	constexpr inline Vec2 GetAccel()const noexcept { return m_vAccel; }
+
 	void SetLimitBreak()
 	{
 		m_vMaxVelocity = m_vLimitBreak;

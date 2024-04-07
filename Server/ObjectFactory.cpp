@@ -36,9 +36,9 @@ S_ptr<Object> ObjectFactory::CreatePlayer(ClientSession* const pSession_, const 
 
 	player->register_cache_shared_core(player);
 
-	//auto broadcaster = MakeShared<MoveBroadCaster>(player.get(), TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0).get());
-	//
-	//player->AddComponent(std::move(broadcaster));
+	auto broadcaster = MakeShared<MoveBroadCaster>(player.get(), TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0).get());
+	
+	player->AddComponent(std::move(broadcaster));
 
 	auto input_handler = MakeShared<KeyInputHandler>(player.get());
 
@@ -87,7 +87,7 @@ S_ptr<Object> ObjectFactory::CreatePlayer(ClientSession* const pSession_, const 
 			case KeyInputHandler::KEY_STATE::KEY_TAP:
 				pRigid->SetIsGround(false);
 				pRigid->AddVelocity(Vec2::down * 720.0f);
-				pRigid->SetForce(Vec2{ 0, -1000.0f });
+				//pRigid->SetForce(Vec2{ 0, -1000.0f });
 				break;
 			case KeyInputHandler::KEY_STATE::KEY_HOLD:
 				break;

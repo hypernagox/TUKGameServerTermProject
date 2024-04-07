@@ -196,6 +196,7 @@ PROTOBUF_CONSTEXPR c2s_MOVE::c2s_MOVE(
   , /*decltype(_impl_.obj_pos_)*/nullptr
   , /*decltype(_impl_.vel_)*/nullptr
   , /*decltype(_impl_.scale_)*/nullptr
+  , /*decltype(_impl_.accel_)*/nullptr
   , /*decltype(_impl_.state_)*/0
   , /*decltype(_impl_.anim_dir_)*/0
   , /*decltype(_impl_.ground_)*/false
@@ -214,6 +215,7 @@ PROTOBUF_CONSTEXPR s2c_MOVE::s2c_MOVE(
     /*decltype(_impl_.obj_pos_)*/nullptr
   , /*decltype(_impl_.vel_)*/nullptr
   , /*decltype(_impl_.wiil_pos_)*/nullptr
+  , /*decltype(_impl_.accel_)*/nullptr
   , /*decltype(_impl_.obj_id_)*/uint64_t{0u}
   , /*decltype(_impl_.ground_)*/false
   , /*decltype(_impl_.state_)*/0
@@ -589,6 +591,7 @@ const uint32_t TableStruct_Protocol_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE
   PROTOBUF_FIELD_OFFSET(::Protocol::c2s_MOVE, _impl_.state_),
   PROTOBUF_FIELD_OFFSET(::Protocol::c2s_MOVE, _impl_.anim_dir_),
   PROTOBUF_FIELD_OFFSET(::Protocol::c2s_MOVE, _impl_.ground_),
+  PROTOBUF_FIELD_OFFSET(::Protocol::c2s_MOVE, _impl_.accel_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Protocol::s2c_MOVE, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -603,6 +606,7 @@ const uint32_t TableStruct_Protocol_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE
   PROTOBUF_FIELD_OFFSET(::Protocol::s2c_MOVE, _impl_.time_stamp_),
   PROTOBUF_FIELD_OFFSET(::Protocol::s2c_MOVE, _impl_.wiil_pos_),
   PROTOBUF_FIELD_OFFSET(::Protocol::s2c_MOVE, _impl_.anim_dir_),
+  PROTOBUF_FIELD_OFFSET(::Protocol::s2c_MOVE, _impl_.accel_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Protocol::c2s_CREATE_ITEM, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -759,25 +763,25 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 80, -1, -1, sizeof(::Protocol::c2s_PLACE_TILE_WALL)},
   { 89, -1, -1, sizeof(::Protocol::s2c_PLACE_TILE_WALL)},
   { 99, -1, -1, sizeof(::Protocol::c2s_MOVE)},
-  { 112, -1, -1, sizeof(::Protocol::s2c_MOVE)},
-  { 126, -1, -1, sizeof(::Protocol::c2s_CREATE_ITEM)},
-  { 132, -1, -1, sizeof(::Protocol::s2c_CREATE_ITEM)},
-  { 142, -1, -1, sizeof(::Protocol::c2s_GET_ITEM)},
-  { 148, -1, -1, sizeof(::Protocol::s2c_GET_ITEM)},
-  { 159, -1, -1, sizeof(::Protocol::c2s_INPUT_KEY)},
-  { 167, -1, -1, sizeof(::Protocol::s2c_INPUT_KEY)},
-  { 173, -1, -1, sizeof(::Protocol::c2s_TRY_GET_ITEM)},
-  { 181, -1, -1, sizeof(::Protocol::s2c_TRY_GET_ITEM)},
-  { 187, -1, -1, sizeof(::Protocol::c2s_TRY_NEW_ROOM)},
-  { 195, -1, -1, sizeof(::Protocol::s2c_TRY_NEW_ROOM)},
-  { 203, -1, -1, sizeof(::Protocol::c2s_ARRIVE_NEW_ROOM)},
-  { 209, -1, -1, sizeof(::Protocol::s2c_ARRIVE_NEW_ROOM)},
-  { 215, -1, -1, sizeof(::Protocol::c2s_APPEAR_NEW_OBJECT)},
-  { 221, -1, -1, sizeof(::Protocol::s2c_APPEAR_NEW_OBJECT)},
-  { 233, -1, -1, sizeof(::Protocol::c2s_LEAVE_OBJECT)},
-  { 242, -1, -1, sizeof(::Protocol::s2c_LEAVE_OBJECT)},
-  { 251, -1, -1, sizeof(::Protocol::c2s_CREATE_MISSILE)},
-  { 258, -1, -1, sizeof(::Protocol::s2c_CREATE_MISSILE)},
+  { 113, -1, -1, sizeof(::Protocol::s2c_MOVE)},
+  { 128, -1, -1, sizeof(::Protocol::c2s_CREATE_ITEM)},
+  { 134, -1, -1, sizeof(::Protocol::s2c_CREATE_ITEM)},
+  { 144, -1, -1, sizeof(::Protocol::c2s_GET_ITEM)},
+  { 150, -1, -1, sizeof(::Protocol::s2c_GET_ITEM)},
+  { 161, -1, -1, sizeof(::Protocol::c2s_INPUT_KEY)},
+  { 169, -1, -1, sizeof(::Protocol::s2c_INPUT_KEY)},
+  { 175, -1, -1, sizeof(::Protocol::c2s_TRY_GET_ITEM)},
+  { 183, -1, -1, sizeof(::Protocol::s2c_TRY_GET_ITEM)},
+  { 189, -1, -1, sizeof(::Protocol::c2s_TRY_NEW_ROOM)},
+  { 197, -1, -1, sizeof(::Protocol::s2c_TRY_NEW_ROOM)},
+  { 205, -1, -1, sizeof(::Protocol::c2s_ARRIVE_NEW_ROOM)},
+  { 211, -1, -1, sizeof(::Protocol::s2c_ARRIVE_NEW_ROOM)},
+  { 217, -1, -1, sizeof(::Protocol::c2s_APPEAR_NEW_OBJECT)},
+  { 223, -1, -1, sizeof(::Protocol::s2c_APPEAR_NEW_OBJECT)},
+  { 235, -1, -1, sizeof(::Protocol::c2s_LEAVE_OBJECT)},
+  { 244, -1, -1, sizeof(::Protocol::s2c_LEAVE_OBJECT)},
+  { 253, -1, -1, sizeof(::Protocol::c2s_CREATE_MISSILE)},
+  { 260, -1, -1, sizeof(::Protocol::s2c_CREATE_MISSILE)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -833,45 +837,46 @@ const char descriptor_table_protodef_Protocol_2eproto[] PROTOBUF_SECTION_VARIABL
   "TILE_WALL\022\016\n\006tile_x\030\001 \001(\005\022\016\n\006tile_y\030\002 \001("
   "\005\022\020\n\010tile_key\030\003 \001(\t\"X\n\023s2c_PLACE_TILE_WA"
   "LL\022\017\n\007success\030\001 \001(\010\022\016\n\006tile_x\030\002 \001(\005\022\016\n\006t"
-  "ile_y\030\003 \001(\005\022\020\n\010tile_key\030\004 \001(\t\"\322\001\n\010c2s_MO"
+  "ile_y\030\003 \001(\005\022\020\n\010tile_key\030\004 \001(\t\"\361\001\n\010c2s_MO"
   "VE\022 \n\010wiil_pos\030\001 \001(\0132\016.Protocol.Vec2\022\037\n\007"
   "obj_pos\030\002 \001(\0132\016.Protocol.Vec2\022\033\n\003vel\030\003 \001"
   "(\0132\016.Protocol.Vec2\022\035\n\005scale\030\004 \001(\0132\016.Prot"
   "ocol.Vec2\022%\n\005state\030\005 \001(\0162\026.Protocol.PLAY"
   "ER_STATE\022\020\n\010anim_dir\030\006 \001(\005\022\016\n\006ground\030\007 \001"
-  "(\010\"\327\001\n\010s2c_MOVE\022\016\n\006obj_id\030\001 \001(\004\022\037\n\007obj_p"
-  "os\030\002 \001(\0132\016.Protocol.Vec2\022\033\n\003vel\030\003 \001(\0132\016."
-  "Protocol.Vec2\022\016\n\006ground\030\004 \001(\010\022%\n\005state\030\005"
-  " \001(\0162\026.Protocol.PLAYER_STATE\022\022\n\ntime_sta"
-  "mp\030\006 \001(\004\022 \n\010wiil_pos\030\007 \001(\0132\016.Protocol.Ve"
-  "c2\022\020\n\010anim_dir\030\010 \001(\005\"\021\n\017c2s_CREATE_ITEM\""
-  "a\n\017s2c_CREATE_ITEM\022\016\n\006obj_id\030\001 \001(\004\022\033\n\003po"
-  "s\030\002 \001(\0132\016.Protocol.Vec2\022\021\n\titem_name\030\003 \001"
-  "(\t\022\016\n\006sector\030\004 \001(\005\"\016\n\014c2s_GET_ITEM\"o\n\014s2"
-  "c_GET_ITEM\022\016\n\006obj_id\030\001 \001(\004\022\033\n\003pos\030\002 \001(\0132"
-  "\016.Protocol.Vec2\022\021\n\titem_name\030\003 \001(\t\022\017\n\007it"
-  "em_id\030\004 \001(\004\022\016\n\006sector\030\005 \001(\005\"2\n\rc2s_INPUT"
-  "_KEY\022\016\n\006vk_key\030\001 \001(\005\022\021\n\tkey_state\030\002 \001(\005\""
-  "\017\n\rs2c_INPUT_KEY\"G\n\020c2s_TRY_GET_ITEM\022\037\n\007"
-  "obj_pos\030\001 \001(\0132\016.Protocol.Vec2\022\022\n\ntime_st"
-  "amp\030\002 \001(\004\"\022\n\020s2c_TRY_GET_ITEM\"C\n\020c2s_TRY"
-  "_NEW_ROOM\022\026\n\016cur_sector_num\030\001 \001(\005\022\027\n\017nex"
-  "t_sector_num\030\002 \001(\005\"C\n\020s2c_TRY_NEW_ROOM\022\026"
-  "\n\016cur_sector_num\030\001 \001(\005\022\027\n\017next_sector_nu"
-  "m\030\002 \001(\005\"\025\n\023c2s_ARRIVE_NEW_ROOM\"\025\n\023s2c_AR"
-  "RIVE_NEW_ROOM\"\027\n\025c2s_APPEAR_NEW_OBJECT\"\224"
-  "\001\n\025s2c_APPEAR_NEW_OBJECT\022\021\n\tis_player\030\001 "
-  "\001(\010\022\016\n\006sector\030\002 \001(\r\022\016\n\006obj_id\030\003 \001(\004\022\020\n\010o"
-  "bj_name\030\004 \001(\t\022\"\n\nappear_pos\030\005 \001(\0132\016.Prot"
-  "ocol.Vec2\022\022\n\ntime_stamp\030\006 \001(\004\"E\n\020c2s_LEA"
-  "VE_OBJECT\022\021\n\tis_player\030\001 \001(\010\022\016\n\006obj_id\030\002"
-  " \001(\004\022\016\n\006sector\030\003 \001(\005\"E\n\020s2c_LEAVE_OBJECT"
-  "\022\021\n\tis_player\030\001 \001(\010\022\016\n\006obj_id\030\002 \001(\004\022\016\n\006s"
-  "ector\030\003 \001(\005\"5\n\022c2s_CREATE_MISSILE\022\037\n\007obj"
-  "_pos\030\001 \001(\0132\016.Protocol.Vec2\"Y\n\022s2c_CREATE"
-  "_MISSILE\022\016\n\006obj_id\030\001 \001(\004\022\037\n\007obj_pos\030\002 \001("
-  "\0132\016.Protocol.Vec2\022\022\n\ntime_stamp\030\003 \001(\004b\006p"
-  "roto3"
+  "(\010\022\035\n\005accel\030\010 \001(\0132\016.Protocol.Vec2\"\366\001\n\010s2"
+  "c_MOVE\022\016\n\006obj_id\030\001 \001(\004\022\037\n\007obj_pos\030\002 \001(\0132"
+  "\016.Protocol.Vec2\022\033\n\003vel\030\003 \001(\0132\016.Protocol."
+  "Vec2\022\016\n\006ground\030\004 \001(\010\022%\n\005state\030\005 \001(\0162\026.Pr"
+  "otocol.PLAYER_STATE\022\022\n\ntime_stamp\030\006 \001(\004\022"
+  " \n\010wiil_pos\030\007 \001(\0132\016.Protocol.Vec2\022\020\n\010ani"
+  "m_dir\030\010 \001(\005\022\035\n\005accel\030\t \001(\0132\016.Protocol.Ve"
+  "c2\"\021\n\017c2s_CREATE_ITEM\"a\n\017s2c_CREATE_ITEM"
+  "\022\016\n\006obj_id\030\001 \001(\004\022\033\n\003pos\030\002 \001(\0132\016.Protocol"
+  ".Vec2\022\021\n\titem_name\030\003 \001(\t\022\016\n\006sector\030\004 \001(\005"
+  "\"\016\n\014c2s_GET_ITEM\"o\n\014s2c_GET_ITEM\022\016\n\006obj_"
+  "id\030\001 \001(\004\022\033\n\003pos\030\002 \001(\0132\016.Protocol.Vec2\022\021\n"
+  "\titem_name\030\003 \001(\t\022\017\n\007item_id\030\004 \001(\004\022\016\n\006sec"
+  "tor\030\005 \001(\005\"2\n\rc2s_INPUT_KEY\022\016\n\006vk_key\030\001 \001"
+  "(\005\022\021\n\tkey_state\030\002 \001(\005\"\017\n\rs2c_INPUT_KEY\"G"
+  "\n\020c2s_TRY_GET_ITEM\022\037\n\007obj_pos\030\001 \001(\0132\016.Pr"
+  "otocol.Vec2\022\022\n\ntime_stamp\030\002 \001(\004\"\022\n\020s2c_T"
+  "RY_GET_ITEM\"C\n\020c2s_TRY_NEW_ROOM\022\026\n\016cur_s"
+  "ector_num\030\001 \001(\005\022\027\n\017next_sector_num\030\002 \001(\005"
+  "\"C\n\020s2c_TRY_NEW_ROOM\022\026\n\016cur_sector_num\030\001"
+  " \001(\005\022\027\n\017next_sector_num\030\002 \001(\005\"\025\n\023c2s_ARR"
+  "IVE_NEW_ROOM\"\025\n\023s2c_ARRIVE_NEW_ROOM\"\027\n\025c"
+  "2s_APPEAR_NEW_OBJECT\"\224\001\n\025s2c_APPEAR_NEW_"
+  "OBJECT\022\021\n\tis_player\030\001 \001(\010\022\016\n\006sector\030\002 \001("
+  "\r\022\016\n\006obj_id\030\003 \001(\004\022\020\n\010obj_name\030\004 \001(\t\022\"\n\na"
+  "ppear_pos\030\005 \001(\0132\016.Protocol.Vec2\022\022\n\ntime_"
+  "stamp\030\006 \001(\004\"E\n\020c2s_LEAVE_OBJECT\022\021\n\tis_pl"
+  "ayer\030\001 \001(\010\022\016\n\006obj_id\030\002 \001(\004\022\016\n\006sector\030\003 \001"
+  "(\005\"E\n\020s2c_LEAVE_OBJECT\022\021\n\tis_player\030\001 \001("
+  "\010\022\016\n\006obj_id\030\002 \001(\004\022\016\n\006sector\030\003 \001(\005\"5\n\022c2s"
+  "_CREATE_MISSILE\022\037\n\007obj_pos\030\001 \001(\0132\016.Proto"
+  "col.Vec2\"Y\n\022s2c_CREATE_MISSILE\022\016\n\006obj_id"
+  "\030\001 \001(\004\022\037\n\007obj_pos\030\002 \001(\0132\016.Protocol.Vec2\022"
+  "\022\n\ntime_stamp\030\003 \001(\004b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_Protocol_2eproto_deps[2] = {
   &::descriptor_table_Enum_2eproto,
@@ -879,7 +884,7 @@ static const ::_pbi::DescriptorTable* const descriptor_table_Protocol_2eproto_de
 };
 static ::_pbi::once_flag descriptor_table_Protocol_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_Protocol_2eproto = {
-    false, false, 2205, descriptor_table_protodef_Protocol_2eproto,
+    false, false, 2267, descriptor_table_protodef_Protocol_2eproto,
     "Protocol.proto",
     &descriptor_table_Protocol_2eproto_once, descriptor_table_Protocol_2eproto_deps, 2, 32,
     schemas, file_default_instances, TableStruct_Protocol_2eproto::offsets,
@@ -3363,6 +3368,7 @@ class c2s_MOVE::_Internal {
   static const ::Protocol::Vec2& obj_pos(const c2s_MOVE* msg);
   static const ::Protocol::Vec2& vel(const c2s_MOVE* msg);
   static const ::Protocol::Vec2& scale(const c2s_MOVE* msg);
+  static const ::Protocol::Vec2& accel(const c2s_MOVE* msg);
 };
 
 const ::Protocol::Vec2&
@@ -3380,6 +3386,10 @@ c2s_MOVE::_Internal::vel(const c2s_MOVE* msg) {
 const ::Protocol::Vec2&
 c2s_MOVE::_Internal::scale(const c2s_MOVE* msg) {
   return *msg->_impl_.scale_;
+}
+const ::Protocol::Vec2&
+c2s_MOVE::_Internal::accel(const c2s_MOVE* msg) {
+  return *msg->_impl_.accel_;
 }
 void c2s_MOVE::clear_wiil_pos() {
   if (GetArenaForAllocation() == nullptr && _impl_.wiil_pos_ != nullptr) {
@@ -3405,6 +3415,12 @@ void c2s_MOVE::clear_scale() {
   }
   _impl_.scale_ = nullptr;
 }
+void c2s_MOVE::clear_accel() {
+  if (GetArenaForAllocation() == nullptr && _impl_.accel_ != nullptr) {
+    delete _impl_.accel_;
+  }
+  _impl_.accel_ = nullptr;
+}
 c2s_MOVE::c2s_MOVE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -3419,6 +3435,7 @@ c2s_MOVE::c2s_MOVE(const c2s_MOVE& from)
     , decltype(_impl_.obj_pos_){nullptr}
     , decltype(_impl_.vel_){nullptr}
     , decltype(_impl_.scale_){nullptr}
+    , decltype(_impl_.accel_){nullptr}
     , decltype(_impl_.state_){}
     , decltype(_impl_.anim_dir_){}
     , decltype(_impl_.ground_){}
@@ -3437,6 +3454,9 @@ c2s_MOVE::c2s_MOVE(const c2s_MOVE& from)
   if (from._internal_has_scale()) {
     _this->_impl_.scale_ = new ::Protocol::Vec2(*from._impl_.scale_);
   }
+  if (from._internal_has_accel()) {
+    _this->_impl_.accel_ = new ::Protocol::Vec2(*from._impl_.accel_);
+  }
   ::memcpy(&_impl_.state_, &from._impl_.state_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.ground_) -
     reinterpret_cast<char*>(&_impl_.state_)) + sizeof(_impl_.ground_));
@@ -3452,6 +3472,7 @@ inline void c2s_MOVE::SharedCtor(
     , decltype(_impl_.obj_pos_){nullptr}
     , decltype(_impl_.vel_){nullptr}
     , decltype(_impl_.scale_){nullptr}
+    , decltype(_impl_.accel_){nullptr}
     , decltype(_impl_.state_){0}
     , decltype(_impl_.anim_dir_){0}
     , decltype(_impl_.ground_){false}
@@ -3474,6 +3495,7 @@ inline void c2s_MOVE::SharedDtor() {
   if (this != internal_default_instance()) delete _impl_.obj_pos_;
   if (this != internal_default_instance()) delete _impl_.vel_;
   if (this != internal_default_instance()) delete _impl_.scale_;
+  if (this != internal_default_instance()) delete _impl_.accel_;
 }
 
 void c2s_MOVE::SetCachedSize(int size) const {
@@ -3502,6 +3524,10 @@ void c2s_MOVE::Clear() {
     delete _impl_.scale_;
   }
   _impl_.scale_ = nullptr;
+  if (GetArenaForAllocation() == nullptr && _impl_.accel_ != nullptr) {
+    delete _impl_.accel_;
+  }
+  _impl_.accel_ = nullptr;
   ::memset(&_impl_.state_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&_impl_.ground_) -
       reinterpret_cast<char*>(&_impl_.state_)) + sizeof(_impl_.ground_));
@@ -3567,6 +3593,14 @@ const char* c2s_MOVE::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
       case 7:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
           _impl_.ground_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // .Protocol.Vec2 accel = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+          ptr = ctx->ParseMessage(_internal_mutable_accel(), ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -3647,6 +3681,13 @@ uint8_t* c2s_MOVE::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteBoolToArray(7, this->_internal_ground(), target);
   }
 
+  // .Protocol.Vec2 accel = 8;
+  if (this->_internal_has_accel()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(8, _Internal::accel(this),
+        _Internal::accel(this).GetCachedSize(), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -3689,6 +3730,13 @@ size_t c2s_MOVE::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *_impl_.scale_);
+  }
+
+  // .Protocol.Vec2 accel = 8;
+  if (this->_internal_has_accel()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *_impl_.accel_);
   }
 
   // .Protocol.PLAYER_STATE state = 5;
@@ -3741,6 +3789,10 @@ void c2s_MOVE::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
     _this->_internal_mutable_scale()->::Protocol::Vec2::MergeFrom(
         from._internal_scale());
   }
+  if (from._internal_has_accel()) {
+    _this->_internal_mutable_accel()->::Protocol::Vec2::MergeFrom(
+        from._internal_accel());
+  }
   if (from._internal_state() != 0) {
     _this->_internal_set_state(from._internal_state());
   }
@@ -3788,6 +3840,7 @@ class s2c_MOVE::_Internal {
   static const ::Protocol::Vec2& obj_pos(const s2c_MOVE* msg);
   static const ::Protocol::Vec2& vel(const s2c_MOVE* msg);
   static const ::Protocol::Vec2& wiil_pos(const s2c_MOVE* msg);
+  static const ::Protocol::Vec2& accel(const s2c_MOVE* msg);
 };
 
 const ::Protocol::Vec2&
@@ -3801,6 +3854,10 @@ s2c_MOVE::_Internal::vel(const s2c_MOVE* msg) {
 const ::Protocol::Vec2&
 s2c_MOVE::_Internal::wiil_pos(const s2c_MOVE* msg) {
   return *msg->_impl_.wiil_pos_;
+}
+const ::Protocol::Vec2&
+s2c_MOVE::_Internal::accel(const s2c_MOVE* msg) {
+  return *msg->_impl_.accel_;
 }
 void s2c_MOVE::clear_obj_pos() {
   if (GetArenaForAllocation() == nullptr && _impl_.obj_pos_ != nullptr) {
@@ -3820,6 +3877,12 @@ void s2c_MOVE::clear_wiil_pos() {
   }
   _impl_.wiil_pos_ = nullptr;
 }
+void s2c_MOVE::clear_accel() {
+  if (GetArenaForAllocation() == nullptr && _impl_.accel_ != nullptr) {
+    delete _impl_.accel_;
+  }
+  _impl_.accel_ = nullptr;
+}
 s2c_MOVE::s2c_MOVE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -3833,6 +3896,7 @@ s2c_MOVE::s2c_MOVE(const s2c_MOVE& from)
       decltype(_impl_.obj_pos_){nullptr}
     , decltype(_impl_.vel_){nullptr}
     , decltype(_impl_.wiil_pos_){nullptr}
+    , decltype(_impl_.accel_){nullptr}
     , decltype(_impl_.obj_id_){}
     , decltype(_impl_.ground_){}
     , decltype(_impl_.state_){}
@@ -3850,6 +3914,9 @@ s2c_MOVE::s2c_MOVE(const s2c_MOVE& from)
   if (from._internal_has_wiil_pos()) {
     _this->_impl_.wiil_pos_ = new ::Protocol::Vec2(*from._impl_.wiil_pos_);
   }
+  if (from._internal_has_accel()) {
+    _this->_impl_.accel_ = new ::Protocol::Vec2(*from._impl_.accel_);
+  }
   ::memcpy(&_impl_.obj_id_, &from._impl_.obj_id_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.anim_dir_) -
     reinterpret_cast<char*>(&_impl_.obj_id_)) + sizeof(_impl_.anim_dir_));
@@ -3864,6 +3931,7 @@ inline void s2c_MOVE::SharedCtor(
       decltype(_impl_.obj_pos_){nullptr}
     , decltype(_impl_.vel_){nullptr}
     , decltype(_impl_.wiil_pos_){nullptr}
+    , decltype(_impl_.accel_){nullptr}
     , decltype(_impl_.obj_id_){uint64_t{0u}}
     , decltype(_impl_.ground_){false}
     , decltype(_impl_.state_){0}
@@ -3887,6 +3955,7 @@ inline void s2c_MOVE::SharedDtor() {
   if (this != internal_default_instance()) delete _impl_.obj_pos_;
   if (this != internal_default_instance()) delete _impl_.vel_;
   if (this != internal_default_instance()) delete _impl_.wiil_pos_;
+  if (this != internal_default_instance()) delete _impl_.accel_;
 }
 
 void s2c_MOVE::SetCachedSize(int size) const {
@@ -3911,6 +3980,10 @@ void s2c_MOVE::Clear() {
     delete _impl_.wiil_pos_;
   }
   _impl_.wiil_pos_ = nullptr;
+  if (GetArenaForAllocation() == nullptr && _impl_.accel_ != nullptr) {
+    delete _impl_.accel_;
+  }
+  _impl_.accel_ = nullptr;
   ::memset(&_impl_.obj_id_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&_impl_.anim_dir_) -
       reinterpret_cast<char*>(&_impl_.obj_id_)) + sizeof(_impl_.anim_dir_));
@@ -3984,6 +4057,14 @@ const char* s2c_MOVE::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
       case 8:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
           _impl_.anim_dir_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // .Protocol.Vec2 accel = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+          ptr = ctx->ParseMessage(_internal_mutable_accel(), ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -4069,6 +4150,13 @@ uint8_t* s2c_MOVE::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(8, this->_internal_anim_dir(), target);
   }
 
+  // .Protocol.Vec2 accel = 9;
+  if (this->_internal_has_accel()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(9, _Internal::accel(this),
+        _Internal::accel(this).GetCachedSize(), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -4104,6 +4192,13 @@ size_t s2c_MOVE::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
         *_impl_.wiil_pos_);
+  }
+
+  // .Protocol.Vec2 accel = 9;
+  if (this->_internal_has_accel()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *_impl_.accel_);
   }
 
   // uint64 obj_id = 1;
@@ -4161,6 +4256,10 @@ void s2c_MOVE::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
   if (from._internal_has_wiil_pos()) {
     _this->_internal_mutable_wiil_pos()->::Protocol::Vec2::MergeFrom(
         from._internal_wiil_pos());
+  }
+  if (from._internal_has_accel()) {
+    _this->_internal_mutable_accel()->::Protocol::Vec2::MergeFrom(
+        from._internal_accel());
   }
   if (from._internal_obj_id() != 0) {
     _this->_internal_set_obj_id(from._internal_obj_id());

@@ -220,9 +220,9 @@ namespace ServerCore
        // pkt.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
        // pkt.set_anim_dir(pkt_.anim_dir());
 
-         session_room << pkt;
-         
-         const auto& player = GetClientSession(pSession_)->GetPlayer();
+        //session_room << pkt;
+        pSession_ << pkt;
+        const auto& player = GetClientSession(pSession_)->GetPlayer();
         if (player)
         {
             player->SetPos(::ToOriginVec2(pkt.obj_pos()));

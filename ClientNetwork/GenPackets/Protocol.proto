@@ -91,6 +91,7 @@ message c2s_MOVE
 	PLAYER_STATE state=5;
 	int32 anim_dir=6;
 	bool ground=7;
+	Vec2 accel=8;
 }
 
 message s2c_MOVE
@@ -103,6 +104,7 @@ message s2c_MOVE
 	uint64 time_stamp=6;
 	Vec2 wiil_pos=7;
 	int32 anim_dir=8;
+	Vec2 accel=9;
 }
 
 message c2s_CREATE_ITEM
