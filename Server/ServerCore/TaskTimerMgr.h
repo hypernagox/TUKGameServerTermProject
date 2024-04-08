@@ -6,6 +6,7 @@ namespace ServerCore
 {
 	class Task;
 	class TaskQueueable;
+	class IocpEvent;
 
 	struct TimerTask
 	{
@@ -48,6 +49,7 @@ namespace ServerCore
 					})
 				));
 		}
+		void ReserveAsyncTask(c_uint64 tickAfter, IocpEvent* const pTimerEvent_)noexcept;
 		void DistributeTask()noexcept;
 	private:
 		Concurrency::concurrent_priority_queue<TimerTask, TimerCompare, StlAllocator<TimerTask>> m_timerTaskQueue;

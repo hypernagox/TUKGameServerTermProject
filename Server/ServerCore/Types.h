@@ -56,6 +56,7 @@ namespace ServerCore
 		SEND,
 
 		ACCEPT,
+		TIMER,
 
 		END
 	};

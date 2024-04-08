@@ -42,19 +42,23 @@ public:
 		for (const auto& pComp : m_vecComponentList)
 			pComp->PostUpdate(dt_);
 	}
-	Component* const GetComp(std::string_view compName)const noexcept {
+	BaseComponent* const GetComp(std::string_view compName)const noexcept {
 		const auto iter = m_mapComponent.find(compName.data());
-		return m_mapComponent.end() != iter ? iter->second : nullptr;
+		return m_mapComponent.end() != iter ? iter->second.get() : nullptr;
 	}
-
-	template<typename T> requires std::derived_from<T,Component>
-	T* const AddComponent(S_ptr<T>&& pComp)noexcept {
+	template<typename T> requires std::convertible_to<T,S_ptr<Component>>
+	const auto AddComponent(T&& pComp)noexcept {
 		NAGOX_ASSERT(nullptr == GetComp(pComp->GetCompName()));
-		const auto temp_ptr = static_cast<T* const>(m_vecComponentList.emplace_back(std::move(pComp)).get());
-		m_mapComponent.try_emplace(temp_ptr->GetCompName(), temp_ptr);
+		m_mapComponent.try_emplace(pComp->GetCompName(), pComp);
+		return static_cast<decltype(pComp.get())>(m_vecComponentList.emplace_back(std::move(pComp)).get());
+	}
+	template<typename T>  requires std::convertible_to<T, S_ptr<BaseComponent>>
+	const auto AddBaseComponent(T&& pComp)noexcept {
+		NAGOX_ASSERT(nullptr == GetComp(pComp->GetCompName()));
+		const auto temp_ptr = pComp.get();
+		m_mapComponent.try_emplace(temp_ptr->GetCompName(), std::move(pComp));
 		return temp_ptr;
 	}
-
 	const uint64 GetObjID()const noexcept { return m_objID; }
 	const GROUP_TYPE GetObjectGroup()const noexcept { return m_eObjectGroup; }
 	const std::string& GetObjectName()const noexcept { return m_strObjectName; }
@@ -78,7 +82,7 @@ public:
 	const bool SetInvalid()noexcept { return m_bIsValid.exchange(false,std::memory_order_acq_rel); }
 private:
 	ServerCore::Vector<S_ptr<Component>> m_vecComponentList;
-	ServerCore::HashMap<std::string, Component*> m_mapComponent;
+	ServerCore::HashMap<std::string, S_ptr<BaseComponent>> m_mapComponent;
 
 	PositionComponent m_positionComponent;
 	int32 m_state = 0;

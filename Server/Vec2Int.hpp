@@ -118,4 +118,18 @@ public:
 	{
 		return SIZE{ x, y };
 	}
+
+	auto operator<=>(const Vec2Int&)const noexcept = default;
+
+	int magnitude() const noexcept{
+		return x * x + y * y;
+	}
 };
+
+namespace std {
+	template<> struct hash<Vec2Int> {
+		size_t operator()(const Vec2Int& vec) const noexcept{
+			return (static_cast<const uint64_t>(vec.x) << 32) | static_cast<const uint64_t>(vec.y);
+		}
+	};
+}

@@ -35,6 +35,7 @@ namespace ServerCore
 		static c_uint32 GetCurThreadIdx()noexcept { return LThreadId - 1; }
 		const bool IsServerFinish()const noexcept { return m_bStopRequest; }
 		void NotifyThread()const noexcept { PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0); }
+		const HANDLE GetIocpHandle()const noexcept { return m_iocpHandle; }
 	public:
 		void PushGlobalQueue(S_ptr<TaskQueueable>&& qPtr_)noexcept
 		{

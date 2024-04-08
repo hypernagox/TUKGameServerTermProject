@@ -2,6 +2,7 @@
 #include "TaskTimerMgr.h"
 #include "TaskQueueable.h"
 #include "ThreadMgr.h"
+#include "IocpEvent.h"
 
 namespace ServerCore
 {
@@ -22,6 +23,17 @@ namespace ServerCore
 						if (1 == memfuncInstance.use_count())
 							return;
 						memfuncInstance->EnqueueAsyncTask(std::move(task), true);
+					}
+		)));
+	}
+
+	void TaskTimerMgr::ReserveAsyncTask(c_uint64 tickAfter, IocpEvent* const pTimerEvent_) noexcept
+	{
+		m_timerTaskQueue.push(
+			TimerTask(::GetTickCount64() + tickAfter, MakePoolUnique<Task>
+				([pTimerEvent_]()noexcept
+					{
+						::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, pTimerEvent_);
 					}
 		)));
 	}
