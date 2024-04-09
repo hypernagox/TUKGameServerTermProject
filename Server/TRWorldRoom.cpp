@@ -86,7 +86,7 @@ void TRWorldRoom::Init()
 
 	//RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::DROP_ITEM);
 
-	RegisterGroup(GROUP_TYPE::PROJ_PLAYER, GROUP_TYPE::DROP_ITEM);
+	RegisterGroup(GROUP_TYPE::PROJ_PLAYER, GROUP_TYPE::MONSTER);
 }
 
 void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
@@ -342,7 +342,8 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 
 	
 	const auto pRigid = pObj_->GetComp("RIGIDBODY")->Cast<RigidBody>();
-
+	//if (nullptr == pRigid)
+	//	return;
 	//if (!pRigid->IsGravity()) {
 	//	pObj_->PostUpdate(m_timer.GetDT());
 	//	return;
@@ -373,12 +374,13 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 	const Vec2 delta_pos = (pObj_->GetPos() - pRigid->GetPrevPos()) / (float)try_num;
 	const Vec2 delta_vel = (pRigid->GetVelocity() - pRigid->GetPrevVelocity()) / (float)try_num;
 
-	const auto pTileMap = GetTRWorld()->GetTileMap();
+	//const auto pTileMap = GetTRWorld()->GetTileMap();
 
 	Vec2 temp_prev_pos;
 	//Vec2 temp_prev_vel;
 	bool prev_landed = pRigid->IsGround();
 	bool bCollide = false;
+	const auto& trWorld = g_trWorld;
 	for (int i = 1; i <= try_num; ++i)
 	{
 		const Vec2 seq_pos = prev_pos + delta_pos * (float)i;
@@ -415,7 +417,7 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 		{
 			for (int x = x_min; x <= x_max; ++x)
 			{
-				if (world_vel.y > 0.0f && pTileMap->GetTile(x, y_min)->Solid())
+				if (world_vel.y > 0.0f && trWorld.GetTileSolid(x, y_min))
 				{
 					post_pos.y = y_min + 1.0f + h * 0.5f;
 					post_vel.y = 0.0f;
@@ -424,7 +426,7 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 					collided = true;
 					break;
 				}
-				if (world_vel.y < 0.0f && pTileMap->GetTile(x, y_max)->Solid())
+				if (world_vel.y < 0.0f && trWorld.GetTileSolid(x, y_max))
 				{
 					post_pos.y = y_max - h * 0.5f;
 					post_vel.y = 0.0f;
@@ -458,7 +460,7 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 
 			for (int y = y_min; y <= y_max; ++y)
 			{
-				if (world_vel.x < 0.0f && pTileMap->GetTile(x_min, y)->Solid())
+				if (world_vel.x < 0.0f && trWorld.GetTileSolid(x_min, y))
 				{
 					reform_x = x_min + 1.0f + w * 0.5f;
 
@@ -466,7 +468,7 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 					collision_x = true;
 					break;
 				}
-				if (world_vel.x > 0.0f && pTileMap->GetTile(x_max, y)->Solid())
+				if (world_vel.x > 0.0f && trWorld.GetTileSolid(x_max, y))
 				{
 					reform_x = x_max - w * 0.5f;
 
@@ -480,12 +482,11 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 			{
 				y_min = y_min + 1;
 				y_max = CeilToInt(y_min + h) - 1;
-
 				bool flag = false;
 				for (int x = x_min; x <= x_max; ++x)
 				{
 					for (int y = y_min; y <= y_max; ++y)
-						flag |= pTileMap->GetTile(x, y)->Solid();
+						flag |= trWorld.GetTileSolid(x, y);
 				}
 				if (flag)
 				{

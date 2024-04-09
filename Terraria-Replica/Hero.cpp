@@ -37,6 +37,8 @@ Hero::~Hero()
 
 void Hero::update()
 {
+	static float acc = 0.f;
+	acc += DT;
 	if (m_bSlain)
 	{
 		return;
@@ -44,8 +46,19 @@ void Hero::update()
 	if (KEY_TAP(KEY::RBTN))
 	{
 		Protocol::c2s_CREATE_MISSILE pkt;
+		const int dir = GetComp<CAnimator>()->GetAnimDir() == 1 ? -1 : 1;
 		*pkt.mutable_obj_pos() = ToProtoVec2(GetPos());
+		pkt.set_dir(dir);
 		Send(pkt);
+	}
+	if (KEY_TAP(KEY::P))
+	{
+		if (acc >= 1.f)
+		{
+			acc = 0.f;
+			Protocol::c2s_CREATE_MONSTER pkt;
+			Send(pkt);
+		}
 	}
 	if (KEY_TAP(KEY::W))
 	{
@@ -75,8 +88,8 @@ void Hero::update()
 		//pkt.set_next_sector_num((sector + 1) % 5);
 		//Send(pkt);
 		//std::cout << GetPos().x << ", " << GetPos().y << std::endl;
-		
-
+		const auto wPos = TRWorld::GlobalToWorld(GetPos());
+		std::cout << wPos.x << ", " << wPos.y << std::endl;
 		//sector = (sector + 1) % 5;
 	}
 	

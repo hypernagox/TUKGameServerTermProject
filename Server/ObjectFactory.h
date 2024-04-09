@@ -19,7 +19,8 @@ public:
 
 	static S_ptr<Object> CreateDropItem(const uint64 id, std::string_view strName,const Vec2 vPos, ServerCore::SessionManageable* const pRoom_);
 
-	static S_ptr<Object> CreateMissle(const Vec2 vPos, ServerCore::SessionManageable* const pRoom_);
+	static S_ptr<Object> CreateMissle(const Vec2 vPos, ServerCore::SessionManageable* const pRoom_, const float dir_);
 
+	static S_ptr<Object> CreateMonster(const uint64 id, const Vec2 vPos,const int sector_);
 };
 

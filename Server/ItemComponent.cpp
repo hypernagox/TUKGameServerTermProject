@@ -3,8 +3,9 @@
 #include "Object.h"
 #include "PhysicsComponent.h"
 
-Attackable::Attackable(Object* const pOwner_)
+Attackable::Attackable(Object* const pOwner_,const float dir_)
 	:Useable{ "ATTACKABLE",pOwner_ }
+	, m_dir{ dir_ }
 {
 }
 
@@ -21,7 +22,7 @@ void Attackable::Update(const float dt_)
 
 void Attackable::PostUpdate(const float dt_) noexcept
 {
-	m_pOwner->SetPos(m_pOwner->GetPos() + Vec2{ 1000.f,0.f } *dt_);
+	m_pOwner->SetPos(m_pOwner->GetPos() + Vec2{ 1000.f,0.f } *dt_ * m_dir);
 }
 
 void Attackable::Use(const float dt_)

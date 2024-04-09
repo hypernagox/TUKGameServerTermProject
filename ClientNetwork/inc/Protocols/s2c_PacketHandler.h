@@ -41,6 +41,8 @@ namespace NetHelper
 		s2c_LEAVE_OBJECT = 1029,
 		c2s_CREATE_MISSILE = 1030,
 		s2c_CREATE_MISSILE = 1031,
+		c2s_CREATE_MONSTER = 1032,
+		s2c_CREATE_MONSTER = 1033,
 	};
 	
 	class PacketSession;
@@ -65,6 +67,7 @@ namespace NetHelper
 	const bool Handle_s2c_APPEAR_NEW_OBJECT(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_APPEAR_NEW_OBJECT& pkt_);
 	const bool Handle_s2c_LEAVE_OBJECT(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_LEAVE_OBJECT& pkt_);
 	const bool Handle_s2c_CREATE_MISSILE(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_CREATE_MISSILE& pkt_);
+	const bool Handle_s2c_CREATE_MONSTER(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_CREATE_MONSTER& pkt_);
 	
 	class s2c_PacketHandler
 	{
@@ -89,6 +92,7 @@ namespace NetHelper
 			g_fpPacketHandler[net_etoi(PKT_ID::s2c_APPEAR_NEW_OBJECT)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_APPEAR_NEW_OBJECT>(Handle_s2c_APPEAR_NEW_OBJECT, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::s2c_LEAVE_OBJECT)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_LEAVE_OBJECT>(Handle_s2c_LEAVE_OBJECT, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::s2c_CREATE_MISSILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_CREATE_MISSILE>(Handle_s2c_CREATE_MISSILE, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::s2c_CREATE_MONSTER)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::s2c_CREATE_MONSTER>(Handle_s2c_CREATE_MONSTER, pSession_, pBuff_, len_); };
 			for (auto& fpHandlerFunc : g_fpPacketHandler) 
 			{
 				if (nullptr == fpHandlerFunc)
@@ -125,6 +129,7 @@ namespace NetHelper
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_APPEAR_NEW_OBJECT& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_APPEAR_NEW_OBJECT); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_LEAVE_OBJECT& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_LEAVE_OBJECT); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_CREATE_MISSILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_CREATE_MISSILE); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::c2s_CREATE_MONSTER& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::c2s_CREATE_MONSTER); }
 	
 	private:
 		template<typename PacketType, typename ProcessFunc>

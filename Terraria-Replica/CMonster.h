@@ -1,8 +1,9 @@
 #pragma once
 #include "CObject.h"
+#include "ServerObject.h"
 
 class CMonster :
-    public CObject
+    public ServerObject
 {
 private:
    

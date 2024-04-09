@@ -41,7 +41,7 @@ class Attackable
 	:public Useable
 {
 public:
-	Attackable(Object* const pOwner_);
+	Attackable(Object* const pOwner_,const float dir_);
 	~Attackable();
 public:
 	void Update(const float dt_)override;
@@ -49,5 +49,5 @@ public:
 	void Use(const float dt_)override;
 
 private:
-
+	const float m_dir;
 };

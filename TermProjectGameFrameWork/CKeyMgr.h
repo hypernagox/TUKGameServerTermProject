@@ -39,6 +39,7 @@ enum class KEY
 	ZERO,
 	M,
 	ESC,
+	P,
 
 	LAST,		
 

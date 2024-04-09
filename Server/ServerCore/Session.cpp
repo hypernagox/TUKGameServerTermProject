@@ -38,7 +38,7 @@ namespace ServerCore
 	void Session::Disconnect(std::wstring cause)
 	{
 		LOG_MSG(std::move(cause));
-		if (false == m_bConnected.exchange(false,std::memory_order_acq_rel))
+		if (false == m_bConnected.exchange(false,std::memory_order_acquire))
 			return;
 		m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
 		std::atomic_thread_fence(std::memory_order_seq_cst);
@@ -243,7 +243,8 @@ namespace ServerCore
 
 		m_bIsSendRegistered.store(false, std::memory_order_release);
 
-		TryRegisterSend();
+		if (!m_sendQueue.empty_single() && false == m_bIsSendRegistered.exchange(true, std::memory_order_relaxed))
+			RegisterSend();
 	}
 
 	void Session::HandleError(c_int32 errorCode)

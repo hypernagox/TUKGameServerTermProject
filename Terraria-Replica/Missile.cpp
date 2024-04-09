@@ -32,7 +32,7 @@ void Missile::update()
 	
 	//if (!m_bFirst)
 	{
-		SetPos(GetPos() + Vec2{ 1000.f,0.f }*DT);
+		SetPos(GetPos() + Vec2{ 1000.f,0.f }*DT * m_dir);
 		//m_interpolator.GetNewData().pos = GetPos();
 	}
 	//else

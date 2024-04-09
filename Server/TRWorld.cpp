@@ -168,6 +168,14 @@ void TRWorld::CreateWorld(int seed)
 	delete generator;
 	for (int i = 0; i < sizeof(processes) / sizeof(*processes); ++i)
 		delete processes[i];
+
+	for (int y = 0; y < TRWorld::WORLD_HEIGHT; ++y)
+	{
+		for (int x = 0; x < TRWorld::WORLD_WIDTH; ++x)
+		{
+			m_bitSolid[y][x] = tile_map->GetTile(x, y)->Solid();
+		}
+	}
 }	
 
 void TRWorld::OnSceneCreate()
@@ -243,10 +251,10 @@ bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 
 	for (int k = 0; k < 4; ++k)
 	{
-		int xp = x + dir[k][0];
-		int yp = y + dir[k][1];
+		const int xp = x + dir[k][0];
+		const int yp = y + dir[k][1];
 
-		TRTile* tile_p = tile_map->GetTile(xp, yp);
+		TRTile* const tile_p = tile_map->GetTile(xp, yp);
 		if (tile_p == nullptr)
 			continue;
 
@@ -271,6 +279,7 @@ bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 	{
 		std::lock_guard<ServerCore::SpinLock> lock{ m_tileWorldLock };
 		tile_map->SetTile(x, y, new_tile, true);
+		m_bitSolid[y][x] = 1;
 	}
 
 	return true;
@@ -297,6 +306,7 @@ bool TRWorld::BreakTile(int x, int y, std::string& outName)
 		//Mgr(CSoundMgr)->PlayEffect(buffer, 0.5f);
 
 		tile_map->SetTile(x, y, air_tile, true);
+		m_bitSolid[y][x] = 0;
 	}
 	const Vec2 vParticlePos = TRWorld::WorldToGlobal(Vec2{ (float)x,(float)y });
 	//CAtlasElement* pImg = tile->GetTileImg();

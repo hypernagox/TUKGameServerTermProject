@@ -73,6 +73,9 @@
     <Filter Include="NetContents\Component\BroadCaster">
       <UniqueIdentifier>{84c3eea3-fc30-4397-aab0-f67e10957abd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NetContents\Component\AIComponent">
+      <UniqueIdentifier>{a515311d-8d11-4e7a-af43-d858f6b6039c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -158,6 +161,9 @@
     </ClCompile>
     <ClCompile Include="EventHandler.cpp">
       <Filter>NetContents\EventHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="AIComponent.cpp">
+      <Filter>NetContents\Component\AIComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -276,6 +282,9 @@
     </ClInclude>
     <ClInclude Include="EventHandler.h">
       <Filter>NetContents\EventHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="AIComponent.h">
+      <Filter>NetContents\Component\AIComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

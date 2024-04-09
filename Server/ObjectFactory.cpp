@@ -9,6 +9,7 @@
 #include "ItemComponent.h"
 #include "ClientSession.h"
 #include "IDGenerator.hpp"
+#include "AIComponent.h"
 
 S_ptr<Object> ObjectFactory::CreatePlayer(ClientSession* const pSession_, const uint64 id)
 {
@@ -116,8 +117,6 @@ S_ptr<Object> ObjectFactory::CreateDropItem(const uint64 id, std::string_view st
 
 	drop_item->AddComponent(std::move(collider));
 
-	auto rigidbody = MakeShared<RigidBody>(drop_item.get());
-
 	
 	drop_item->SetPos(vPos);
 	drop_item->SetWillPos(vPos);
@@ -140,11 +139,11 @@ S_ptr<Object> ObjectFactory::CreateDropItem(const uint64 id, std::string_view st
 	return drop_item;
 }
 
-S_ptr<Object> ObjectFactory::CreateMissle(const Vec2 vPos, ServerCore::SessionManageable* const pRoom_)
+S_ptr<Object> ObjectFactory::CreateMissle(const Vec2 vPos, ServerCore::SessionManageable* const pRoom_, const float dir_)
 {
 	auto missle = MakePoolShared<Object>(IDGenerator::GenerateID(), GROUP_TYPE::PROJ_PLAYER, "MISSLE");
 	missle->SetPos(vPos);
-	missle->SetScale(Vec2{ 32.f,32.f });
+	missle->SetScale(Vec2{ 32.f,32.f } * 2.f);
 
 	auto rigidbody = MakeShared<RigidBody>(missle.get());
 
@@ -168,11 +167,49 @@ S_ptr<Object> ObjectFactory::CreateMissle(const Vec2 vPos, ServerCore::SessionMa
 
 	missle->AddComponent(std::move(broadcaster));
 
-	auto atk = MakeShared<Attackable>(missle.get());
+	auto atk = MakeShared<Attackable>(missle.get(),dir_);
 	
 	missle->AddComponent(std::move(atk));
 
 	missle->register_cache_shared_core(missle);
 
 	return missle;
+}
+
+S_ptr<Object> ObjectFactory::CreateMonster(const uint64 id,const Vec2 vPos,const int sector)
+{
+	auto mon = MakePoolShared<Object>(id, GROUP_TYPE::MONSTER, "MONSTER");
+
+	auto collider = MakeShared<Collider>(mon.get());
+
+	//auto collisionHandler = MakeShared<PlayerCollisionHandler>();
+	//
+	//
+	//collider->SetCollisionHandler(std::move(collisionHandler));
+
+	mon->AddComponent(std::move(collider));
+
+	
+	mon->SetPos(vPos);
+	mon->SetWillPos(vPos);
+	mon->SetScale(Vec2(24.0f, 48.0f));
+
+	auto broadcaster = MakeShared<MoveBroadCaster>(mon.get(), TRMgr(TRWorldMgr)->GetWorldRoom((SECTOR)sector).get());
+
+	mon->AddComponent(std::move(broadcaster));
+
+	const auto rigid = mon->AddComponent(MakeShared<RigidBody>(mon.get()));
+
+	rigid->AddVelocity(Vec2::down * 240.f);
+
+	mon->register_cache_shared_core(mon);
+
+
+	auto astar = MakeShared<Astar>(mon.get());
+	
+	astar->InitAI(astar);
+	
+	mon->AddComponent(std::move(astar));
+
+	return mon;
 }

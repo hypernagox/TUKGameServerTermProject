@@ -179,4 +179,10 @@ namespace NetHelper
         g_TRWorld->CreateMissle(pkt_.obj_id(), ToOriginVec2(pkt_.obj_pos()));
         return true;
     }
+
+    const bool NetHelper::Handle_s2c_CREATE_MONSTER(const S_ptr<PacketSession>& pSession_, const Protocol::s2c_CREATE_MONSTER& pkt_)
+    {
+        g_TRWorld->CreateMonster(pkt_.obj_id(), ToOriginVec2(pkt_.obj_pos()), pkt_.mon_name(), pkt_.sector());
+        return true;
+    }
 }

@@ -16,7 +16,7 @@ namespace ServerCore
 
 	void TaskQueueable::EnqueueAsyncTask(U_Pptr<Task>&& task_, const bool pushOnly)noexcept
 	{
-		const int32 prevCount = m_taskCount.fetch_add(1, std::memory_order_acq_rel);
+		const int32 prevCount = m_taskCount.fetch_add(1, std::memory_order_acquire);
 		m_taskQueue.emplace(std::move(task_));
 		if (0 == prevCount)
 		{
@@ -45,7 +45,7 @@ namespace ServerCore
 			for (const auto& task : m_taskVec)task->ExecuteTask();
 			m_taskVec.clear();
 			// 남은 일감이 0개라면 종료
-			if (m_taskCount.fetch_sub(taskCount, std::memory_order_acq_rel) == taskCount)
+			if (m_taskCount.fetch_sub(taskCount, std::memory_order_release) == taskCount)
 			{
 				break;
 			}

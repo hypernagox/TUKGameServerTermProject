@@ -229,9 +229,9 @@ void TRWorld::OnSceneCreate(CScene* scene)
 	
 	tile_map->OnSceneCreate(scene);
 
-	Mgr(CCollisionMgr)->RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::MONSTER); 
+	//Mgr(CCollisionMgr)->RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::MONSTER); 
 
-	Mgr(CCollisionMgr)->RegisterGroup( GROUP_TYPE::MONSTER,GROUP_TYPE::PLAYER_WEAPON);
+	//Mgr(CCollisionMgr)->RegisterGroup( GROUP_TYPE::MONSTER,GROUP_TYPE::PLAYER_WEAPON);
 
 	//Mgr(CCollisionMgr)->RegisterGroup(GROUP_TYPE::PLAYER, GROUP_TYPE::DROP_ITEM);
 
@@ -579,6 +579,19 @@ void TRWorld::EraseItem(const uint64_t item_id) noexcept
 	DeleteObj(m_mapServerObject.extract(item_id).mapped());
 }
 
+void TRWorld::CreateMonster(const uint64_t mon_id, Vec2 world_pos, std::string_view mon_name, const int sector_)
+{
+	
+	auto pMon = new CZombie{ g_TRWorld,L"Monster_Zombie",L"NPC_3.png" };
+	pMon->SetObjID(mon_id);
+	pMon->SetPos(world_pos);
+	pMon->SetScale(Vec2{ 38.0f, 46.0f });
+	pMon->SetColliderScale(Vec2{ 38.0f, 46.0f });
+	
+	m_pScene->AddObject(pMon, GROUP_TYPE::MONSTER, sector_);
+	m_mapServerObject.emplace(mon_id, pMon);
+}
+
 CPlayer* const TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector,const Vec2 vPos_)
 {
 	const auto player = new CPlayer{ this };
@@ -601,6 +614,8 @@ void TRWorld::CreateMissle(const uint64_t id_, const Vec2 vPos_)
 {
 	auto p = new Missile{ vPos_ };
 	p->SetObjID(id_);
+	const int dir = player->GetComp<CAnimator>()->GetAnimDir() == 1 ? -1 : 1;
+	p->SetDir((float)dir);
 	m_mapServerObject.emplace(id_, p);
 	Mgr(CSceneMgr)->GetScene(SCENE_TYPE::START)->AddObject(p, GROUP_TYPE::PROJ_PLAYER);
 }

@@ -150,6 +150,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AIComponent.cpp" />
     <ClCompile Include="BroadCaster.cpp" />
     <ClCompile Include="ClientSession.cpp" />
     <ClCompile Include="CollisionChecker.cpp" />
@@ -203,6 +204,7 @@
     <None Include="ServerCore\GenPackets\Struct.proto" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AIComponent.h" />
     <ClInclude Include="BroadCaster.h" />
     <ClInclude Include="ClientSession.h" />
     <ClInclude Include="CollisionChecker.h" />

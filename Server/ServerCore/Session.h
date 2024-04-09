@@ -38,7 +38,7 @@ namespace ServerCore
 	public:
 		inline void TryRegisterSend()noexcept
 		{
-			if (!m_sendQueue.empty_single() && false == m_bIsSendRegistered.exchange(true, std::memory_order_acq_rel))
+			if (!m_sendQueue.empty_single() && false == m_bIsSendRegistered.exchange(true, std::memory_order_acquire))
 				RegisterSend();
 		}
 		void SendAsync(S_ptr<SendBuffer> pSendBuff_)noexcept

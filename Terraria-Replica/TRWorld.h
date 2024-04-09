@@ -85,9 +85,14 @@ public:
 	
 	void EraseOtherPlayer(const uint64_t otherPlayerId,const uint64_t sector)noexcept;
 	void EraseItem(const uint64_t item_id)noexcept;
+
+	void CreateMonster(const uint64_t mon_id, Vec2 world_pos, std::string_view mon_name,const int sector_);
 public:
 	CPlayer* const AddNewPlayer(const uint64_t id, const uint64_t sector,const Vec2 vPos_);
-	CPlayer* GetOtherPlayer(const uint64_t id,const uint64 sector_)noexcept { return m_mapOtherPlayer[sector_][id]; }
+	CPlayer* GetOtherPlayer(const uint64_t id,const uint64 sector_)noexcept { 
+		const auto iter = m_mapOtherPlayer[sector_].find(id);
+		return m_mapOtherPlayer[sector_].end() != iter ? iter->second : nullptr;
+	}
 	void CreateMissle(const uint64_t id_, const Vec2 vPos_);
 
 

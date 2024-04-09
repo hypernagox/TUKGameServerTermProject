@@ -24,6 +24,7 @@ public:
 	static constexpr int WORLD_HEIGHT = 256;
 private:
 	TRTileMap* tile_map;
+	std::bitset<WORLD_WIDTH> m_bitSolid[WORLD_WIDTH] = {};
 	//CPlayer* player;
 	//CScene* m_pScene;
 
@@ -60,6 +61,7 @@ public:
 
 	TRTileMap* const GetTileMap()noexcept { return tile_map; }
 	const TRTileMap* const GetTileMap()const noexcept { return tile_map; }
+	const bool GetTileSolid(const int x_, const int y_)const noexcept { return m_bitSolid[y_][x_]; }
 	//CPlayer* GetPlayer() const;
 
 	bool PlaceTile(int x, int y, TRTile* new_tile);

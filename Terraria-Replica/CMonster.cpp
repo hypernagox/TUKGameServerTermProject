@@ -36,12 +36,13 @@ CMonster::~CMonster()
 
 void CMonster::update()
 {
-	if (Mgr(CSceneMgr)->GetScene(SCENE_TYPE::START)->GetPlayerCast()->IsPlayerSlain())
-	{
-		return;
-	}
+	//if (Mgr(CSceneMgr)->GetScene(SCENE_TYPE::START)->GetPlayerCast()->IsPlayerSlain())
+	//{
+	//	return;
+	//}
 
 	CObject::update();
+	ServerObject::UpdateMoveData();
 	//auto vPlayerPos = Mgr(CSceneMgr)->GetCurScene()->GetPlayer()->GetPos();
 	//auto pAnim = GetComp<CAnimator>();
 	//auto vCurPos = GetPos();

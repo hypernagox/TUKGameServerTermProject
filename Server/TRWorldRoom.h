@@ -24,6 +24,9 @@ public:
 	void Init();
 public:
 	const float GetSectorDT()const noexcept { return m_timer.GetDT(); }
+	const auto& GetGroupObject(const int32 thID_, const GROUP_TYPE eType_)const noexcept {
+		return m_worldObjectList[thID_][etoi(eType_)].GetItemListRef();
+	}
 public:
 	void AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_);
 	//void DeleteObjectEnqueue(const GROUP_TYPE eType_, const uint64 objID_);

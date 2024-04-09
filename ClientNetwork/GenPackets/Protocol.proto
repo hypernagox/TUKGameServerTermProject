@@ -210,6 +210,7 @@ message s2c_LEAVE_OBJECT
 message c2s_CREATE_MISSILE
 {
 	Vec2 obj_pos=1;
+	int32 dir=2;
 }
 
 message s2c_CREATE_MISSILE
@@ -217,4 +218,17 @@ message s2c_CREATE_MISSILE
 	uint64 obj_id=1;
 	Vec2 obj_pos=2;
 	uint64 time_stamp=3;
+}
+
+message c2s_CREATE_MONSTER
+{
+	Vec2 obj_pos=1;
+}
+
+message s2c_CREATE_MONSTER
+{
+	uint64 obj_id=1;
+	Vec2 obj_pos=2;
+	string mon_name=3;
+	int32 sector=4;
 }

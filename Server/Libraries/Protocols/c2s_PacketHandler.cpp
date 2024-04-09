@@ -64,7 +64,7 @@ namespace ServerCore
         start_room->EnterEnqueue(pSession_);
 
         Protocol::s2c_CREATE_ITEM pkt;
-        const auto item_pos = Vec2{ 4100.f/4.f,0.f };;
+        const auto item_pos = Vec2{ 4100.f/2.f,0.f };;
         *pkt.mutable_pos() = item_pos;
         pkt.set_item_name("armor_iron_head");
         pkt.set_obj_id(IDGenerator::GenerateID());
@@ -298,7 +298,11 @@ namespace ServerCore
     const bool Handle_c2s_CREATE_MISSILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CREATE_MISSILE& pkt_)
     {
         const auto cur_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
-        auto pMissle = ObjectFactory::CreateMissle(ToOriginVec2(pkt_.obj_pos()), cur_room);
+        const auto player = GetClientSession(pSession_)->GetPlayer();
+
+        //const float dir = (player->GetPos().x - player->GetPrevPos().x) > 0.f ? 1.f : -1.f;
+
+        auto pMissle = ObjectFactory::CreateMissle(ToOriginVec2(pkt_.obj_pos()), cur_room, (float)pkt_.dir());
         
 
         cur_room->AddObjectEnqueue(GROUP_TYPE::PROJ_PLAYER, pMissle);
@@ -315,6 +319,26 @@ namespace ServerCore
        //*pkt2.mutable_obj_pos() = pMissle->GetPos() + Vec2{ 1000.f,0.f }*0.1f;
        //
        //cur_room << pkt2;
+
+        return true;
+    }
+
+    const bool Handle_c2s_CREATE_MONSTER(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CREATE_MONSTER& pkt_)
+    {
+        const auto mon_pos = Vec2{ 4100.f / 2.f,0.f };;
+
+        auto mon = ObjectFactory::CreateMonster(IDGenerator::GenerateID(), mon_pos, 0);
+
+        const auto pRoom = TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0);
+
+        pRoom->AddObjectEnqueue(GROUP_TYPE::MONSTER, mon);
+
+        Protocol::s2c_CREATE_MONSTER pkt;
+        pkt.set_obj_id(mon->GetObjID());
+        *pkt.mutable_obj_pos() = mon_pos;
+        pkt.set_sector(0);
+        pkt.set_mon_name("ZOMBIE");
+        pRoom << pkt;
 
         return true;
     }
