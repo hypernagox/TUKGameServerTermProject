@@ -26,7 +26,7 @@ void Astar::InitAI(const S_ptr<Astar>& forCacheThis_) noexcept
 
 void Astar::Update(const float dt)
 {
-	return;
+	//return;
 	m_accTime += 0.1f;
 	//Vec2Int pos = TRWorld::GlobalToWorld(m_pOwner->GetPos());
 	//if (m_accTime >= m_dist)
@@ -35,7 +35,9 @@ void Astar::Update(const float dt)
 		m_accTime = 0.f;
 		
 		{
-			std::lock_guard<ServerCore::SpinLock> lock{ m_lock };
+			//std::lock_guard<ServerCore::SpinLock> lock{ m_lock };
+			if (!m_lock.try_lock())
+				return;
 			if (m_path.empty())
 			{
 				//const auto pworld = TRWorldRoom::GetTRWorld();
@@ -49,6 +51,7 @@ void Astar::Update(const float dt)
 				//}
 				//vpos.y = yy + 1;
 				//m_pOwner->SetPos(TRWorld::WorldToGlobal(vpos));
+				m_lock.unlock();
 				return;
 			}
 			m_prevPos = m_curPos;
@@ -57,8 +60,87 @@ void Astar::Update(const float dt)
 			//const Vec2 vDir = TRWorld::WorldToGlobal(m_prevPos) - m_pOwner->GetPos();
 			//m_dist = vDir.length();
 			m_accTime = 0.f;
+			//const auto pworld = TRWorldRoom::GetTRWorld();
+			//m_curPos.x = std::clamp(m_start.x, 0, TRWorld::WORLD_WIDTH - 1);
+			//m_curPos.y = std::clamp(m_start.y, 0, TRWorld::WORLD_HEIGHT - 1);
+			//int yy = m_curPos.y - 1;
+			//yy = std::clamp(yy, 0, TRWorld::WORLD_HEIGHT - 1);
+			//while (!pworld->GetTileSolid(m_curPos.x, yy)) {
+			//	--yy;
+			//}
+			//m_curPos.y = yy;
+			m_pOwner->SetPos(TRWorld::WorldToGlobal(m_curPos));
+			//m_pOwner->GetComp("RIGIDBODY")->Cast<RigidBody>()->AddForce(Vec2::down * 240.f);
+			//m_start = m_curPos;
+			m_lock.unlock();
+		}
+		//if (m_prevPos != m_prevPos.zero)
+		//{
+		//	
+		//	m_pOwner->SetPos(
+		//		TRWorld::WorldToGlobal(m_curPos)*(1.f - m_accTime)+
+		//		TRWorld::WorldToGlobal(m_prevPos) * m_accTime);
+		//}
+	}
+	//if (pos != pos.zero)
+	//{
+	//	const Vec2 vDir = TRWorld::WorldToGlobal(pos) - m_pOwner->GetPos();
+	//	m_accTime += vDir.Normalize().length() * 20.f;
+	//	m_pOwner->SetPos(m_pOwner->GetPos() + vDir.Normalize() * 20.f);
+	//}
+	//m_start = TRWorld::GlobalToWorld(m_pOwner->GetPos());
+
+	//m_pOwner->SetPos(TRWorld::WorldToGlobal(m_start));
+}
+
+void Astar::PostUpdate(const float) noexcept
+{
+	return;
+	m_accTime += 0.1f;
+	//Vec2Int pos = TRWorld::GlobalToWorld(m_pOwner->GetPos());
+	//if (m_accTime >= m_dist)
+	//if(m_accTime >= 1.f)
+	{
+		m_accTime = 0.f;
+
+		{
+			//std::lock_guard<ServerCore::SpinLock> lock{ m_lock };
+			if (!m_lock.try_lock())
+				return;
+			if (m_path.empty())
+			{
+				//const auto pworld = TRWorldRoom::GetTRWorld();
+				//auto vpos = m_curPos;
+				//
+				//vpos.x = std::clamp(vpos.x, 0, TRWorld::WORLD_WIDTH - 1);
+				//vpos.y = std::clamp(vpos.y-1, 0, TRWorld::WORLD_HEIGHT - 1);
+				//int yy = vpos.y;
+				//while (!pworld->GetTileSolid(vpos.x, vpos.y)) {
+				//	vpos.y = std::clamp(vpos.y - 1, 0, TRWorld::WORLD_HEIGHT - 1);
+				//}
+				//vpos.y = yy + 1;
+				//m_pOwner->SetPos(TRWorld::WorldToGlobal(vpos));
+				m_lock.unlock();
+				return;
+			}
+			m_prevPos = m_curPos;
+			m_curPos = m_path.back();
+			m_path.pop_back();
+			//const Vec2 vDir = TRWorld::WorldToGlobal(m_prevPos) - m_pOwner->GetPos();
+			//m_dist = vDir.length();
+			m_accTime = 0.f;
+			const auto pworld = TRWorldRoom::GetTRWorld();
+			m_curPos.x = std::clamp(m_start.x, 0, TRWorld::WORLD_WIDTH - 1);
+			m_curPos.y = std::clamp(m_start.y, 0, TRWorld::WORLD_HEIGHT - 1);
+			//int yy = m_curPos.y - 1;
+			//yy = std::clamp(yy, 0, TRWorld::WORLD_HEIGHT - 1);
+			//while (!pworld->GetTileSolid(m_curPos.x, yy)) {
+			//	--yy;
+			//}
+			//m_curPos.y = yy + 2;
 			m_pOwner->SetPos(TRWorld::WorldToGlobal(m_curPos));
 			//m_start = m_curPos;
+			m_lock.unlock();
 		}
 		//if (m_prevPos != m_prevPos.zero)
 		//{
@@ -110,7 +192,7 @@ void Astar::Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 numOfBytes
 	//		m_start = m_path.back();
 	//	}
 	//}
-	//m_start = TRWorld::GlobalToWorld(m_pOwner->GetPos());
+	m_start = TRWorld::GlobalToWorld(m_pOwner->GetPos());
 	//m_start = m_curPos;
 	m_start.x = std::clamp(m_start.x, 0, TRWorld::WORLD_WIDTH - 1);
 	m_start.y = std::clamp(m_start.y, 0, TRWorld::WORLD_HEIGHT - 1);
@@ -135,13 +217,13 @@ void Astar::Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 numOfBytes
 
 	constexpr const std::pair<Vec2Int, int> front[8] = {
 	{{0, -1}, 1},
-	{{0, 1}, 1},
+	{{0, 1}, 100},
 	{{-1, 0}, 1},
 	{{1, 0}, 1},
 	{{-1, -1}, 2},
-	{{-1, 1}, 2},
+	{{-1, 1}, 100},
 	{{1, -1}, 2},
-	{{1, 1}, 2}
+	{{1, 1}, 100}
 	};
 
 	bool bFound = false;
@@ -190,86 +272,87 @@ void Astar::Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 numOfBytes
 	Vec2Int pos = m_dest;
 	cnt = 0;
 	{
-		//std::lock_guard<ServerCore::SpinLock> lock{ m_lock };
-		//m_path.clear();
+		std::lock_guard<ServerCore::SpinLock> lock{ m_lock };
+		m_path.clear();
 		for (;;)
 		{
 			//if (cnt >= 100)
 			//	break;
-			path.emplace_back(pos);
+			m_path.emplace_back(pos);
 			if (pos == m_parent[pos])
 				break;
 			pos = m_parent[pos];
 			//++cnt;
 		}
+		//m_path.pop_back();
 		//std::ranges::reverse(m_path);
 	}
-	cnt = 0;
-	//for (auto [vv, vp] : parent)
+	//cnt = 0;
+	////for (auto [vv, vp] : parent)
+	////{
+	////	path.emplace_back(vv);
+	////}
+	////std::ranges::sort(path, [this](Vec2Int a,Vec2Int b) {
+	////	return calculateH(a, m_dest) > calculateH(b, m_dest);
+	////	});
 	//{
-	//	path.emplace_back(vv);
+	//	//std::lock_guard<ServerCore::SpinLock> lock{ m_lock };
+	//	m_path.clear();
+	//	for (const auto vpos : path | std::views::reverse)
+	//	{
+	//		if (cnt == 2)
+	//		{
+	//			//m_pOwner->SetPrevPos(TRWorld::WorldToGlobal(vpos));
+	//			//if (pos != m_prev)
+	//			{
+	//				m_start = pos;
+	//				//if (pworld->GetTileSolid(m_start.x - 1, m_start.y))
+	//				//{
+	//				//	pos.x -= 1;
+	//				//	pos.y += 3;
+	//				//	m_start = pos;
+	//				//}
+	//				//m_path.emplace_back(m_start);
+	//				break;
+	//			}
+	//			//else
+	//			//{
+	//			//	m_start.y += 2;
+	//			//	//m_start.x -= 2;
+	//			//	m_start = pos;
+	//			//	break;
+	//			//}
+	//		}
+	//		else
+	//		{
+	//			//else if (cnt >= 3)
+	//			//{
+	//			//	//m_pOwner->SetPos(TRWorld::WorldToGlobal(vpos));
+	//			//	break;
+	//			//}
+	//			//std::cout << vpos.x << ", " << vpos.y << std::endl;
+	//			//if (cnt >= 10)
+	//			//{
+	//			//
+	//			//	break;
+	//			//}
+	//			++cnt;
+	//			pos = vpos;
+	//			//m_path.emplace_back(vpos);
+	//		}
+	//	}
+	//	//m_start = m_path.back();
 	//}
-	//std::ranges::sort(path, [this](Vec2Int a,Vec2Int b) {
-	//	return calculateH(a, m_dest) > calculateH(b, m_dest);
-	//	});
-	{
-		//std::lock_guard<ServerCore::SpinLock> lock{ m_lock };
-		m_path.clear();
-		for (const auto vpos : path | std::views::reverse)
-		{
-			if (cnt == 2)
-			{
-				//m_pOwner->SetPrevPos(TRWorld::WorldToGlobal(vpos));
-				//if (pos != m_prev)
-				{
-					m_start = pos;
-					//if (pworld->GetTileSolid(m_start.x - 1, m_start.y))
-					//{
-					//	pos.x -= 1;
-					//	pos.y += 3;
-					//	m_start = pos;
-					//}
-					//m_path.emplace_back(m_start);
-					break;
-				}
-				//else
-				//{
-				//	m_start.y += 2;
-				//	//m_start.x -= 2;
-				//	m_start = pos;
-				//	break;
-				//}
-			}
-			else
-			{
-				//else if (cnt >= 3)
-				//{
-				//	//m_pOwner->SetPos(TRWorld::WorldToGlobal(vpos));
-				//	break;
-				//}
-				//std::cout << vpos.x << ", " << vpos.y << std::endl;
-				//if (cnt >= 10)
-				//{
-				//
-				//	break;
-				//}
-				++cnt;
-				pos = vpos;
-				//m_path.emplace_back(vpos);
-			}
-		}
-		//m_start = m_path.back();
-	}
-	if (pworld->GetTileSolid(m_start.x-1, m_start.y))
-	{
-		pos.x -= 1;
-		pos.y += 3;
-		m_start = pos;
-	}
-	m_start = pos;
+	//if (pworld->GetTileSolid(m_start.x-1, m_start.y))
+	//{
+	//	pos.x -= 1;
+	//	pos.y += 3;
+	//	m_start = pos;
+	//}
+	//m_start = pos;
 	//m_curPos = m_start;
 
-	m_pOwner->SetPos(TRWorld::WorldToGlobal(pos));
+	//m_pOwner->SetPos(TRWorld::WorldToGlobal(pos));
 
-	Mgr(TaskTimerMgr)->ReserveAsyncTask(100, &m_timerEvent);
+	Mgr(TaskTimerMgr)->ReserveAsyncTask(1000, &m_timerEvent);
 }

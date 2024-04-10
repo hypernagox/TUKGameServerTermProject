@@ -24,6 +24,8 @@ public:
 	void InitAI(const S_ptr<Astar>& forCacheThis_)noexcept;
 public:
 	void Update(const float)override;
+	void PostUpdate(const float)noexcept override;
+
 	virtual HANDLE GetHandle()const noexcept override { return nullptr; }
 	virtual void Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept override;
 private:
