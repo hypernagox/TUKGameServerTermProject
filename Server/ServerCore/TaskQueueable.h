@@ -2,12 +2,13 @@
 #include "Task.h"
 #include "TaskTimerMgr.h"
 #include "ThreadMgr.h"
-#include "enable_shared_cache_this.hpp"
+#include "IocpObject.h"
+#include "IocpEvent.h"
 
 namespace ServerCore
 {
 	class TaskQueueable
-		:public enable_shared_cache_this<TaskQueueable>
+		:public IocpObject
 	{
 		friend class ThreadMgr;
 		friend class TaskTimerMgr;
@@ -79,15 +80,26 @@ namespace ServerCore
 		{
 			Mgr(ThreadMgr)->EnqueueGlobalTask(memFunc, this->SharedCastThis<T>(), std::forward<Args>(args)...);
 		}
-		void StartExecute()noexcept { register_cache_shared(); }
-		void StopExecute()noexcept { clear(); }
+		void StartExecute(const S_ptr<TaskQueueable>& forCacheThis_)noexcept {
+			register_cache_shared_core(forCacheThis_);
+			m_taskEvent.SetIocpObject(shared_from_this());
+		}
+		void StopExecute()noexcept {
+			if (true == m_bIsValid.exchange(false, std::memory_order_relaxed))
+				EnqueueAsync(&TaskQueueable::clear);
+		}
+	public:
+		virtual HANDLE GetHandle()const noexcept override { return nullptr; }
+		virtual void Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept override;
 	private:
 		void	EnqueueAsyncTask(U_Pptr<Task>&& task_, const bool pushOnly = false)noexcept;
 		void	Execute()noexcept;
-		void	clear()noexcept { m_taskQueue.clear_single(); m_taskVec.clear(); reset_cache_shared(); }
+		void	clear()noexcept { m_taskEvent.ReleaseIocpObject(); m_taskQueue.clear_single(); reset_cache_shared(); }
 	private:
 		MPSCQueue<U_Pptr<Task>> m_taskQueue;
 		Vector<U_Pptr<Task>> m_taskVec;
 		std::atomic<int32> m_taskCount = 0;
+		IocpEvent m_taskEvent{ EVENT_TYPE::TASK };
+		std::atomic_bool m_bIsValid = true;
 	};
 }

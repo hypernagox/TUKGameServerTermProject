@@ -25,9 +25,9 @@ void TRWorldMgr::Init() noexcept
 
 void TRWorldMgr::RegisterWorld(const SECTOR worldID_, std::shared_ptr<TRWorldRoom> world_) noexcept
 {
-	world_->Init();
+	world_->StartExecute(world_);
 
-	world_->register_cache_shared();
+	world_->Init();
 
 	m_mapWorld.emplace_no_return(worldID_, world_);
 

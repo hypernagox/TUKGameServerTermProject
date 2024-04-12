@@ -57,6 +57,7 @@ namespace ServerCore
 
 		ACCEPT,
 		TIMER,
+		TASK,
 
 		END
 	};

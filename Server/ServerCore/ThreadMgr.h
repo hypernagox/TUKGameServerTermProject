@@ -11,8 +11,8 @@ namespace ServerCore
 	class Service;
 	class Task;
 
-	extern thread_local moodycamel::ProducerToken* LPro_token;
-	extern thread_local moodycamel::ConsumerToken* LCon_token;
+	//extern thread_local moodycamel::ProducerToken* LPro_token;
+	//extern thread_local moodycamel::ConsumerToken* LCon_token;
 	extern thread_local moodycamel::ProducerToken* LPro_tokenGlobalTask;
 	extern thread_local moodycamel::ConsumerToken* LCon_tokenGlobalTask;
 
@@ -37,11 +37,11 @@ namespace ServerCore
 		void NotifyThread()const noexcept { PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0); }
 		const HANDLE GetIocpHandle()const noexcept { return m_iocpHandle; }
 	public:
-		void PushGlobalQueue(S_ptr<TaskQueueable>&& qPtr_)noexcept
-		{
-			m_globalTaskQueue.enqueue(*LPro_token, std::move(qPtr_));
-			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
-		}
+		//void PushGlobalQueue(S_ptr<TaskQueueable>&& qPtr_)noexcept
+		//{
+		//	m_globalTaskQueue.enqueue(*LPro_token, std::move(qPtr_));
+		//	PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
+		//}
 		template<typename T, typename U, typename Ret, typename... Args> requires std::derived_from<U, T>
 		void EnqueueGlobalTask(Ret(T::* const memFunc)(Args...)noexcept, const S_ptr<U>& memFuncInstance, Args&&... args)noexcept
 		{
@@ -116,7 +116,7 @@ namespace ServerCore
 		SpinLock m_heartBeatFuncLock;
 		static inline Atomic<uint32> g_threadID = 0;
 
-		moodycamel::ConcurrentQueue<S_ptr<TaskQueueable>, LFQueueAllocator> m_globalTaskQueue{ 32 };
+		//moodycamel::ConcurrentQueue<S_ptr<TaskQueueable>, LFQueueAllocator> m_globalTaskQueue{ 32 };
 		moodycamel::ConcurrentQueue<Task*, LFQueueAllocator> m_globalTask{ 1024 };
 
 		enum { WORKER_TICK = 64 };

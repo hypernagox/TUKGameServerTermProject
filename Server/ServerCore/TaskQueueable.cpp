@@ -14,8 +14,15 @@ namespace ServerCore
 	{
 	}
 
+	void TaskQueueable::Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes) noexcept
+	{
+		Execute();
+	}
+
 	void TaskQueueable::EnqueueAsyncTask(U_Pptr<Task>&& task_, const bool pushOnly)noexcept
 	{
+		// 동적으로 생겼다가 사라질 수 있다면, 사라질때 절대 여기로 들어오지 못하게 해야한다.
+
 		const int32 prevCount = m_taskCount.fetch_add(1, std::memory_order_acquire);
 		m_taskQueue.emplace(std::move(task_));
 		if (0 == prevCount)
@@ -29,7 +36,8 @@ namespace ServerCore
 			else
 			{
 				// 여유 있는 다른 쓰레드가 실행하도록 GlobalQueue에 넘긴다
-				Mgr(ThreadMgr)->PushGlobalQueue(shared_from_this());
+				//Mgr(ThreadMgr)->PushGlobalQueue(shared_from_this());
+				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, &m_taskEvent);
 			}
 		}
 	}
@@ -54,7 +62,8 @@ namespace ServerCore
 			if (::GetTickCount64() >= LEndTickCount)
 			{
 				// 여유 있는 다른 쓰레드가 실행하도록 GlobalQueue에 넘긴다
-				Mgr(ThreadMgr)->PushGlobalQueue(shared_from_this());
+				//Mgr(ThreadMgr)->PushGlobalQueue(shared_from_this());
+				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, &m_taskEvent);
 				break;
 			}
 		}

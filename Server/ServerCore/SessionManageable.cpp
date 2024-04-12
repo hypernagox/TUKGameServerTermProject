@@ -97,8 +97,10 @@ namespace ServerCore
 				});
 		}
 		m_linkedHashMapForSession.clear_unsafe();
+		//if (bDestroyCurrentRoom)
+		//	pOtherRoom->EnqueueAsync(&TaskQueueable::StopExecute, shared_from_this_ref());
 		if (bDestroyCurrentRoom)
-			pOtherRoom->EnqueueAsync(&TaskQueueable::StopExecute, shared_from_this_ref());
+			pOtherRoom->StopExecute();
 	}
 
 	void SessionManageable::RegisterHeartBeat() noexcept

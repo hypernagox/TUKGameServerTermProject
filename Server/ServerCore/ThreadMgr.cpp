@@ -17,8 +17,8 @@ namespace ServerCore
 	extern thread_local uint64				LEndTickCount;
 	extern thread_local class TaskQueueable* LCurTaskQueue;
 
-	thread_local moodycamel::ProducerToken* LPro_token;
-	thread_local moodycamel::ConsumerToken* LCon_token;
+	//thread_local moodycamel::ProducerToken* LPro_token;
+	//thread_local moodycamel::ConsumerToken* LCon_token;
 	thread_local moodycamel::ProducerToken* LPro_tokenGlobalTask;
 	thread_local moodycamel::ConsumerToken* LCon_tokenGlobalTask;
 
@@ -40,8 +40,8 @@ namespace ServerCore
 		Task* task;
 		while (m_globalTask.try_dequeue(*LCon_tokenGlobalTask, task))PoolDelete<Task>(task);
 
-		xdelete<moodycamel::ProducerToken>(LPro_token);
-		xdelete<moodycamel::ConsumerToken>(LCon_token);
+		//xdelete<moodycamel::ProducerToken>(LPro_token);
+		//xdelete<moodycamel::ConsumerToken>(LCon_token);
 
 		xdelete<moodycamel::ProducerToken>(LPro_tokenGlobalTask);
 		xdelete<moodycamel::ConsumerToken>(LCon_tokenGlobalTask);
@@ -149,10 +149,10 @@ namespace ServerCore
 	{
 		LThreadId = g_threadID.fetch_add(1);
 
-		LPro_token = xnew<moodycamel::ProducerToken>(m_globalTaskQueue);
+		//LPro_token = xnew<moodycamel::ProducerToken>(m_globalTaskQueue);
 		LPro_tokenGlobalTask = xnew <moodycamel::ProducerToken>(m_globalTask);
 
-		LCon_token = xnew <moodycamel::ConsumerToken>(m_globalTaskQueue);
+		//LCon_token = xnew <moodycamel::ConsumerToken>(m_globalTaskQueue);
 		LCon_tokenGlobalTask = xnew <moodycamel::ConsumerToken>(m_globalTask);
 
 		LSendBufferChunk = Mgr(SendBufferMgr)->Pop();
@@ -164,13 +164,13 @@ namespace ServerCore
 
 	void ThreadMgr::TryGlobalQueueTask()noexcept
 	{
-		while (::GetTickCount64() < LEndTickCount)
-		{
-			S_ptr<TaskQueueable> qPtr;
-			if (!m_globalTaskQueue.try_dequeue(*LCon_token, qPtr))
-				break;
-			qPtr->Execute();
-		}
+		//while (::GetTickCount64() < LEndTickCount)
+		//{
+		//	S_ptr<TaskQueueable> qPtr;
+		//	if (!m_globalTaskQueue.try_dequeue(*LCon_token, qPtr))
+		//		break;
+		//	qPtr->Execute();
+		//}
 		Task* task;
 		while (m_globalTask.try_dequeue(*LCon_tokenGlobalTask, task)) {
 			task->ExecuteTask();
