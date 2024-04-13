@@ -109,8 +109,14 @@ namespace ServerCore
 	}
 
 	template<typename SessionPtr, typename T> requires (std::convertible_to<SessionPtr, S_ptr<Session>> || std::convertible_to<SessionPtr, Session*>) && !std::derived_from<T, PacketHeader>
-	static constexpr void operator<<(SessionPtr&& pSession_, T&& pkt_)noexcept
+	inline static constexpr void operator<<(SessionPtr&& pSession_, T&& pkt_)noexcept
 	{
 		pSession_->SendAsync(c2s_PacketHandler::MakeSendBuffer(pkt_));
+	}
+
+	template<typename SessionPtr> requires (std::convertible_to<SessionPtr, S_ptr<Session>> || std::convertible_to<SessionPtr, Session*>)
+	inline static constexpr void operator<<(SessionPtr&& pSession_, S_ptr<SendBuffer> pkt_)noexcept
+	{
+		pSession_->SendAsync(std::move(pkt_));
 	}
 }

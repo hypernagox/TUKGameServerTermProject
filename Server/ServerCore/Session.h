@@ -3,6 +3,7 @@
 #include "IocpObject.h"
 #include "MPSCQueue.hpp"
 #include "RecvBuffer.h"
+#include "IocpEvent.h"
 
 namespace ServerCore
 {
@@ -36,25 +37,13 @@ namespace ServerCore
 		template <typename T> requires std::convertible_to<T, S_ptr<PacketSession>>
 		static inline const uint64 GetID(const T& __restrict pSession_)noexcept { return pSession_->GetSessionID(); }
 	public:
-		inline void TryRegisterSend()noexcept
-		{
-			if (!m_sendQueue.empty_single() && false == m_bIsSendRegistered.exchange(true, std::memory_order_acquire))
-				RegisterSend();
-		}
 		void SendAsync(S_ptr<SendBuffer> pSendBuff_)noexcept
 		{
 			m_sendQueue.emplace(std::move(pSendBuff_));
-			Mgr(ThreadMgr)->EnqueueGlobalTask(PoolNew<Task>(&Session::TryRegisterSend, this->SharedCastThis<Session>()));
+			if (false == m_bIsSendRegistered.exchange(true, std::memory_order_relaxed))
+				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, &m_pSendEvent->m_registerSendEvent);
 		}
-		void Send(S_ptr<SendBuffer> pSendBuff_)noexcept
-		{
-			if (false == IsConnected())
-				return;
-			// 현재 RegisterSend가 걸리지 않은 상태여야 걸어준다.
-			m_sendQueue.emplace(std::move(pSendBuff_));
-			if (false == m_bIsSendRegistered.exchange(true, std::memory_order_acq_rel))
-				RegisterSend();
-		}
+
 		void DisconnectAsync(std::wstring cause)noexcept
 		{
 			Mgr(ThreadMgr)->EnqueueGlobalTask(PoolNew<Task>(&Session::Disconnect, this->SharedCastThis<Session>(), std::move(cause)));
@@ -112,6 +101,12 @@ namespace ServerCore
 		void ProcessSend(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept;
 
 		void HandleError(c_int32 errorCode);
+
+		inline void TryRegisterSend()noexcept
+		{
+			if (!m_sendQueue.empty_single())
+				RegisterSend();
+		}
 	protected:
 		// 컨텐츠단에서 구현 할 내용들 (오버라이딩)
 		virtual void OnConnected() abstract;

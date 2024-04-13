@@ -239,9 +239,11 @@ void TRWorldRoom::BroadCastToWorld(const S_ptr<ServerCore::SendBuffer> pSendBuff
 		const auto pSession = (*iter);
 		if (pSession->IsConnected())
 		{
-			pSession->SendOnlyEnqueue(pSendBuffer);
-			if (pSession->CanRegisterSend())
-				m_vecForBroadCastToWorld.emplace_back(PoolNew<ServerCore::Task>(&ServerCore::Session::TryRegisterSend, pSession->SharedCastThis<ServerCore::Session>()));
+			pSession << pSendBuffer;
+			//pSession->SendAsync(pSendBuffer);
+			//pSession->SendOnlyEnqueue(pSendBuffer);
+			//if (pSession->CanRegisterSend())
+			//	m_vecForBroadCastToWorld.emplace_back(PoolNew<ServerCore::Task>(&ServerCore::Session::TryRegisterSend, pSession->SharedCastThis<ServerCore::Session>()));
 			++iter;
 		}
 		else
@@ -249,11 +251,11 @@ void TRWorldRoom::BroadCastToWorld(const S_ptr<ServerCore::SendBuffer> pSendBuff
 			iter = g_allPlayers[thID_].EraseItemAndGetIter(pSession->GetSessionID());
 		}
 	}
-	if (const auto num = m_vecForBroadCastToWorld.size())
-	{
-		Mgr(ThreadMgr)->EnqueueGlobalTaskBulk(m_vecForBroadCastToWorld.data(), num);
-		m_vecForBroadCastToWorld.clear();
-	}
+	//if (const auto num = m_vecForBroadCastToWorld.size())
+	//{
+	//	Mgr(ThreadMgr)->EnqueueGlobalTaskBulk(m_vecForBroadCastToWorld.data(), num);
+	//	m_vecForBroadCastToWorld.clear();
+	//}
 }
 
 void TRWorldRoom::LeavePlayerEnqueue(const uint64 playerID) noexcept

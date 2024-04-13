@@ -53,8 +53,15 @@ namespace ServerCore
 
 	void Session::Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept
 	{
-		const S_ptr<PacketSession> pThisSessionPtr{ iocpEvent_->PassIocpObject(),static_cast<PacketSession* const>(this) };
-		(this->*g_sessionLookupTable[static_cast<const uint8_t>(iocpEvent_->GetEventType())])(pThisSessionPtr, numOfBytes);
+		if (EVENT_TYPE::REGISTER_SEND == iocpEvent_->GetEventType())
+		{
+			TryRegisterSend();
+		}
+		else
+		{
+			const S_ptr<PacketSession> pThisSessionPtr{ iocpEvent_->PassIocpObject(),static_cast<PacketSession* const>(this) };
+			(this->*g_sessionLookupTable[static_cast<const uint8_t>(iocpEvent_->GetEventType())])(pThisSessionPtr, numOfBytes);
+		}
 	}
 
 	bool Session::RegisterConnect()
@@ -96,6 +103,8 @@ namespace ServerCore
 		{
 			pThisSessionPtr->register_cache_shared_core(pThisSessionPtr);
 
+			m_pSendEvent->m_registerSendEvent.SetIocpObject(pThisSessionPtr);
+
 			m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = true;
 			std::atomic_thread_fence(std::memory_order_seq_cst);
 			m_bConnected.store(true);
@@ -136,6 +145,7 @@ namespace ServerCore
 		OnDisconnected();
 		GetService()->ReleaseSession(pThisSessionPtr);
 		CancelIoEx(reinterpret_cast<HANDLE>(m_sessionSocket), NULL);
+		m_pSendEvent->m_registerSendEvent.ReleaseIocpObject();
 		// 캐시 쉐어드 리셋 해야됌
 	}
 

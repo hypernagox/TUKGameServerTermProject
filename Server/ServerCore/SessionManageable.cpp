@@ -117,7 +117,8 @@ namespace ServerCore
 			if (session->IsHeartBeatAlive())
 			{
 				session->SetHeartBeat(false);
-				session->SendOnlyEnqueue(sendBuffer);
+				//session->SendOnlyEnqueue(sendBuffer);
+				session << sendBuffer;
 			}
 			else
 			{
@@ -146,15 +147,17 @@ namespace ServerCore
 		//CREATE_FUNC_LOG(L"BroadCast");
 		for (const auto pSession : m_linkedHashMapForSession)
 		{
-			pSession->SendOnlyEnqueue(pSendBuffer);
-			if(pSession->CanRegisterSend())
-				m_vecTaskBulks.emplace_back(PoolNew<Task>(&Session::TryRegisterSend, pSession->SharedCastThis<Session>()));
+			pSession->SendAsync(pSendBuffer);
+			//pSession << pSendBuffer;
+			//pSession->SendOnlyEnqueue(pSendBuffer);
+			//if(pSession->CanRegisterSend())
+			//	m_vecTaskBulks.emplace_back(PoolNew<Task>(&Session::TryRegisterSend, pSession->SharedCastThis<Session>()));
 		}
-		if (const auto num = m_vecTaskBulks.size()) [[likely]]
-		{
-			Mgr(ThreadMgr)->EnqueueGlobalTaskBulk(m_vecTaskBulks.data(), num);
-			m_vecTaskBulks.clear();
-		}
+		//if (const auto num = m_vecTaskBulks.size()) [[likely]]
+		//{
+		//	Mgr(ThreadMgr)->EnqueueGlobalTaskBulk(m_vecTaskBulks.data(), num);
+		//	m_vecTaskBulks.clear();
+		//}
 	}
 
 	void SessionManageable::BroadCastExceptOne(const S_ptr<SendBuffer> pSendBuffer, const uint64 exceptSessionNumber) noexcept
@@ -168,16 +171,17 @@ namespace ServerCore
 		}
 		for (; start_iter != end_iter; ++start_iter)
 		{
-			auto pSession = (*start_iter)->SharedCastThis<Session>();
-			pSession->SendOnlyEnqueue(pSendBuffer);
-			if (pSession->CanRegisterSend())
-				m_vecTaskBulks.emplace_back(PoolNew<Task>(&Session::TryRegisterSend, std::move(pSession)));
+			(*start_iter)->SendAsync(pSendBuffer);
+			//auto pSession = (*start_iter)->SharedCastThis<Session>();
+			//pSession->SendOnlyEnqueue(pSendBuffer);
+			//if (pSession->CanRegisterSend())
+			//	m_vecTaskBulks.emplace_back(PoolNew<Task>(&Session::TryRegisterSend, std::move(pSession)));
 		}
-		if (const auto num = m_vecTaskBulks.size())
-		{
-			Mgr(ThreadMgr)->EnqueueGlobalTaskBulk(m_vecTaskBulks.data(), num);
-			m_vecTaskBulks.clear();
-		}
+		//if (const auto num = m_vecTaskBulks.size())
+		//{
+		//	Mgr(ThreadMgr)->EnqueueGlobalTaskBulk(m_vecTaskBulks.data(), num);
+		//	m_vecTaskBulks.clear();
+		//}
 	}
 
 	void SessionManageable::LeaveAndDisconnect(const S_ptr<Session> pSession_)noexcept

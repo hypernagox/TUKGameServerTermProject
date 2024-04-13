@@ -58,6 +58,7 @@ namespace ServerCore
 		ACCEPT,
 		TIMER,
 		TASK,
+		REGISTER_SEND,
 
 		END
 	};

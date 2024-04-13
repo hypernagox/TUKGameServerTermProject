@@ -104,6 +104,7 @@ namespace ServerCore
 	public:
 		SendEvent() :IocpEvent{ EVENT_TYPE::SEND } {}
 		~SendEvent();
+		IocpEvent m_registerSendEvent{ EVENT_TYPE::REGISTER_SEND };
 		Vector<S_ptr<SendBuffer>> sendBuffer;
 	};
 }
