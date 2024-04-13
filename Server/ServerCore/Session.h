@@ -40,7 +40,7 @@ namespace ServerCore
 		void SendAsync(S_ptr<SendBuffer> pSendBuff_)noexcept
 		{
 			m_sendQueue.emplace(std::move(pSendBuff_));
-			if (false == m_bIsSendRegistered.exchange(true, std::memory_order_relaxed))
+			if (false == m_bIsSendRegistered.exchange(true, std::memory_order_acquire))
 				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, &m_pSendEvent->m_registerSendEvent);
 		}
 
@@ -97,15 +97,15 @@ namespace ServerCore
 		void RegisterRecv(const S_ptr<PacketSession>& pThisSessionPtr)noexcept;
 		void ProcessRecv(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept;
 
-		void RegisterSend()noexcept;
+		void RegisterSend(const S_ptr<PacketSession>& pThisSessionPtr)noexcept;
 		void ProcessSend(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept;
 
 		void HandleError(c_int32 errorCode);
 
-		inline void TryRegisterSend()noexcept
+		inline void TryRegisterSend(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_ = 0)noexcept
 		{
 			if (!m_sendQueue.empty_single())
-				RegisterSend();
+				RegisterSend(pThisSessionPtr);
 		}
 	protected:
 		// 컨텐츠단에서 구현 할 내용들 (오버라이딩)
@@ -140,12 +140,13 @@ namespace ServerCore
 		int32 m_iLastErrorCode = 1;
 		const U_ptr<ConnectEvent> m_pConnectEvent;
 	private:
-		constexpr static inline void (Session::* const g_sessionLookupTable[etoi(EVENT_TYPE::END) - 1])(const S_ptr<PacketSession>&, c_int32)noexcept =
+		constexpr static inline void (Session::* const g_sessionLookupTable[etoi(EVENT_TYPE::REGISTER_SEND) + 1])(const S_ptr<PacketSession>&, c_int32)noexcept =
 		{
 			&Session::ProcessConnect,
 			&Session::ProcessDisconnect,
 			&Session::ProcessRecv,
-			&Session::ProcessSend
+			&Session::ProcessSend,
+			&Session::TryRegisterSend,
 		};
 	};
 }

@@ -53,6 +53,9 @@ void TRWorldRoom::Update(const uint64 tick_ms)
 			{
 				obj->reset_cache_shared(*this);
 				iter = obj_list.EraseItemAndGetIter(obj->GetObjID());
+
+				// TODO: 전역컨테이너에서 세션 지워줘야한다.
+				// g_allPlayers[threadID].EraseItem(obj->GetObjID());
 			}
 		}
 	}

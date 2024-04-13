@@ -53,13 +53,8 @@ namespace ServerCore
 
 	void Session::Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept
 	{
-		if (EVENT_TYPE::REGISTER_SEND == iocpEvent_->GetEventType())
+		if (const S_ptr<PacketSession> pThisSessionPtr{ iocpEvent_->PassIocpObject(),static_cast<PacketSession* const>(this) })
 		{
-			TryRegisterSend();
-		}
-		else
-		{
-			const S_ptr<PacketSession> pThisSessionPtr{ iocpEvent_->PassIocpObject(),static_cast<PacketSession* const>(this) };
 			(this->*g_sessionLookupTable[static_cast<const uint8_t>(iocpEvent_->GetEventType())])(pThisSessionPtr, numOfBytes);
 		}
 	}
@@ -204,13 +199,13 @@ namespace ServerCore
 		RegisterRecv(pThisSessionPtr);
 	}
 
-	void Session::RegisterSend()noexcept
+	void Session::RegisterSend(const S_ptr<PacketSession>& pThisSessionPtr)noexcept
 	{
 		if (false == IsConnected())
 			return;
 
 		m_pSendEvent->Init();
-		m_pSendEvent->SetIocpObject(shared_from_this());
+		m_pSendEvent->SetIocpObject(pThisSessionPtr);
 
 		auto& sendBuffer = m_pSendEvent->sendBuffer;
 		sendBuffer.clear();
@@ -248,13 +243,14 @@ namespace ServerCore
 			Disconnect(L"Send 0");
 			return;
 		}
+		m_pSendEvent->m_registerSendEvent.SetIocpObject(pThisSessionPtr);
 
 		OnSend(numofBytes_);
 
 		m_bIsSendRegistered.store(false, std::memory_order_release);
 
 		if (!m_sendQueue.empty_single() && false == m_bIsSendRegistered.exchange(true, std::memory_order_relaxed))
-			RegisterSend();
+			RegisterSend(pThisSessionPtr);
 	}
 
 	void Session::HandleError(c_int32 errorCode)

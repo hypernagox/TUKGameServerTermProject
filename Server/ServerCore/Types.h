@@ -54,11 +54,12 @@ namespace ServerCore
 		DISCONNECT,
 		RECV,
 		SEND,
+		REGISTER_SEND,
 
 		ACCEPT,
 		TIMER,
 		TASK,
-		REGISTER_SEND,
+		
 
 		END
 	};
