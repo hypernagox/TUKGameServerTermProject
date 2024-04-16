@@ -240,7 +240,11 @@ namespace ServerCore
 			//}
 			m_fpTask = [](const void* const callBackPtr_)noexcept {return static_cast<const CallBack* const>(callBackPtr_)->operator()(); };
 		}
-		inline constexpr void ExecuteTask()const noexcept { m_fpTask(static_cast<const void* const>(argBuff)); }
+		inline constexpr void ExecuteTask()const noexcept {
+			m_fpTask(
+				reinterpret_cast<const char* const>(this) + sizeof(m_fpTask) + sizeof(m_fpTaskDeleter)
+			);
+		}
 	private:
 		//void* argPtr;
 		void(*m_fpTask)(const void* const)noexcept;
