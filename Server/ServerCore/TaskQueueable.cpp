@@ -23,10 +23,11 @@ namespace ServerCore
 	{
 		// 동적으로 생겼다가 사라질 수 있다면, 사라질때 절대 여기로 들어오지 못하게 해야한다.
 
-		const int32 prevCount = m_taskCount.fetch_add(1, std::memory_order_acquire);
+		const int32 prevCount = m_taskCount.fetch_add(1, std::memory_order_relaxed);
 		m_taskQueue.emplace(std::move(task_));
 		if (0 == prevCount)
 		{
+			std::atomic_thread_fence(std::memory_order_acquire);
 			// TODO: 타고타고 여기 들어올 수가 있나?
 			// 이미 실행중인 JobQueue가 없으면 실행
 			if (nullptr == LCurTaskQueue && false == pushOnly)
