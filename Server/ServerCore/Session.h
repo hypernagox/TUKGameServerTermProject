@@ -3,7 +3,6 @@
 #include "IocpObject.h"
 #include "MPSCQueue.hpp"
 #include "RecvBuffer.h"
-#include "IocpEvent.h"
 
 namespace ServerCore
 {
@@ -40,8 +39,11 @@ namespace ServerCore
 		void SendAsync(S_ptr<SendBuffer> pSendBuff_)noexcept
 		{
 			m_sendQueue.emplace(std::move(pSendBuff_));
-			if (false == m_bIsSendRegistered.exchange(true, std::memory_order_acquire))
-				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, &m_pSendEvent->m_registerSendEvent);
+			if (false == m_bIsSendRegistered.exchange(true, std::memory_order_relaxed))
+			{
+				std::atomic_thread_fence(std::memory_order_acquire);
+				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, reinterpret_cast<IocpEvent* const>(reinterpret_cast<char* const>(m_pSendEvent.get()) + sizeof(IocpEvent)));
+			}
 		}
 
 		void DisconnectAsync(std::wstring cause)noexcept
@@ -69,16 +71,16 @@ namespace ServerCore
 		NetAddress GetAddress()const noexcept{ return m_sessionAddr; }
 		SOCKET GetSocket()const noexcept{ return m_sessionSocket; }
 		const bool IsConnected()const noexcept {
-			std::atomic_thread_fence(std::memory_order_acquire);
+			//std::atomic_thread_fence(std::memory_order_acquire);
 			return m_bConnectedNonAtomic;
 		}
 		const bool IsHeartBeatAlive()const noexcept {
-			std::atomic_thread_fence(std::memory_order_acquire);
+			//std::atomic_thread_fence(std::memory_order_acquire);
 			return m_bHeartBeatAlive;
 		}
 		void SetHeartBeat(const bool bHeartBeat_)noexcept {
 			m_bHeartBeatAlive = bHeartBeat_;
-			std::atomic_thread_fence(std::memory_order_release);
+			//std::atomic_thread_fence(std::memory_order_release);
 		}
 		void SetLastError(c_int32 errCode_)noexcept { m_iLastErrorCode *= errCode_; }
 		const ID_Ptr<SessionManageable> GetCurrentSessionRoomInfo()const noexcept { return m_CurrentSessionRoomInfo.load(std::memory_order_acquire); }
@@ -104,8 +106,7 @@ namespace ServerCore
 
 		inline void TryRegisterSend(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_ = 0)noexcept
 		{
-			if (!m_sendQueue.empty_single())
-				RegisterSend(pThisSessionPtr);
+			RegisterSend(pThisSessionPtr);
 		}
 	protected:
 		// 컨텐츠단에서 구현 할 내용들 (오버라이딩)
