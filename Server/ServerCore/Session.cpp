@@ -38,11 +38,10 @@ namespace ServerCore
 	void Session::Disconnect(std::wstring cause)
 	{
 		LOG_MSG(std::move(cause));
-		if (false == m_bConnected.exchange(false,std::memory_order_acquire))
+		if (false == m_bConnected.exchange(false,std::memory_order_relaxed))
 			return;
 		m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
 		std::atomic_thread_fence(std::memory_order_seq_cst);
-		m_bConnected.store(false);
 		RegisterDisconnect();
 	}
 
@@ -53,7 +52,7 @@ namespace ServerCore
 
 	void Session::Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept
 	{
-		if (const S_ptr<PacketSession> pThisSessionPtr{ iocpEvent_->PassIocpObject(),static_cast<PacketSession* const>(this) })
+		if (S_ptr<PacketSession> pThisSessionPtr{ iocpEvent_->PassIocpObject(),static_cast<PacketSession* const>(this) })
 		{
 			(this->*g_sessionLookupTable[static_cast<const uint8_t>(iocpEvent_->GetEventType())])(pThisSessionPtr, numOfBytes);
 		}
@@ -146,12 +145,12 @@ namespace ServerCore
 
 	void Session::RegisterRecv(const S_ptr<PacketSession>& pThisSessionPtr)noexcept
 	{
-		std::atomic_thread_fence(std::memory_order_acquire);
+		//std::atomic_thread_fence(std::memory_order_acquire);
 		if (false == m_bConnectedNonAtomicForRecv)
 			return;
 
 		m_pRecvEvent->Init();
-		m_pRecvEvent->SetIocpObject(pThisSessionPtr);
+		m_pRecvEvent->SetIocpObject(std::move(const_cast<S_ptr<PacketSession>&>(pThisSessionPtr)));
 
 		WSABUF wsaBuf{ static_cast<const ULONG>(m_pRecvBuffer->FreeSize()),reinterpret_cast<char* const>(m_pRecvBuffer->WritePos()) };
 		//DWORD numOfBytes;
@@ -205,7 +204,7 @@ namespace ServerCore
 			return;
 
 		m_pSendEvent->Init();
-		m_pSendEvent->SetIocpObject(pThisSessionPtr);
+		m_pSendEvent->SetIocpObject(std::move(const_cast<S_ptr<PacketSession>&>(pThisSessionPtr)));
 
 		auto& sendBuffer = m_pSendEvent->sendBuffer;
 		sendBuffer.clear();
