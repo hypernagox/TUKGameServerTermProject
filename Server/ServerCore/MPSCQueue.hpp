@@ -43,11 +43,11 @@ namespace ServerCore
 			Node* const value = xnew<Node>(std::forward<Args>(args)...);
 			Node* __restrict oldTail = tail.load(std::memory_order_relaxed);
 			while (!tail.compare_exchange_weak(oldTail, value
-				, std::memory_order_release
+				, std::memory_order_relaxed
 				, std::memory_order_relaxed))
 			{
 			}
-			oldTail->next.store(value,std::memory_order_release);
+			oldTail->next.store(value, std::memory_order_release);
 		}
 		const bool try_pop(T& _target)noexcept {
 			Node* oldHead;
@@ -127,6 +127,31 @@ namespace ServerCore
 			}
 			return false;
 		}
+		const bool try_pop_single(T& _target,Node*& head_temp)noexcept {
+			if (Node* const __restrict newHead = head_temp->next.load(std::memory_order_acquire))
+			{
+				Node* const oldHead = head_temp;
+				head_temp = newHead;
+				if constexpr (std::swappable<T>)
+					_target.swap(newHead->data);
+				else
+					std::swap(_target, newHead->data);
+				xdelete<Node>(oldHead);
+				return true;
+			}
+			return false;
+		}
+		const bool try_pop_single(Vector<T>& _targetForPushBack, Node*& head_temp)noexcept {
+			if (Node* const __restrict newHead = head_temp->next.load(std::memory_order_acquire))
+			{
+				Node* const oldHead = head_temp;
+				head_temp = newHead;
+				_targetForPushBack.emplace_back(std::move(newHead->data));
+				xdelete<Node>(oldHead);
+				return true;
+			}
+			return false;
+		}
 		std::optional<T> pop()noexcept {
 			Node* oldHead;
 			Node* newHead;
@@ -152,11 +177,15 @@ namespace ServerCore
 			while (try_pop(vec_));
 		}
 		Vector<T> try_flush_single()noexcept {
-			Vector<T> vec; vec.reserve(32); while (try_pop_single(vec));
+			Node* head_temp = head.load(std::memory_order_acquire);
+			Vector<T> vec; vec.reserve(32); while (try_pop_single(vec, head_temp));
+			head.store(head_temp, std::memory_order_release);
 			return vec;
 		}
 		void try_flush_single(Vector<T>& vec_)noexcept {
-			while (try_pop_single(vec_));
+			Node* head_temp = head.load(std::memory_order_acquire);
+			while (try_pop_single(vec_, head_temp));
+			head.store(head_temp, std::memory_order_release);
 		}
 		const bool empty() noexcept {
 			bool bIsEmpty;
@@ -167,7 +196,7 @@ namespace ServerCore
 			return bIsEmpty;
 		}
 		const bool empty_single()const noexcept {
-			return tail.load(std::memory_order_acquire) == head.load(std::memory_order_acquire);
+			return tail.load(std::memory_order_relaxed) == head.load(std::memory_order_relaxed);
 		}
 		void clear() noexcept {
 			{
