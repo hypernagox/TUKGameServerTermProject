@@ -63,9 +63,10 @@ namespace ServerCore
             Block* const newBlock = std::construct_at<Block>(static_cast<Block* const>(::_aligned_malloc(blockSize, std::hardware_constructive_interference_size)));
             BlockChaser* const newTop = std::construct_at<BlockChaser>(static_cast<BlockChaser* const>(::HeapAlloc(g_handle, NULL, sizeof(BlockChaser))), newBlock, poolTop.load(std::memory_order_relaxed));
             while (!poolTop.compare_exchange_weak(newTop->next, newTop,
-                std::memory_order_acquire, std::memory_order_relaxed))
+                std::memory_order_relaxed, std::memory_order_relaxed))
             {
             }
+            std::atomic_thread_fence(std::memory_order_acquire);
             return reinterpret_cast<T* const>(newBlock + 1);
         }
 
@@ -96,7 +97,7 @@ namespace ServerCore
 
         constexpr T* const allocate() noexcept
         {
-            uint64_t oldCombined = head.load(std::memory_order_acquire);
+            uint64_t oldCombined = head.load(std::memory_order_relaxed);
             uint64_t newCombined;
             const Block* __restrict currentBlock;
             do {
@@ -109,8 +110,8 @@ namespace ServerCore
                 const Block* const nextBlock = unpackPointer(currentBlock->combined.load(std::memory_order_relaxed));
                 newCombined = packPointerAndTag(nextBlock, newTag);
             } while (!head.compare_exchange_weak(oldCombined, newCombined,
-                std::memory_order_acq_rel,
-                std::memory_order_acquire));
+                std::memory_order_acquire,
+                std::memory_order_relaxed));
 
             return reinterpret_cast<T* const>(const_cast<Block* const>(currentBlock) + 1);
         }
