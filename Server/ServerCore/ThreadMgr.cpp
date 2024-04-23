@@ -65,7 +65,7 @@ namespace ServerCore
 
 						//LEndTickCount = ::GetTickCount64() + WORKER_TICK;
 
-						if (false == pIocpCore->Dispatch(INFINITE))
+						if (false == pIocpCore->Dispatch(10))
 						{
 							this->TryGlobalQueueTask();
 						}
