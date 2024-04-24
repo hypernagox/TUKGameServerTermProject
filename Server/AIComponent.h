@@ -1,12 +1,11 @@
 #pragma once
 #include "Component.h"
-#include "IocpObject.h"
-#include "IocpEvent.h"
+#include "TimerObject.h"
 #include "TRWorld.h"
 
 class Astar
 	:public Component
-	,public ServerCore::IocpObject
+	,public ServerCore::TimerObject
 {
 public:
 	Astar(Object* const pOwner_);
@@ -21,20 +20,20 @@ public:
 	static const uint16_t calculateH(const Vec2Int src,const Vec2Int dest)noexcept {
 		return ::bitwise_absi(src.x - dest.x) + ::bitwise_absi(src.y - dest.y);
 	}
-	void InitAI(const S_ptr<Astar>& forCacheThis_)noexcept;
 public:
 	void Update(const float)override;
 	void PostUpdate(const float)noexcept override;
 
-	virtual HANDLE GetHandle()const noexcept override { return nullptr; }
-	virtual void Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept override;
+	//virtual void Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept override;
+	virtual void InitTimer(const S_ptr<TimerObject>& forCacheThis_, const uint64 tick_ms)noexcept override;
+	virtual const bool TimerUpdate()noexcept override;
 private:
 	S_ptr<Object> m_ownerForValid;
 	std::priority_queue<AstarNode, ServerCore::Vector<AstarNode>, std::greater<AstarNode>> m_pqAstar;
 	Vec2Int m_dest{65,188};
 	Vec2Int m_start{106,197};
 	Vec2Int m_prev;
-	ServerCore::IocpEvent m_timerEvent{ ServerCore::EVENT_TYPE::TIMER };
+	//ServerCore::IocpEvent m_timerEvent{ ServerCore::EVENT_TYPE::TIMER };
 	ServerCore::HashMap<Vec2Int, Vec2Int> m_parent;
 	uint16 best[TRWorld::WORLD_HEIGHT][TRWorld::WORLD_WIDTH];
 	ServerCore::Vector<Vec2Int> m_path;
