@@ -10,7 +10,7 @@ ClientSession::ClientSession()
 
 ClientSession::~ClientSession()
 {
-	std::cout << "bye" << std::endl;
+	std::cout << "BYE" << std::endl;
 }
 
 void ClientSession::OnConnected()
