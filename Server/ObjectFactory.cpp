@@ -207,8 +207,9 @@ S_ptr<Object> ObjectFactory::CreateMonster(const uint64 id,const Vec2 vPos,const
 
 	auto astar = MakeShared<Astar>(mon.get());
 	
-	astar->InitAI(astar);
-	
+	astar->InitTimer(astar, 1000);
+	// 나중에 몬스터가 진짜 맵에 들어왔을때 타이머가 작동하도록 조정필요
+
 	mon->AddComponent(std::move(astar));
 
 	return mon;
