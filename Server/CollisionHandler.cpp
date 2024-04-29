@@ -25,6 +25,14 @@ void PlayerCollisionHandler::OnCollisionEnter(Object* const a, Object* const b)
 		pkt.set_item_id(b->GetObjID());
 		TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0) << pkt;
 		std::cout << "!!" << std::endl;
+		if (a->GetObjectGroup() == GROUP_TYPE::PROJ_PLAYER)
+		{
+			b->SetInvalid();
+		}
+		else
+		{
+			a->SetInvalid();
+		}
 	}
 	
 }
