@@ -3,6 +3,11 @@
 
 class ClientSession;
 
+class ContentsEntity
+	:public ServerCore::enable_shared_cache_this_core<ContentsEntity>
+{
+};
+
 class SessionObject
 	:public Component
 {
@@ -21,7 +26,7 @@ private:
 };
 
 class Object
-	:public ServerCore::enable_shared_cache_this_core<Object>
+	:public ContentsEntity
 {
 public:
 	Object(const uint64 id_,const GROUP_TYPE eType_,std::string_view name_)
@@ -32,6 +37,9 @@ public:
 	{}
 	~Object();
 public:
+	ServerCore::S_ptr<Object> shared_from_this()noexcept { return SharedCastThis<Object>(); }
+	ServerCore::S_ptr<const Object> shared_from_this()const noexcept { return SharedCastThis<const Object>(); }
+
 	void Update(const float dt_) {
 		//m_positionComponent.Update(dt_);
 		for (const auto& pComp : m_vecComponentList)
