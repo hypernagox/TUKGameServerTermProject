@@ -141,3 +141,12 @@ enum THREAD
         decltype(Arg)> \
     (std::forward<decltype(Arg)>(Arg))
 
+
+static constexpr const int SECTOR_WIDTH = 128/2;
+static constexpr const int SECTOR_HEIGHT = 64/2;
+
+static constexpr int TR_WORLD_WIDTH = 512;
+static constexpr int TR_WORLD_HEIGHT = 256;
+
+constexpr const int dx[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
+constexpr const int dy[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };

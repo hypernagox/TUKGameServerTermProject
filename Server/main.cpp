@@ -20,14 +20,18 @@ int main()
 	ServerCore::c2s_PacketHandler::Init();
 	
 	TRMgr(TRWorldMgr)->Init();
-	TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0)->GetTRWorld()->CreateWorld(10);
+	//TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0)->GetTRWorld()->CreateWorld(10);
 
-	TRMgr(TRWorldMgr)->GetMainWorld()->GetWorldSector(Vec2{})->g_trWorldMain.CreateWorld(10 + 2024 * 2024);
+	//TRMgr(TRWorldMgr)->GetStartWorld()->CreateWorld(10 + 2024 * 2024);
+	TRMgr(TRWorldMgr)->GetWorldChunk(CHUNK::CHUNK_0)->CreateWorld(10 + 2024 * 2024);
+	TRMgr(TRWorldMgr)->GetWorldChunk(CHUNK::CHUNK_1)->CreateWorld(10);
 
 	ServerCore::MoveBroadcaster::RegisterHuristicFunc([](const IocpEntity* const a, const IocpEntity* const b)
 		{
-			const auto aa = ((Object*)a->GetContentsEntity())->GetPos();
-			const auto bb = ((Object*)b->GetContentsEntity())->GetPos();
+			if (!((Object*)a->GetContentsEntity().get())->IsValid() || !((Object*)b->GetContentsEntity().get())->IsValid())
+				return false;
+			const auto aa = ((Object*)a->GetContentsEntity().get())->GetPos();
+			const auto bb = ((Object*)b->GetContentsEntity().get())->GetPos();
 
 			const int dist = (int)((aa.x - bb.x) * (aa.x - bb.x) + (aa.y - bb.y) * (aa.y - bb.y));
 			
@@ -38,14 +42,23 @@ int main()
 	ServerCore::MoveBroadcaster::RegisterInPacketFunc([](const S_ptr<IocpEntity>& p)
 		{
 			Protocol::s2c_APPEAR_NEW_OBJECT pkt;
-			*pkt.mutable_appear_pos() = ((Object*)p->GetContentsEntity())->GetPos();
+			*pkt.mutable_appear_pos() = ((Object*)p->GetContentsEntity().get())->GetPos();
 			
 			pkt.set_is_player(p->IsSession());
 			pkt.set_sector(0);
 			pkt.set_obj_id(p->GetObjectID());
-		
+			pkt.set_obj_name(((Object*)p->GetContentsEntity().get())->GetObjectName());
 			pkt.set_time_stamp(ServerCore::GetTimeStampMilliseconds());
-		
+			if (!p->IsSession())
+			{
+				
+				if (pkt.obj_name() == "PLAYER")
+				{
+					auto m = p->GetContentsEntity();
+					auto asaa = p->IsSession();
+					int a = 10;
+				}
+			}
 			return c2s_PacketHandler::MakeSendBuffer(pkt);
 		});
 
