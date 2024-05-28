@@ -1,36 +1,26 @@
 #pragma once
 #include "PhysicsComponent.h"
+#include "IocpObject.h"
 
 class ClientSession;
+
 
 class ContentsEntity
 	:public ServerCore::enable_shared_cache_this_core<ContentsEntity>
 {
-};
-
-class SessionObject
-	:public Component
-{
 public:
-	SessionObject(S_ptr<ClientSession>&& pSession_,Object* const pOwner_)
-		: Component{ "SESSIONOBJECT",pOwner_ }
-		, m_pSession{ std::move(pSession_) }
-	{}
+	virtual ~ContentsEntity() = default;
 public:
-	void Update(const float)override{}
-
-	const S_ptr<ClientSession>& GetSession()const noexcept { return m_pSession; }
-	
-private:
-	const S_ptr<ClientSession> m_pSession;
+	std::atomic<ServerCore::SessionManageable*> m_pCurSector = nullptr;
 };
 
 class Object
 	:public ContentsEntity
 {
 public:
-	Object(const uint64 id_,const GROUP_TYPE eType_,std::string_view name_)
-		: m_objID{id_}
+	Object(S_ptr<ServerCore::IocpEntity> pOwnerEntity_ ,const GROUP_TYPE eType_,std::string_view name_)
+		: m_pOwnerEntity{ pOwnerEntity_ }
+		, m_objID{ pOwnerEntity_->GetObjectID() }
 		, m_eObjectGroup{eType_}
 		, m_strObjectName{name_}
 		, m_positionComponent{ this }
@@ -88,7 +78,12 @@ public:
 	
 	const bool IsValid()const noexcept { return m_bIsValid.load(std::memory_order_acquire); }
 	const bool SetInvalid()noexcept { return m_bIsValid.exchange(false,std::memory_order_acq_rel); }
+	//ServerCore::IocpEntity* const GetIocpEntity()noexcept { return m_pOwnerEntity.get(); }
+	ServerCore::S_ptr<ServerCore::IocpEntity> const GetIocpEntity()noexcept { return m_pOwnerEntity.lock(); }
+	//const ServerCore::IocpEntity* const GetIocpEntity()const noexcept { return m_pOwnerEntity; }
+	//const S_ptr<ServerCore::IocpEntity>& GetIocpEntity()const noexcept { return m_pOwnerEntity; }
 private:
+	const W_ptr<ServerCore::IocpEntity> m_pOwnerEntity;
 	ServerCore::Vector<S_ptr<Component>> m_vecComponentList;
 	ServerCore::HashMap<std::string, S_ptr<BaseComponent>> m_mapComponent;
 
