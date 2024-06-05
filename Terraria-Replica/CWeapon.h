@@ -47,6 +47,7 @@ public:
 
         m_bDmgOnce = false;
 
+        m_bActivate = false;
         SetPos({ 0,0 });
     }
 

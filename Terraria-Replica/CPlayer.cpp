@@ -58,6 +58,10 @@ CPlayer::CPlayer(TRWorld* const _trWorld)
 		m_vecWeapon.emplace_back(new CWeapon{ _trWorld, this });
 	}
 
+	m_pCurWeapon = new CWeapon{ _trWorld,this };
+	m_pCurWeapon->SetName(m_curWeaponName);
+	m_pCurWeapon->SetWeaponState(Mgr(CResMgr)->GetImg(m_curWeaponName), m_curWeaponName);
+
 	CreateDCBITMAP(m_hPlayerVeilDC, m_hPlayerVeilBit, Vec2{ 40.f, 56.f });
 	PatBlt(m_hPlayerVeilDC, 0, 0, 40, 56, BLACKNESS);
 }
@@ -74,8 +78,14 @@ void CPlayer::update()
 		return;
 	}
 	
-	const int anim_dir = GetPos().x - GetPrevPos().x >= 0.f ? 0 : 1;
-	GetComp<CAnimator>()->SetAnimDir(anim_dir);
+	//const int anim_dir = GetPos().x - GetPrevPos().x >= 0.f ? 0 : 1;
+	const auto cur_pos_x = GetPos().x;
+	const auto prev_pos_x = GetPrevPos().x;
+	if (!IsFloatZero(cur_pos_x - prev_pos_x))
+	{
+		const int anim_dir = cur_pos_x - prev_pos_x >= 0.f ? 0 : 1;
+		GetComp<CAnimator>()->SetAnimDir(anim_dir);
+	}
 
 	CObject::update();
 	const auto pRigid = GetComp<CRigidBody>();
@@ -111,11 +121,15 @@ void CPlayer::update()
 	
 	if (PLAYER_STATE::ATTACK == m_eCurState)
 	{
-		m_vecWeapon[m_iCurQuickBarIdx]->update_weapon();
+		//m_vecWeapon[m_iCurQuickBarIdx]->update_weapon();
+		//m_pCurWeapon->SetPos(GetPos());
+		m_pCurWeapon->SetActivate(true);
+		m_pCurWeapon->update_weapon();
 	}
 	else
 	{
-		m_vecWeapon[m_iCurQuickBarIdx]->ReForm();
+		//m_vecWeapon[m_iCurQuickBarIdx]->ReForm();
+		m_pCurWeapon->ReForm();
 	}
 }
 
@@ -136,7 +150,13 @@ void CPlayer::render(HDC _dc)const
 	CObject::component_render(_dc);
 	m_pAnimLeg->component_render(_dc);
 
-	
+	if (PLAYER_STATE::ATTACK == m_eCurState)
+	{
+		if(m_bIsHero)
+			m_vecWeapon[m_iCurQuickBarIdx]->render_weapon(_dc);
+		else
+			m_pCurWeapon->render_weapon(_dc);
+	}
 	//m_pWeapon->render(_dc);
 	//Mgr(CCore)->ResetTransform();
 	//m_iDegree = (m_iDegree + 1);
