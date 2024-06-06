@@ -1,6 +1,8 @@
 #include "ServerCorePch.h"
 #include "func.h"
 #include "ThreadMgr.h"
+#include "Service.h"
+#include "Session.h"
 
 namespace ServerCore
 {
@@ -18,6 +20,17 @@ namespace ServerCore
 		std::wcout << L": ¿¡·¯ : " << msg_buf;
 		while (true);
 		LocalFree(msg_buf);
+	}
+
+	S_ptr<Session> GetSession(const uint64_t sessionID_) noexcept
+	{
+		return Mgr(ThreadMgr)->GetMainService()->GetSession(sessionID_);
+	}
+
+	void SendPacket(const uint64_t target_session_id, S_ptr<SendBuffer> pSendBuffer) noexcept
+	{
+		if (const auto pSession = Mgr(ThreadMgr)->GetMainService()->GetSession(target_session_id))
+			pSession->SendAsync(std::move(pSendBuffer));
 	}
 
 	void LogStackTrace() noexcept
