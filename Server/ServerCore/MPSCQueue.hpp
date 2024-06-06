@@ -1,6 +1,5 @@
 #pragma once
 #include "ServerCorePch.h"
-#include "EBR.hpp"
 #include "BackOff.h"
 
 namespace ServerCore
@@ -9,24 +8,19 @@ namespace ServerCore
 	class MPSCQueue
 	{
 	private:
-		struct Node
-			:public EBRNode
-		{
+		struct Node {
 			T data;
 			std::atomic<Node*> next = nullptr;
 			template<typename... Args>
 			constexpr Node(Args&&... args)noexcept :data{ std::forward<Args>(args)... }, next{ nullptr } {}
 		};
-		EBR<Node> m_ebr;
 		std::atomic<Node*> head;
 		SpinLock headLock;
-		//std::atomic<Node*> tail;
-		Node* volatile tail;
+		std::atomic<Node*> tail;
 	private:
 		void reset()noexcept {
 			Node* curHead = head.load(std::memory_order_acquire);
-			//const Node* const curTail = tail.load(std::memory_order_acquire);
-			const Node* const curTail = tail;
+			const Node* const curTail = tail.load(std::memory_order_acquire);
 			while (curTail != curHead)
 			{
 				Node* const delHead = curHead;
@@ -36,11 +30,8 @@ namespace ServerCore
 			head.store(curHead, std::memory_order_release);
 		}
 	public:
-		MPSCQueue()noexcept 
-			: head{ xnew<Node>() }
-			, tail{ head.load(std::memory_order_relaxed) }
-		{
-			//tail.store(head, std::memory_order_relaxed);
+		MPSCQueue()noexcept :head{ xnew<Node>() } {
+			tail.store(head, std::memory_order_relaxed);
 			head.load(std::memory_order_relaxed)->next.store(nullptr, std::memory_order_relaxed);
 		}
 		~MPSCQueue()noexcept {
@@ -50,44 +41,15 @@ namespace ServerCore
 		template <typename... Args>
 		void emplace(Args&&... args) noexcept {
 			BackOff bo{ NUM_OF_THREADS / 2 };
-			//Node* const value = xnew<Node>(std::forward<Args>(args)...);
-			m_ebr.Start();
-			Node* const value = m_ebr.GetNewNode(std::forward<Args>(args)...);
-			for(;;)
-			{ 
-				Node* oldTail = tail;
-				Node* nextTail = oldTail->next.load(std::memory_order_relaxed);
-				if (nullptr == nextTail)
-				{
-					if (true == oldTail->next.compare_exchange_weak(nextTail, value
-					,std::memory_order_release
-					,std::memory_order_relaxed))
-					{
-						compareExchange(&tail, &oldTail, value);
-						break;
-					}
-					bo.delay();
-				}
-				else
-				{
-					if (oldTail == tail)
-					{
-						if (false == compareExchange(&tail, &oldTail, nextTail))
-						{
-							bo.delay();
-						}
-					}
-				}
+			Node* const value = xnew<Node>(std::forward<Args>(args)...);
+			Node* __restrict oldTail = tail.load(std::memory_order_relaxed);
+			while (!tail.compare_exchange_weak(oldTail, value
+				, std::memory_order_relaxed
+				, std::memory_order_relaxed))
+			{
+				bo.delay();
 			}
-			m_ebr.End();
-			//Node* __restrict oldTail = tail.load(std::memory_order_relaxed);
-			//while (!tail.compare_exchange_weak(oldTail, value
-			//	, std::memory_order_relaxed
-			//	, std::memory_order_relaxed))
-			//{
-			//	bo.delay();
-			//}
-			//oldTail->next.store(value, std::memory_order_release);
+			oldTail->next.store(value, std::memory_order_release);
 		}
 		const bool try_pop(T& _target)noexcept {
 			Node* oldHead;
@@ -167,7 +129,7 @@ namespace ServerCore
 			}
 			return false;
 		}
-		const bool try_pop_single(T& _target,Node*& head_temp)noexcept {
+		const bool try_pop_single(T& _target, Node*& head_temp)noexcept {
 			if (Node* const __restrict newHead = head_temp->next.load(std::memory_order_acquire))
 			{
 				Node* const oldHead = head_temp;
@@ -187,8 +149,7 @@ namespace ServerCore
 				Node* const oldHead = head_temp;
 				head_temp = newHead;
 				_targetForPushBack.emplace_back(std::move(newHead->data));
-				//xdelete<Node>(oldHead);
-				m_ebr.RemoveNode(oldHead);
+				xdelete<Node>(oldHead);
 				return true;
 			}
 			return false;
@@ -237,8 +198,7 @@ namespace ServerCore
 			return bIsEmpty;
 		}
 		const bool empty_single()const noexcept {
-			return nullptr == head.load(std::memory_order_relaxed)->next.load(std::memory_order_relaxed);
-			//return tail.load(std::memory_order_relaxed) == head.load(std::memory_order_relaxed);
+			return tail.load(std::memory_order_relaxed) == head.load(std::memory_order_relaxed);
 		}
 		void clear() noexcept {
 			{
