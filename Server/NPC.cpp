@@ -3,6 +3,6 @@
 #include "Object.h"
 
 NPC::NPC()
-	:ServerCore::IocpEntity{ 1,nullptr }
+	:ServerCore::IocpEntity{ 1 }
 {
 }

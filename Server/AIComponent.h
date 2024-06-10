@@ -3,12 +3,26 @@
 #include "TimerObject.h"
 #include "TRWorld.h"
 
-class Astar
-	:public Component
-	,public ServerCore::TimerObject
+class AIComponent
+	:public BaseComponent
 {
 public:
-	Astar(Object* const pOwner_);
+	AIComponent(const COMP_TYPE eType_, Object* const pOwner_)noexcept
+		:BaseComponent{ eType_,pOwner_ } {}
+public:
+	virtual void ExecuteAI()noexcept abstract;
+};
+
+#define CONSTRUCTOR_AI_COMPONENT(ClassType) \
+    ClassType(Object* const pOwner_) noexcept \
+        : AIComponent(COMP_TYPE::ClassType, pOwner_) {} \
+    GET_COMP_TYPE_FUNC(ClassType)
+
+class Astar
+	:public AIComponent
+{
+public:
+	CONSTRUCTOR_AI_COMPONENT(Astar)
 	~Astar();
 	struct AstarNode
 	{
@@ -21,26 +35,9 @@ public:
 		return ::bitwise_absi(src.x - dest.x) + ::bitwise_absi(src.y - dest.y);
 	}
 public:
-	void Update(const float)override;
-	void PostUpdate(const float)noexcept override;
-
-	//virtual void Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept override;
-	virtual void InitTimer(const S_ptr<TimerObject>& forCacheThis_, const uint64 tick_ms)noexcept override;
-	virtual const bool TimerUpdate()noexcept override;
+	virtual void ExecuteAI()noexcept override;
 private:
-	S_ptr<Object> m_ownerForValid;
-	std::priority_queue<AstarNode, ServerCore::Vector<AstarNode>, std::greater<AstarNode>> m_pqAstar;
 	Vec2Int m_dest{65,188};
 	Vec2Int m_start{106,197};
-	Vec2Int m_prev;
-	//ServerCore::IocpEvent m_timerEvent{ ServerCore::EVENT_TYPE::TIMER };
-	ServerCore::HashMap<Vec2Int, Vec2Int> m_parent;
-	uint16 best[TRWorld::WORLD_HEIGHT][TRWorld::WORLD_WIDTH];
-	ServerCore::Vector<Vec2Int> m_path;
-	ServerCore::SpinLock m_lock;
-	float m_accTime = 0.f;
-	float m_dist = 0.f;
-	Vec2Int m_prevPos;
-	Vec2Int m_curPos;
 };
 
