@@ -3,7 +3,9 @@
 #include "IocpObject.h"
 
 class ClientSession;
+class Object;
 
+#define GET_COMP(object, type) (object->GetCompByEnum(COMP_TYPE::type)->Cast<type>())
 
 class ContentsEntity
 	:public ServerCore::enable_shared_cache_this_core<ContentsEntity>
@@ -12,6 +14,8 @@ public:
 	virtual ~ContentsEntity() = default;
 public:
 	std::atomic<ServerCore::SessionManageable*> m_pCurSector = nullptr;
+public:
+	Object* const ObjectCast()noexcept { return reinterpret_cast<Object* const>(this); }
 };
 
 class Object
@@ -40,21 +44,39 @@ public:
 		for (const auto& pComp : m_vecComponentList)
 			pComp->PostUpdate(dt_);
 	}
-	BaseComponent* const GetComp(std::string_view compName)const noexcept {
-		const auto iter = m_mapComponent.find(compName.data());
+	BaseComponent* const GetCompByEnum(const COMP_TYPE compName)const noexcept {
+		const auto iter = m_mapComponent.find(compName);
 		return m_mapComponent.end() != iter ? iter->second.get() : nullptr;
+	}
+	template <typename T>
+	T* const GetComp()const noexcept {
+		constexpr const COMP_TYPE type = T::GetCompTypeNameGlobal();
+		return GetCompByEnum(type)->Cast<T>();
 	}
 	template<typename T> requires std::convertible_to<T,S_ptr<Component>>
 	const auto AddComponent(T&& pComp)noexcept {
-		NAGOX_ASSERT(nullptr == GetComp(pComp->GetCompName()));
-		m_mapComponent.try_emplace(pComp->GetCompName(), pComp);
-		return static_cast<decltype(pComp.get())>(m_vecComponentList.emplace_back(std::move(pComp)).get());
+		NAGOX_ASSERT(nullptr == GetCompByEnum(pComp->GetCompType()));
+		m_mapComponent.try_emplace(pComp->GetCompType(), pComp);
+		return static_cast<decltype(pComp.get())>(m_vecComponentList.emplace_back(std::forward<T>(pComp)).get());
 	}
 	template<typename T>  requires std::convertible_to<T, S_ptr<BaseComponent>>
 	const auto AddBaseComponent(T&& pComp)noexcept {
-		NAGOX_ASSERT(nullptr == GetComp(pComp->GetCompName()));
+		NAGOX_ASSERT(nullptr == GetCompByEnum(pComp->GetCompType()));
 		const auto temp_ptr = pComp.get();
-		m_mapComponent.try_emplace(temp_ptr->GetCompName(), std::move(pComp));
+		m_mapComponent.try_emplace(temp_ptr->GetCompType(), std::forward<T>(pComp));
+		return temp_ptr;
+	}
+	template<typename T>
+	const auto AddComponent()noexcept {
+		auto pComp = MakeShared<T>(this);
+		m_mapComponent.try_emplace(pComp->GetCompType(), pComp);
+		return static_cast<decltype(pComp.get())>(m_vecComponentList.emplace_back(std::move(pComp)).get());
+	}
+	template<typename T>
+	const auto AddBaseComponent()noexcept {
+		auto pComp = MakeShared<T>(this);
+		const auto temp_ptr = pComp.get();
+		m_mapComponent.try_emplace(temp_ptr->GetCompType(), std::move(pComp));
 		return temp_ptr;
 	}
 	const uint64 GetObjID()const noexcept { return m_objID; }
@@ -81,11 +103,19 @@ public:
 	//ServerCore::IocpEntity* const GetIocpEntity()noexcept { return m_pOwnerEntity.get(); }
 	ServerCore::S_ptr<ServerCore::IocpEntity> const GetIocpEntity()noexcept { return m_pOwnerEntity.lock(); }
 	//const ServerCore::IocpEntity* const GetIocpEntity()const noexcept { return m_pOwnerEntity; }
-	//const S_ptr<ServerCore::IocpEntity>& GetIocpEntity()const noexcept { return m_pOwnerEntity; }
+	//const S_ptr<ServerCore::IocpEntity>& GetIocpEntity()const noexcept { return m_pOwnerEntity; } 
+	template <typename... Components>
+	void AddComponents()noexcept {
+		(AddComponent<Components>(), ...);
+	}
+	template <typename... Components>
+	void AddBaseComponents()noexcept {
+		(AddBaseComponent<Components>(), ...);
+	}
 private:
 	const W_ptr<ServerCore::IocpEntity> m_pOwnerEntity;
 	ServerCore::Vector<S_ptr<Component>> m_vecComponentList;
-	ServerCore::HashMap<std::string, S_ptr<BaseComponent>> m_mapComponent;
+	ServerCore::HashMap<COMP_TYPE, S_ptr<BaseComponent>> m_mapComponent;
 
 	PositionComponent m_positionComponent;
 	int32 m_state = 0;
@@ -95,4 +125,3 @@ private:
 	const std::string m_strObjectName;
 	std::string m_strImgName;
 };
-
