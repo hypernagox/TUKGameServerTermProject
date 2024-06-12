@@ -8,8 +8,8 @@ class BroadCaster
 	:public Component
 {
 public:
-	BroadCaster(std::string_view name_, Object* const pObj_, ServerCore::SessionManageable* const pRoom_)
-		: Component{ name_,pObj_ }
+	BroadCaster(const COMP_TYPE compName_, Object* const pObj_, ServerCore::SessionManageable* const pRoom_)
+		: Component{ compName_,pObj_ }
 		, m_pCurRoom{ pRoom_ }
 	{}
 
@@ -25,8 +25,9 @@ class MoveBroadCaster
 {
 public:
 	MoveBroadCaster(Object* const pObj_, ServerCore::SessionManageable* const pRoom_)
-		:BroadCaster{ "MOVEBROADCASTER",pObj_,pRoom_ }
+		:BroadCaster{ COMP_TYPE::MoveBroadCaster,pObj_,pRoom_ }
 	{}
+	GET_COMP_TYPE_FUNC(MoveBroadCaster)
 public:
 	void Update(const float)override {}
 	void PostUpdate(const float)noexcept override;
