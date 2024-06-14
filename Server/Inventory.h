@@ -5,8 +5,7 @@ class Inventory
 	:public BaseComponent
 {
 public:
-	Inventory(Object* const pOwner_)noexcept
-		:BaseComponent{ "INVENTORY",pOwner_} {}
+	CONSTRUCTOR_BASE_COMPONENT(Inventory)
 	const std::string_view GetCurSelectItemName()const noexcept { return m_strCurSelectItem; }
 	Item* GetCurItem()noexcept {
 		const auto iter = m_mapItems.find(m_strCurSelectItem);
