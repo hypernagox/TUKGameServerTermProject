@@ -45,9 +45,6 @@ namespace ServerCore
 
 		thread_local HashSet<S_ptr<IocpEntity>> new_view_list;
 		new_view_list.clear();
-		thread_local Vector<Session*> send_session_list;
-		send_session_list.clear();
-		
 		for (const auto sector : *sectors)
 		{
 			sector->GetSRWLock().lock_shared();
@@ -76,25 +73,20 @@ namespace ServerCore
 			if (!m_viewList.contains(pEntity))
 			{
 				
-				if (pSession) {
-					pSession->SendOnlyEnqueue(in_pkt);
-					send_session_list.emplace_back(pSession);
-				}
+				if (pSession)
+					pSession->SendAsync(in_pkt);
 
 				if (thisSession)
-					thisSession->SendOnlyEnqueue(g_create_in_pkt(pEntity));
+					thisSession->SendAsync(g_create_in_pkt(pEntity));
 				
 				m_viewList.emplace(pEntity);
 			}
 			else
 			{
 				if (thisSession)
-					thisSession->SendOnlyEnqueue(move_pkt);
-
-				if (pSession) {
-					pSession->SendOnlyEnqueue(move_pkt);
-					send_session_list.emplace_back(pSession);
-				}
+					thisSession->SendAsync(move_pkt);
+				if (pSession)
+					pSession->SendAsync(move_pkt);
 			}
 		}
 
@@ -107,14 +99,10 @@ namespace ServerCore
 			const auto pSession = pEntity->IsSession();
 			if (e_iter == target)
 			{
-				if (pSession) {
-					pSession->SendOnlyEnqueue(out_pkt);
-					send_session_list.emplace_back(pSession);
-				}
-
+				if (pSession)
+					pSession->SendAsync(out_pkt);
 				if (thisSession)
-					thisSession->SendOnlyEnqueue(g_create_out_pkt(pEntity));
-
+					thisSession->SendAsync(g_create_out_pkt(pEntity));
 				iter = m_viewList.erase(iter);
 			}
 			else
@@ -122,12 +110,7 @@ namespace ServerCore
 				++iter;
 			}
 		}
-
-		if (thisSession)
-			thisSession->TrySend();
-		for (const auto session : send_session_list)
-			session->TrySend();
-
+		
 		//if (WORK != m_work_flag.exchange(IDLE, std::memory_order_release))
 		//{
 		//	m_viewList.clear();
