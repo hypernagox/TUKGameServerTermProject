@@ -40,11 +40,12 @@ namespace ServerCore
 		
 		void ReleaseViewList()noexcept
 		{
-			if (IDLE == m_work_flag.exchange(STOP, std::memory_order_relaxed))
-			{
-				std::atomic_thread_fence(std::memory_order_acquire);
-				m_viewList.clear();
-			}
+			//if (IDLE == m_work_flag.exchange(STOP, std::memory_order_relaxed))
+			//{
+			//	std::atomic_thread_fence(std::memory_order_acquire);
+			//	//m_viewList.clear();
+			//}
+			m_viewListPtr.store(nullptr, std::memory_order_release);
 		}
 	public:
 		static void RegisterHuristicFunc(const HuristicFunc fp_)noexcept {
@@ -59,9 +60,18 @@ namespace ServerCore
 			if (g_create_out_pkt)return;
 			g_create_out_pkt = (fp_);
 		}
+	public:
+		static S_ptr<SendBuffer> CreateAddPacket(const S_ptr<IocpEntity>& pEntity_)noexcept {
+			return g_create_in_pkt(pEntity_);
+		}
+		static S_ptr<SendBuffer> CreateOutPacket(const S_ptr<IocpEntity>& pEntity_)noexcept {
+			return g_create_out_pkt(pEntity_);
+		}
 	private:
-		std::atomic<SECTOR_STATE> m_work_flag = IDLE; 
-		HashSet<S_ptr<IocpEntity>> m_viewList;
+		//std::atomic<SECTOR_STATE> m_work_flag = IDLE; 
+		//HashSet<S_ptr<IocpEntity>> m_viewList;
+		std::atomic<S_ptr<HashSet<S_ptr<IocpEntity>>>> m_viewListPtr = ServerCore::MakeShared<HashSet<S_ptr<IocpEntity>>>();
+		
 	private:
 		static inline HuristicFunc g_huristic = {};
 		static inline PacketFunc g_create_in_pkt = {};
