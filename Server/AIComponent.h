@@ -10,7 +10,7 @@ public:
 	AIComponent(const COMP_TYPE eType_, Object* const pOwner_)noexcept
 		:BaseComponent{ eType_,pOwner_ } {}
 public:
-	virtual void ExecuteAI()noexcept abstract;
+	virtual const bool ExecuteAI()noexcept abstract;
 };
 
 #define CONSTRUCTOR_AI_COMPONENT(ClassType) \
@@ -35,7 +35,7 @@ public:
 		return ::bitwise_absi(src.x - dest.x) + ::bitwise_absi(src.y - dest.y);
 	}
 public:
-	virtual void ExecuteAI()noexcept override;
+	virtual const bool ExecuteAI()noexcept override;
 private:
 	Vec2Int m_dest{65,188};
 	Vec2Int m_start{106,197};
