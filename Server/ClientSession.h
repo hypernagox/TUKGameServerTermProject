@@ -2,6 +2,7 @@
 #include "PacketSession.h"
 
 class Object;
+class Status;
 
 class ClientSession
 	:public ServerCore::PacketSession
@@ -16,6 +17,10 @@ public:
 public:
 	const S_ptr<Object>& GetPlayer()const noexcept { return m_pPlayer; };
 	void SetPlayer(const S_ptr<Object>& pPlayer)noexcept { m_pPlayer = pPlayer; }
+	const std::string_view GetCurSelectItemName()const noexcept;
+	void SetCurItemName(const std::string_view itemName)noexcept;
+	void UseCurItem(const float dt_ = 0.f)const noexcept;
+	Status* const GetStatus()const noexcept;
 private:
 	S_ptr<Object> m_pPlayer;
 };
