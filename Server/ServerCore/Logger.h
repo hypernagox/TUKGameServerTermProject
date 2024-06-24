@@ -31,13 +31,13 @@ namespace ServerCore
 		};
 		void EnqueueLogMsg(std::wstring&& msg)noexcept
 		{
-			m_msgQueue.emplace(std::move(msg));
-			m_msgCv.notify_one();
+			//m_msgQueue.emplace(std::move(msg));
+			//m_msgCv.notify_one();
 		}
 		void EnqueueLogMsg(const wchar_t* const msg)noexcept
 		{
-			m_msgQueue.emplace(msg);
-			m_msgCv.notify_one();
+			//m_msgQueue.emplace(msg);
+			//m_msgCv.notify_one();
 		}
 		static Log CreateFuncLog(std::wstring_view logMsg_)noexcept { return Log{ std::format(L"FUNC_LOG: {}",logMsg_) }; }
 		void Init()noexcept override;

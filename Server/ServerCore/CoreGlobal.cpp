@@ -7,6 +7,7 @@
 #include "SendBufferMgr.h"
 #include "TaskTimerMgr.h"
 #include "Logger.h"
+#include "DBMgr.h"
 
 namespace ServerCore
 {
@@ -27,5 +28,6 @@ namespace ServerCore
 		Mgr(DeadLockProfiler)->Init();
 		Mgr(TaskTimerMgr)->Init();
 		Mgr(SendBufferMgr)->Init();
+		Mgr(DBMgr)->Init();
 	}
 }

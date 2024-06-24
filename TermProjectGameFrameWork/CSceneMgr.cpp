@@ -4,6 +4,7 @@
 #include "CScene.h"
 #include "CScene_Tool.h"
 #include "CEventMgr.h"
+#include "CLayer.h"
 
 CSceneMgr::CSceneMgr()
 {
@@ -45,18 +46,28 @@ void CSceneMgr::render(HDC _dc)
 
 void CSceneMgr::ChangeScene(SCENE_TYPE _eNext)
 {
-	Mgr(CEventMgr)->Reset();
+	//Mgr(CEventMgr)->Reset();
+
+	if (m_pCurScene->m_eSceneType != SCENE_TYPE::INTRO)
+	{
+		m_prevLayer.swap(m_pCurScene->m_vecLayer);
+	}
 
 	m_pCurScene->Exit();
 
 	m_pCurScene = m_arrScene[etoi(_eNext)].get();
-
+	
 	m_pCurScene->Enter();
 
+	if (m_pCurScene->m_eSceneType != SCENE_TYPE::INTRO)
+	{
+		m_pCurScene->m_vecLayer.swap(m_prevLayer);
+	}
 }
 
 void CSceneMgr::AddScene(SCENE_TYPE _eType, CScene* const _pScene)
 {
+	_pScene->m_eSceneType = _eType;
 	m_arrScene[etoi(_eType)] = std::unique_ptr<CScene>{ _pScene };
 }
 

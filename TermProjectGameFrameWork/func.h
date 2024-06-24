@@ -119,4 +119,4 @@ BOOL TransparentBltSafe(HDC hdcDest
 	, UINT crTransparent)noexcept;
 
 void renderText(HDC _dc,COLORREF _rgb ,Vec2 _vGlobalLT, wstring_view _wstrText);
-
+void renderText(HDC _dc, COLORREF _rgb, Vec2 _vGlobalLT, string_view _wstrText);

@@ -74,6 +74,32 @@ inline bool PLAYER_STATE_Parse(
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<PLAYER_STATE>(
     PLAYER_STATE_descriptor(), name, value);
 }
+enum STAT : int {
+  HP = 0,
+  EXP = 1,
+  GOLD = 2,
+  STAT_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
+  STAT_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
+};
+bool STAT_IsValid(int value);
+constexpr STAT STAT_MIN = HP;
+constexpr STAT STAT_MAX = GOLD;
+constexpr int STAT_ARRAYSIZE = STAT_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* STAT_descriptor();
+template<typename T>
+inline const std::string& STAT_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, STAT>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function STAT_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    STAT_descriptor(), enum_t_value);
+}
+inline bool STAT_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, STAT* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<STAT>(
+    STAT_descriptor(), name, value);
+}
 // ===================================================================
 
 
@@ -100,6 +126,11 @@ template <> struct is_proto_enum< ::Protocol::PLAYER_STATE> : ::std::true_type {
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::PLAYER_STATE>() {
   return ::Protocol::PLAYER_STATE_descriptor();
+}
+template <> struct is_proto_enum< ::Protocol::STAT> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Protocol::STAT>() {
+  return ::Protocol::STAT_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE

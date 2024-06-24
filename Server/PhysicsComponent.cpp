@@ -3,7 +3,7 @@
 #include "Object.h"
 
 Collider::Collider(Object* const pOwner_)
-	: Component{ "COLLIDER",pOwner_ }
+	: Component{ COMP_TYPE::Collider,pOwner_ }
 	, m_iID{ Collider::g_iNextID.fetch_add(1,std::memory_order_acq_rel) }
 {
 }
@@ -36,11 +36,6 @@ const Vec2 Collider::GetPrevPos() const noexcept
 
 //////////////////////////////////////////////////
 
-RigidBody::RigidBody(Object* const pOwner_)
-	:Component{ "RIGIDBODY",pOwner_ }
-{
-}
-
 RigidBody::~RigidBody()
 {
 }
@@ -65,6 +60,7 @@ void RigidBody::Move(const float dt_)
 
 void RigidBody::Update(const float dt_)
 {
+	return;
 	//if (m_pOwner->GetObjectGroup() == GROUP_TYPE::DROP_ITEM)
 	//{
 	//	std::cout << m_pOwner->GetPos().x << ", " << m_pOwner->GetPos().y << std::endl;

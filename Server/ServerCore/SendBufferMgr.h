@@ -11,25 +11,24 @@ namespace ServerCore
 	---------------*/
 
 	namespace SendBufferMgrHelper {
-		constexpr static inline const U_ptr<AtomicNonTemplate>& GetSendBufferMgrPool()noexcept;
+		constexpr static inline AtomicNonTemplate* const GetSendBufferMgrPool()noexcept;
 	};
 
 	class SendBufferMgr
 		:public Singleton<SendBufferMgr>
 	{
-		friend constexpr static inline const U_ptr<AtomicNonTemplate>& SendBufferMgrHelper::GetSendBufferMgrPool()noexcept;
+		friend constexpr static inline AtomicNonTemplate* const SendBufferMgrHelper::GetSendBufferMgrPool()noexcept;
 		friend class Singleton;
 		friend class ThreadMgr;
 		SendBufferMgr();
 		~SendBufferMgr();
 	public:
 		static S_ptr<SendBuffer> Open(c_uint32 size_)noexcept;
-	private:
 		static S_ptr<SendBufferChunk> Pop()noexcept;
-		const U_ptr<AtomicNonTemplate> m_pSendBufferPool;
+		AtomicNonTemplate m_pSendBufferPool;
 	};
 
 	namespace SendBufferMgrHelper {
-		constexpr static inline const U_ptr<AtomicNonTemplate>& GetSendBufferMgrPool()noexcept { return Mgr(SendBufferMgr)->m_pSendBufferPool; }
+		constexpr static inline AtomicNonTemplate* const GetSendBufferMgrPool()noexcept { return &Mgr(SendBufferMgr)->m_pSendBufferPool; }
 	};
 }

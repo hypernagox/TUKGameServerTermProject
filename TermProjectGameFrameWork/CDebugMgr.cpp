@@ -207,7 +207,7 @@ void CDebugMgr::render()
 
 //	auto pCurScene = Mgr(CSceneMgr)->GetCurScene();
 
-	for (auto& vec : pCurScene->m_vecObj[pCurScene->GetSectorNum()])
+	for (auto& vec : pCurScene->m_vecObj)
 	{
 		for (auto& obj : vec)
 		{

@@ -29,20 +29,14 @@ namespace ServerCore
 		}
 
 	private:
-		static inline AtomicMemoryPool<T> allocator_once[ServerCore::NUM_OF_THREADS]
-		{	DEFAULT_MEM_POOL_SIZE,
-			DEFAULT_MEM_POOL_SIZE,
-			DEFAULT_MEM_POOL_SIZE,
-			DEFAULT_MEM_POOL_SIZE,
-			DEFAULT_MEM_POOL_SIZE,
-		};
+		static inline AtomicMemoryPool<T> allocator_once[ServerCore::NUM_OF_THREADS];
 	};
 
-	template<typename T, typename... Args>
-	constexpr std::shared_ptr<T> MakePoolShared(Args&&... args)noexcept
-	{
-		return std::allocate_shared<T>(ObjectPoolAllocator<T>{}, std::forward<Args>(args)...);
-	}
+	//template<typename T, typename... Args>
+	//constexpr std::shared_ptr<T> MakePoolShared(Args&&... args)noexcept
+	//{
+	//	return std::allocate_shared<T>(ObjectPoolAllocator<T>{}, std::forward<Args>(args)...);
+	//}
 
 
 	template<typename T, typename... Args>

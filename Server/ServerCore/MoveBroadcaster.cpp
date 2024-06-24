@@ -6,7 +6,7 @@
 namespace ServerCore
 {
 	MoveBroadcaster::MoveBroadcaster()
-		: m_viewListPtr{ ServerCore::MakeShared<HashSet<S_ptr<IocpEntity>>>() }
+		: m_viewListPtr{ std::make_shared<HashSet<S_ptr<IocpEntity>>>() }
 	{
 	}
 
@@ -34,7 +34,7 @@ namespace ServerCore
 				return NONE;
 		}
 
-		const S_ptr<HashSet<S_ptr<IocpEntity>>> viewListPtr = m_viewListPtr.load(std::memory_order_acquire);
+		const std::shared_ptr<HashSet<S_ptr<IocpEntity>>> viewListPtr = m_viewListPtr.load(std::memory_order_acquire);
 
 		if (!viewListPtr)
 			return NONE;
@@ -45,6 +45,8 @@ namespace ServerCore
 
 		thread_local HashSet<S_ptr<IocpEntity>> new_view_list;
 		new_view_list.clear();
+		thread_local HashSet<Session*> send_list;
+		send_list.clear();
 		for (const auto sector : *sectors)
 		{
 			sector->GetSRWLock().lock_shared();
@@ -53,13 +55,10 @@ namespace ServerCore
 				const bool bFlag = static_cast<const bool>(pSession->IsSession());
 				if (bIsNPC && !bFlag)
 					continue;
-				if (auto pValid = pSession->GetSharedThis())
+				if (g_huristic(cache_obj_ptr, pSession))
 				{
-					if (g_huristic(cache_obj_ptr, pSession))
-					{
-						new_view_list.emplace(std::move(pValid));
-						sector_state |= (bFlag + 1);
-					}
+					new_view_list.emplace(pSession);
+					sector_state |= (bFlag + 1);
 				}
 			}
 			sector->GetSRWLock().unlock_shared();
@@ -73,20 +72,24 @@ namespace ServerCore
 			if (!m_viewList.contains(pEntity))
 			{
 				
-				if (pSession)
-					pSession->SendAsync(in_pkt);
+				if (pSession) {
+					pSession->SendOnlyEnqueue(in_pkt);
+					send_list.emplace(pSession);
+				}
 
 				if (thisSession)
-					thisSession->SendAsync(g_create_in_pkt(pEntity));
+					thisSession->SendOnlyEnqueue(g_create_in_pkt(pEntity));
 				
 				m_viewList.emplace(pEntity);
 			}
 			else
 			{
 				if (thisSession)
-					thisSession->SendAsync(move_pkt);
-				if (pSession)
-					pSession->SendAsync(move_pkt);
+					thisSession->SendOnlyEnqueue(move_pkt);
+				if (pSession) {
+					pSession->SendOnlyEnqueue(move_pkt);
+					send_list.emplace(pSession);
+				}
 			}
 		}
 
@@ -99,10 +102,12 @@ namespace ServerCore
 			const auto pSession = pEntity->IsSession();
 			if (e_iter == target)
 			{
-				if (pSession)
-					pSession->SendAsync(out_pkt);
+				if (pSession) {
+					pSession->SendOnlyEnqueue(out_pkt);
+					send_list.emplace(pSession);
+				}
 				if (thisSession)
-					thisSession->SendAsync(g_create_out_pkt(pEntity));
+					thisSession->SendOnlyEnqueue(g_create_out_pkt(pEntity));
 				iter = m_viewList.erase(iter);
 			}
 			else
@@ -110,7 +115,11 @@ namespace ServerCore
 				++iter;
 			}
 		}
-		
+		if (thisSession)
+			thisSession->TrySend();
+		for (const auto pSession : send_list)
+			pSession->TrySend();
+
 		//if (WORK != m_work_flag.exchange(IDLE, std::memory_order_release))
 		//{
 		//	m_viewList.clear();

@@ -39,7 +39,7 @@ void CDropItem::update()
 	//if (dist < 80.0f)
 	//	rBody->AddForce((t_vPos - m_vPos).Normalize() * 5000.0f);
 
-	UpdateMoveData();
+	//UpdateMoveData();
 	//pRigid->SetVelocity(moveData.vel);
 }
 

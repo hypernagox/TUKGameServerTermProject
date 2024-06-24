@@ -34,12 +34,18 @@
 #include "CSceneMgr.h"
 #include "CEventMgr.h"
 #include "Missile.h"
+#include "TRMain.h"
 
-TRWorld* g_TRWorld = nullptr;
+#include "CCore.h"
+#include "NetworkMgr.h"
+
+//TRWorld* g_TRWorld = nullptr;
 extern bool g_bStopToken;
 
 static std::mt19937 randDigSound{std::random_device{}()};
 static std::uniform_int_distribution<> uidDig{0, 2};
+
+Status* TRWorld::g_stat = new Status;
 
 void TRWorld::FindAndModifyItemStack(std::string_view itemName, const int mount_, const bool bIsWall) noexcept
 {
@@ -64,9 +70,12 @@ void TRWorld::FindAndModifyItemStack(std::string_view itemName, const int mount_
 
 TRWorld::TRWorld()
 {
-	g_TRWorld = this;
+	//g_TRWorld = this;
 	tile_map = new TRTileMap(TRWorld::WORLD_WIDTH, TRWorld::WORLD_HEIGHT);
 	
+	static bool init = false;
+	if (init)
+		return;
 	for (int i = 0; i < 50; ++i)
 		player_inventory[i] = new TRItemContainer();
 	for (int i = 0; i < 3; ++i)
@@ -89,12 +98,15 @@ TRWorld::TRWorld()
 	quick_bar_index = 0;
 	SetToggleInventory(false);
 
-	player_inventory[0]->Apply(TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"pickaxe_iron"), 1));
-	player_inventory[1]->Apply(TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"hammer_iron"), 1));
-	player_inventory[2]->Apply(TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"longsword_iron"), 1));
-
+	//player_inventory[0]->Apply(TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"pickaxe_iron"), 1));
+	//player_inventory[1]->Apply(TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"hammer_iron"), 1));
+	//player_inventory[2]->Apply(TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"longsword_iron"), 1));
+	//player_inventory[3]->Apply(TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"Iron_Arrow"), 1));
+	//
+	//player_inventory[4]->Apply(TRItemStack(Mgr(TRItemManager)->GetItemByKey(L"Item_28.png"), 2));
 
 	Mgr(CParticleMgr)->Init();
+	init = true;
 }
 
 TRWorld::~TRWorld()
@@ -106,8 +118,10 @@ TRWorld::~TRWorld()
 	for (int i = 0; i < 3; ++i)
 		delete player_armor[i];
 	
-	g_TRWorld = nullptr;
+	//g_TRWorld = nullptr;
 }
+
+extern wstring inputBuffer;
 
 void TRWorld::Update()
 {
@@ -134,7 +148,8 @@ void TRWorld::Update()
 	else if (KEY_TAP(KEY::ESC))
 		SetToggleInventory(!toggle_inventory);
 	
-	
+	player->m_pTRWolrd = this;
+
 	if (Mgr(CKeyMgr)->GetMouseWheelUp())
 	{
 		SwitchQuickBarIndex(wrapAround(quick_bar_index + 1, 0, 10));
@@ -165,6 +180,11 @@ void TRWorld::Update()
 	}
 
 	Mgr(CParticleMgr)->Update();
+
+	renderText(Mgr(CCore)->GetMainDC(), RGB(255, 255, 255), { 0,150 }, g_stat->GetLevelText());
+	renderText(Mgr(CCore)->GetMainDC(), RGB(0, 0, 255), { 0,200 },g_stat->GetExpText());
+	renderText(Mgr(CCore)->GetMainDC(), RGB(255, 255, 0), { 0,250 }, g_stat->GetGoldText());
+	//renderText(Mgr(CCore)->GetMainDC(), RGB(255, 255, 255), Mgr, inputBuffer);
 
 	//TRMonGenerator::GenerateMonster();
 }
@@ -202,12 +222,16 @@ void TRWorld::OnSceneCreate(CScene* scene)
 
 	m_pScene = scene;
 	Mgr(CCollisionMgr)->Reset();
-	player = new Hero(this);
+
+	if(!player)
+		player = new Hero(this);
+
 	const int x = TRWorld::WORLD_WIDTH / 2;
 	player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x / 4, tile_map->GetTopYpos(x))) - Vec2(20.0f / 4, 28.0f));
 	player->SetScale(Vec2{ 40.f, 56.f });
+	
 	scene->AddObject(player, GROUP_TYPE::PLAYER);
-	Mgr(CCamera)->SetTarget(player);
+	//Mgr(CCamera)->SetTarget(player);
 	scene->RegisterPlayer(player);
 
 	//TRItemStack dropitem_list[] = {
@@ -417,6 +441,7 @@ void TRWorld::BreakTileWall(int x, int y)
 
 void TRWorld::DropItem(Vec2 world_pos, TRItemStack item)
 {
+	return;
 	if (item.Null())
 		return;
 
@@ -505,6 +530,16 @@ void TRWorld::FloatDamageText(int value, Vec2 vPos, COLORREF color)
 	m_pScene->AddObject(text, GROUP_TYPE::DROP_ITEM);
 }
 
+void TRWorld::FloatText(const wstring_view str, Vec2 vPos, COLORREF color)
+{
+	static wchar_t buffer[64];
+	wsprintf(buffer, L"%s", str.data());
+
+	CAcquireItemText* text = new CAcquireItemText(buffer, color);
+	text->SetPos(vPos);
+	m_pScene->AddObject(text, GROUP_TYPE::DROP_ITEM);
+}
+
 void TRWorld::SpawnBoss()
 {
 	auto pMon = new CCthulhuEye{ this,L"Monster_CthulhuEye", L"NPC_4.png" };
@@ -524,6 +559,8 @@ void TRWorld::SpawnBoss()
 
 void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_view item_key)
 {
+	if (m_mapServerObject.contains(item_id))
+		return;
 	const auto key = ::Utf8ToWide(item_key);
 	auto item = TRItemStack(Mgr(TRItemManager)->GetItemByKey(key), 1);
 
@@ -539,12 +576,14 @@ void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_vie
 	drop_item->SetObjID(item_id);
 
 	m_mapServerObject.emplace(item_id, drop_item);
-	drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
+	drop_item->SetPos((world_pos));
 	m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM);
 }
 
 void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_view item_key, const int sector_)
 {
+	if (m_mapServerObject.contains(item_id))
+		return;
 	const auto key = ::Utf8ToWide(item_key);
 	auto item = TRItemStack(Mgr(TRItemManager)->GetItemByKey(key), 1);
 
@@ -559,15 +598,15 @@ void TRWorld::CreateItem(const uint64_t item_id, Vec2 world_pos, std::string_vie
 	drop_item->SetObjID(item_id);
 
 	m_mapServerObject.emplace(item_id, drop_item);
-	drop_item->SetPos(TRWorld::WorldToGlobal(world_pos));
+	drop_item->SetPos((world_pos));
 	m_pScene->AddObject(drop_item, GROUP_TYPE::DROP_ITEM,sector_);
 }
 
 void TRWorld::EraseOtherPlayer(const uint64_t otherPlayerId, const uint64_t sector) noexcept
 {
-	if (const auto iter = m_mapOtherPlayer[sector].extract(otherPlayerId))
+	if (const auto iter = m_mapOtherPlayer.extract(otherPlayerId))
 	{
-		std::erase_if(m_pScene->GetSectorObject(sector)[etoi(GROUP_TYPE::PLAYER)], [otherPlayerId](const std::unique_ptr<CObject>& obj) {
+		std::erase_if(m_pScene->GetSectorObject(0)[etoi(GROUP_TYPE::PLAYER)], [otherPlayerId](const std::unique_ptr<CObject>& obj) {
 			const auto player = static_cast<CPlayer* const>(obj.get());
 			return player->GetObjID() == otherPlayerId;
 			});
@@ -576,27 +615,40 @@ void TRWorld::EraseOtherPlayer(const uint64_t otherPlayerId, const uint64_t sect
 
 void TRWorld::EraseItem(const uint64_t item_id) noexcept
 {
-	DeleteObj(m_mapServerObject.extract(item_id).mapped());
+	if (m_mapServerObject.contains(item_id))
+	{
+		//DeleteObj(m_mapServerObject.find(item_id)->second);
+		//DeleteObj(m_mapServerObject.find(item_id)->second);
+		DeleteObj(m_mapServerObject.extract(item_id).mapped());
+	}
 }
 
 void TRWorld::CreateMonster(const uint64_t mon_id, Vec2 world_pos, std::string_view mon_name, const int sector_)
 {
-	
-	auto pMon = new CZombie{ g_TRWorld,L"Monster_Zombie",L"NPC_3.png" };
+	if (m_mapServerObject.contains(mon_id))
+		return;
+	auto pMon = new CZombie{ Mgr(TRMain)->active_world,L"Monster_Zombie",L"NPC_3.png" };
 	pMon->SetObjID(mon_id);
 	pMon->SetPos(world_pos);
 	pMon->SetScale(Vec2{ 38.0f, 46.0f });
 	pMon->SetColliderScale(Vec2{ 38.0f, 46.0f });
-	
+	pMon->GetInterPolator().GetCurData().pos = pMon->GetPos();
+	pMon->GetInterPolator().GetNewData().pos = pMon->GetPos();
+
 	m_pScene->AddObject(pMon, GROUP_TYPE::MONSTER, sector_);
 	m_mapServerObject.emplace(mon_id, pMon);
 }
 
-CPlayer* const TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector,const Vec2 vPos_)
+CPlayer* const TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector,const Vec2 vPos_, const std::wstring_view name)
 {
+	if (m_mapOtherPlayer.contains(id))
+	{
+		return nullptr;
+	}
 	const auto player = new CPlayer{ this };
 	player->SetPos(vPos_);
 	player->SetWillPos(vPos_);
+	player->SetName(name);
 	const int x = TRWorld::WORLD_WIDTH / 2;
 	//player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x, tile_map->GetTopYpos(x))) - Vec2(20.0f, 28.0f));
 	player->SetScale(Vec2{ 40.f, 56.f });
@@ -605,17 +657,87 @@ CPlayer* const TRWorld::AddNewPlayer(const uint64_t id,const uint64_t sector,con
 
 	player->SetObjID(id);
 
-	m_mapOtherPlayer[sector].emplace(id, player);
+	m_mapOtherPlayer.emplace(id, player);
 
 	return player;
 }
 
-void TRWorld::CreateMissle(const uint64_t id_, const Vec2 vPos_)
+void TRWorld::CreateMissle(const uint64_t id_, const Vec2 vPos_,const int dir, const float speed)
 {
 	auto p = new Missile{ vPos_ };
 	p->SetObjID(id_);
-	const int dir = player->GetComp<CAnimator>()->GetAnimDir() == 1 ? -1 : 1;
 	p->SetDir((float)dir);
+	p->SetSpeed(speed);
 	m_mapServerObject.emplace(id_, p);
-	Mgr(CSceneMgr)->GetScene(SCENE_TYPE::START)->AddObject(p, GROUP_TYPE::PROJ_PLAYER);
+	m_pScene->AddObject(p, GROUP_TYPE::PROJ_PLAYER);
+}
+
+void Status::LevelUp(const int exp)
+{
+	const bool b = curID == NetMgr(NetworkMgr)->GetSessionID();
+	const auto p = b ? Mgr(TRMain)->active_world->GetPlayer() : Mgr(TRMain)->active_world->GetOtherPlayer(curID, 0);
+	if (!p)return;
+	Mgr(TRMain)->active_world->FloatText(L"Level Up !", p->GetPos(), RGB(0, 0, 255));
+	if (!b)return;
+	++m_level;
+	m_exp = exp;
+	m_maxExp += 10;
+	
+}
+
+
+void Status::AddGold(const int add_gold)
+{
+	const bool b = curID == NetMgr(NetworkMgr)->GetSessionID();
+	const auto p = b ? Mgr(TRMain)->active_world->GetPlayer() : Mgr(TRMain)->active_world->GetOtherPlayer(curID, 0);
+	if (!p)return;
+	Mgr(TRMain)->active_world->FloatText(L"+ " + std::to_wstring(add_gold), p->GetPos(), RGB(255, 255, 0));
+	if (!b)return;
+	m_gold += add_gold;
+}
+
+void Status::SubGold(const int sub_gold)
+{
+	const bool b = curID == NetMgr(NetworkMgr)->GetSessionID();
+	const auto p = b ? Mgr(TRMain)->active_world->GetPlayer() : Mgr(TRMain)->active_world->GetOtherPlayer(curID, 0);
+	if (!p)return;
+	Mgr(TRMain)->active_world->FloatText(std::to_wstring(sub_gold), p->GetPos(), RGB(255, 255, 0));
+	if (!b)return;
+	m_gold += sub_gold;
+	
+}
+
+void Status::AddExp(const int add_exp)
+{
+	const bool b = curID == NetMgr(NetworkMgr)->GetSessionID();
+	const auto p = b ? Mgr(TRMain)->active_world->GetPlayer() : Mgr(TRMain)->active_world->GetOtherPlayer(curID, 0);
+	if (!p)return;
+	Mgr(TRMain)->active_world->FloatText(L"+ " + std::to_wstring(add_exp), p->GetPos(), RGB(0, 0, 255));
+	if (!b)return;
+	m_exp += add_exp;
+}
+
+void Status::ModifyHP(const int val)
+{
+	const wchar_t s = val > 0 ? '+' : '-';
+	const bool b = curID == NetMgr(NetworkMgr)->GetSessionID();
+	const auto p = b ? Mgr(TRMain)->active_world->GetPlayer() : Mgr(TRMain)->active_world->GetOtherPlayer(curID, 0);
+	if (!p)return;
+	Mgr(TRMain)->active_world->FloatText(s + std::to_wstring(val), p->GetPos(), RGB(255, 0, 0));
+	if (!b)return;
+	const int hp = Mgr(TRMain)->active_world->GetPlayer()->GetHP();
+	Mgr(TRMain)->active_world->GetPlayer()->SetHP(hp + val);
+
+}
+
+void Status::HalfExp()
+{
+	const bool b = curID == NetMgr(NetworkMgr)->GetSessionID();
+	const auto p = b ? Mgr(TRMain)->active_world->GetPlayer() : Mgr(TRMain)->active_world->GetOtherPlayer(curID, 0);
+	if (!p)return;
+	if (!b)return;
+	const int origin = m_exp;
+	Mgr(TRMain)->active_world->FloatText(L"- " + std::to_wstring(origin - m_exp), p->GetPos(), RGB(0, 0, 255));
+	m_exp /= 2;
+	
 }

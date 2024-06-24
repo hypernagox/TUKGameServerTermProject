@@ -154,6 +154,12 @@ void renderText(HDC _dc,COLORREF _rgb,Vec2 _vGlobalLT, wstring_view _wstrText)
 	TextOutW(_dc, (int)_vGlobalLT.x, (int)_vGlobalLT.y, _wstrText.data(), (int)_wstrText.size());
 }
 
+void renderText(HDC _dc, COLORREF _rgb, Vec2 _vGlobalLT, string_view _wstrText)
+{
+	SetTextColor(_dc, _rgb);
+	TextOutA(_dc, (int)_vGlobalLT.x, (int)_vGlobalLT.y, _wstrText.data(), (int)_wstrText.size());
+}
+
 CoRoutine DelayCoRoutine(CObject* const _pObj, CoRoutine _delayCoEvn, float _fDelayTime)
 {
 	float fAccTime = 0.f;

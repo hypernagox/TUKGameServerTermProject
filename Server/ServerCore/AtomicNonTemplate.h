@@ -23,7 +23,7 @@ namespace ServerCore
         std::atomic<uint64_t> head;
         const size_t blockSize;
         const size_t maxBlockCount;
-        static inline constinit const uint32_t maxTagValue = (1 << 24) - 1;
+        static inline constinit const uint32_t maxTagValue = (1 << 19) - 1;
     private:
         static const uint64_t packPointerAndTag(const Block* const ptr, const uint32_t tag) noexcept;
 

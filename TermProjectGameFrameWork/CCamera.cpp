@@ -199,7 +199,7 @@ void CCamera::update()
 			xint = xint - xint % 2;
 			yint = yint - yint % 2;
 			m_vShadingPos = Vec2(static_cast<float>(xint), static_cast<float>(yint));
-			SetCamRect(m_vShadingPos,sector);
+			SetCamRect(m_vShadingPos);
 		}
 	}
 
@@ -225,7 +225,7 @@ void CCamera::update()
 			if (m_pTargetObj)
 			{
 				//SetLookAt(m_pTargetObj->GetPos());
-				SetCamRect(m_pTargetObj->GetPos(),sector);
+				SetCamRect(m_pTargetObj->GetPos());
 			}
 			else
 			{

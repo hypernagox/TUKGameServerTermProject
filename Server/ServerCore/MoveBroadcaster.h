@@ -70,7 +70,7 @@ namespace ServerCore
 	private:
 		//std::atomic<SECTOR_STATE> m_work_flag = IDLE; 
 		//HashSet<S_ptr<IocpEntity>> m_viewList;
-		std::atomic<S_ptr<HashSet<S_ptr<IocpEntity>>>> m_viewListPtr = ServerCore::MakeShared<HashSet<S_ptr<IocpEntity>>>();
+		std::atomic<std::shared_ptr<HashSet<S_ptr<IocpEntity>>>> m_viewListPtr = std::shared_ptr<HashSet<S_ptr<IocpEntity>>>();
 		
 	private:
 		static inline HuristicFunc g_huristic = {};

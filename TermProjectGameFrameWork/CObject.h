@@ -27,7 +27,7 @@ protected:
 	bool				m_bIsCamAffected = true;
 	Vec2		m_vPos{};
 	Vec2		m_vScale{};
-	TRWorld* m_pTRWolrd = nullptr;
+	
 	Vec2 m_vWillPos = {};
 	int m_iHP = 200;
 private:
@@ -45,6 +45,7 @@ public:
 	void SetName(wstring_view _strName) { m_strName = _strName; }
 	const wstring& GetName()const { return m_strName; }
 public:
+	TRWorld* m_pTRWolrd = nullptr;
 	template <typename Comp>
 	constexpr auto GetComp()const
 	{

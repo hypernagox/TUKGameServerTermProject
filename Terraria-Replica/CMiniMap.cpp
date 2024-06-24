@@ -89,7 +89,7 @@ void CMiniMap::render(HDC _dc) const
 		, 264 - 10
 		, RGB(255, 0, 255));
 
-	auto& vec = pCurScene->m_vecObj[pCurScene->GetSectorNum()];
+	auto& vec = pCurScene->m_vecObj;
 
 	for (int i=0;i<etoi(GROUP_TYPE::END);++i)
 	{

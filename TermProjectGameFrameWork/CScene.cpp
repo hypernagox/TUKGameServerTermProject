@@ -39,7 +39,7 @@ CScene::~CScene()
 
 void CScene::update()
 {
-	for (const auto& vecObj : m_vecObj[m_iSectorNum])
+	for (const auto& vecObj : m_vecObj)
 	{
 		const auto vecPtr = vecObj.data();
 		for (size_t i = 0, size = vecObj.size(); i < size; ++i)
@@ -62,10 +62,19 @@ void CScene::Enter()
 		Mgr(CThreadMgr)->Join_all();
 		Mgr(CThreadMgr)->JoinUpdate();
 	}
+	for (int i = 0; i < etoi(GROUP_TYPE::END); ++i)
+	{
+		if (GROUP_TYPE::PLAYER != (GROUP_TYPE)i)continue;
+		if (GROUP_TYPE::PLAYER_WEAPON != (GROUP_TYPE)i)continue;
+		if (GROUP_TYPE::UI != (GROUP_TYPE)i)continue;
+		m_vecObj[i].clear();
+	}
+	m_vecObj[etoi(GROUP_TYPE::DROP_ITEM)].clear();
 }
 
 void CScene::Exit()
 {
+	m_vecObj[etoi(GROUP_TYPE::DROP_ITEM)].clear();
 	if (g_bDoMultiThread)
 	{
 		Mgr(CThreadMgr)->Join_all();
@@ -81,36 +90,36 @@ void CScene::AddTileLayer(CTileLayer* const _pTileLayer)
 
 void CScene::ChangeSector(const int targetSector)
 {
-	m_vecObj[targetSector][etoi(GROUP_TYPE::PLAYER)] = std::move(m_vecObj[m_iSectorNum][etoi(GROUP_TYPE::PLAYER)]);
-	m_vecObj[targetSector][etoi(GROUP_TYPE::UI)] = std::move(m_vecObj[m_iSectorNum][etoi(GROUP_TYPE::UI)]);
-	m_vecObj[targetSector][etoi(GROUP_TYPE::PLAYER_WEAPON)] = std::move(m_vecObj[m_iSectorNum][etoi(GROUP_TYPE::PLAYER_WEAPON)]);
-
-	m_iSectorNum = targetSector;
+	//m_vecObj[targetSector][etoi(GROUP_TYPE::PLAYER)] = std::move(m_vecObj[m_iSectorNum][etoi(GROUP_TYPE::PLAYER)]);
+	//m_vecObj[targetSector][etoi(GROUP_TYPE::UI)] = std::move(m_vecObj[m_iSectorNum][etoi(GROUP_TYPE::UI)]);
+	//m_vecObj[targetSector][etoi(GROUP_TYPE::PLAYER_WEAPON)] = std::move(m_vecObj[m_iSectorNum][etoi(GROUP_TYPE::PLAYER_WEAPON)]);
+	//
+	//m_iSectorNum = targetSector;
 }
 
 void CScene::AddObject(CObject* const _pObj, GROUP_TYPE _eType)
 {
-	m_vecObj[m_iSectorNum][(UINT)_eType].emplace_back(_pObj);
+	m_vecObj[(UINT)_eType].emplace_back(_pObj);
 }
 
 void CScene::AddObject(CObject* const _pObj, GROUP_TYPE _eType, const int sector_)
 {
-	m_vecObj[sector_][(UINT)_eType].emplace_back(_pObj);
+	m_vecObj[(UINT)_eType].emplace_back(_pObj);
 }
 
 const vector<unique_ptr<CObject>>& CScene::GetGroupObject(GROUP_TYPE _eType) const
 {
-	return m_vecObj[m_iSectorNum][(UINT)_eType];
+	return m_vecObj[(UINT)_eType];
 }
 
 vector<unique_ptr<CObject>>& CScene::GetUIGroup()
 {
-	return m_vecObj[m_iSectorNum][(UINT)GROUP_TYPE::UI];
+	return m_vecObj[(UINT)GROUP_TYPE::UI];
 }
 
 void CScene::component_update()const
 {
-	for (const auto& vecObj : m_vecObj[m_iSectorNum])
+	for (const auto& vecObj : m_vecObj)
 	{
 		const auto vecPtr = vecObj.data();
 		for (size_t i = 0, size = vecObj.size(); i < size; ++i)
@@ -146,7 +155,7 @@ void CScene::render(HDC _dc)
 
 		Mgr(CThreadMgr)->Enqueue(THREAD::T2, [this]() {
 		{
-			static const auto tileVec = m_vecTileLayer.data();
+			const auto tileVec = m_vecTileLayer.data();
 			(*tileVec)->render(m_hSceneThreadDC[THREAD::T2]);
 		}});
 
@@ -156,14 +165,14 @@ void CScene::render(HDC _dc)
 
 		for (int vecObj=0;vecObj<etoi(GROUP_TYPE::UI);++vecObj)
 		{
-			const auto vecPtr = m_vecObj[m_iSectorNum][vecObj].data();
-			for (size_t i = 0; i < m_vecObj[m_iSectorNum][vecObj].size();)
+			const auto vecPtr = m_vecObj[vecObj].data();
+			for (size_t i = 0; i < m_vecObj[vecObj].size();)
 			{
 				if (vecPtr[i]->IsDead())
 				{
 					Mgr(CEventMgr)->AddDeadObj(vecPtr[i]);
-					vecPtr[i].swap(m_vecObj[m_iSectorNum][vecObj].back());
-					m_vecObj[m_iSectorNum][vecObj].pop_back();
+					vecPtr[i].swap(m_vecObj[vecObj].back());
+					m_vecObj[vecObj].pop_back();
 				}
 				else
 				{
@@ -258,7 +267,7 @@ void CScene::render(HDC _dc)
 		Mgr(CThreadMgr)->Enqueue(THREAD::T2, &CCore::MaznetaClear, Mgr(CCore), m_hSceneThreadDC[THREAD::END], THREAD::T2);
 
 		Mgr(CCamera)->ResetRenderPos();
-		Mgr(CCamera)->SetCamRect(vCamShadingPos,sector);
+		Mgr(CCamera)->SetCamRect(vCamShadingPos);
 
 		if (g_particleDC)
 		{
@@ -283,8 +292,8 @@ void CScene::render(HDC _dc)
 			Mgr(CCore)->MazentaBlt(m_vecTileLayer[1]->GetTileLayerDC(), vRes);
 		}
 
-		const auto ui_cache = m_vecObj[m_iSectorNum][etoi(GROUP_TYPE::UI)].data();
-		const int n = (int)m_vecObj[m_iSectorNum][etoi(GROUP_TYPE::UI)].size();
+		const auto ui_cache = m_vecObj[etoi(GROUP_TYPE::UI)].data();
+		const int n = (int)m_vecObj[etoi(GROUP_TYPE::UI)].size();
 		for (int i = 0; i < n; ++i)
 		{
 			ui_cache[i]->render(_dc);
@@ -303,7 +312,7 @@ void CScene::render(HDC _dc)
 			tilelayer->render(m_hSceneThreadDC[1]);
 		}
 
-		for (auto& vecObj : m_vecObj[m_iSectorNum])
+		for (auto& vecObj : m_vecObj)
 		{
 			const auto vecPtr = vecObj.data();
 			for (size_t i = 0; i < vecObj.size();)
@@ -351,26 +360,29 @@ void CScene::render(HDC _dc)
 			, SRCCOPY);
 		
 		Mgr(CCamera)->ResetRenderPos();
-		Mgr(CCamera)->SetCamRect(GetPlayer()->GetPos(),sector);
+		Mgr(CCamera)->SetCamRect(GetPlayer()->GetPos());
 
 	}
 }
 
 void CScene::DeleteGroup(GROUP_TYPE _eTarget)
 {
-	m_vecObj[m_iSectorNum][etoi(_eTarget)].clear();
+	m_vecObj[etoi(_eTarget)].clear();
 }
 
 void CScene::Reset()
 {
 	Mgr(CCamera)->Reset();
-	for (auto& i : m_vecObj[m_iSectorNum])
+	for (int i = 0; i < etoi(GROUP_TYPE::END); ++i)
 	{
-		i.clear();
+		if (GROUP_TYPE::PLAYER != (GROUP_TYPE)i)continue;
+		if (GROUP_TYPE::PLAYER_WEAPON != (GROUP_TYPE)i)continue;
+		if (GROUP_TYPE::UI != (GROUP_TYPE)i)continue;
+		m_vecObj[i].clear();
 	}
 	g_vecDrawCall.clear();
-	m_vecLayer.clear();
-	m_vecTileLayer.clear();
-	m_pPlayer = nullptr;
+	//m_vecLayer.clear();
+	//m_vecTileLayer.clear();
+	//m_pPlayer = nullptr;
 }
 

@@ -45,8 +45,8 @@ namespace ServerCore
 	template<typename T>
 	using U_ptr = std::unique_ptr<T, UDeleter<T>>;
 
-	template<typename T>
-	using S_ptr = std::shared_ptr<T>;
+	//template<typename T>
+	//using S_ptr = std::shared_ptr<T>;
 
 	template <typename T>
 	using W_ptr = std::weak_ptr<T>;

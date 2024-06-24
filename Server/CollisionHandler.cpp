@@ -18,21 +18,21 @@ void PlayerCollisionHandler::OnCollisionEnter(Object* const a, Object* const b)
 		//
 		//	pSession << pkt;
 		//}
-		Protocol::s2c_GET_ITEM pkt;
-		pkt.set_obj_id(a->GetObjID());
-		pkt.set_item_name(b->GetObjectName());
-		pkt.set_sector(0);
-		pkt.set_item_id(b->GetObjID());
-		TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0) << pkt;
-		std::cout << "!!" << std::endl;
-		if (a->GetObjectGroup() == GROUP_TYPE::PROJ_PLAYER)
-		{
-			b->SetInvalid();
-		}
-		else
-		{
-			a->SetInvalid();
-		}
+		//Protocol::s2c_GET_ITEM pkt;
+		//pkt.set_obj_id(a->GetObjID());
+		//pkt.set_item_name(b->GetObjectName());
+		//pkt.set_sector(0);
+		//pkt.set_item_id(b->GetObjID());
+		//TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_0) << pkt;
+		//std::cout << "!!" << std::endl;
+		//if (a->GetObjectGroup() == GROUP_TYPE::PROJ_PLAYER)
+		//{
+		//	b->SetInvalid();
+		//}
+		//else
+		//{
+		//	a->SetInvalid();
+		//}
 	}
 	
 }

@@ -38,6 +38,9 @@ int g_arrVK[(int)KEY::LAST]
 	'M',
 	VK_ESCAPE,
 	'P',
+	VK_BACK,
+	'Y',
+	'N'
 };
 
 CKeyMgr::CKeyMgr()

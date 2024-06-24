@@ -41,10 +41,16 @@ enum class GROUP_TYPE
 
 enum class SCENE_TYPE	
 {
-	TOOL,
+	//TOOL,
 	START,
 	STAGE_01,
 	STAGE_02,
+	STAGE_03,
+	STAGE_04,
+	STAGE_05,
+	STAGE_06,
+	STAGE_07,
+
 	INTRO,
 
 

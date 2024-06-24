@@ -48,6 +48,8 @@ protected:
     HDC m_hPlayerVeilDC; 
     HBITMAP m_hPlayerVeilBit;
 public:
+    CWeapon* m_pCurWeapon = nullptr;
+    std::wstring m_curWeaponName = L"Item_Pickaxe.png";
     bool IsHero()const noexcept { return m_bIsHero; }
     CPlayer(TRWorld* const _trWorld);
     CPlayer(const CPlayer& other);
@@ -58,7 +60,7 @@ public:
         auto p = new CPlayer{ *this };
         return p;
     }
-
+    void SetCurWeapon(const std::wstring_view strItemName);
 public:
     void component_update()override;
     void updateAnimation();

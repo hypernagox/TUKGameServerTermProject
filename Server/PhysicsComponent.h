@@ -7,9 +7,7 @@ class PositionComponent
 	:public Component
 {
 public:
-	PositionComponent(Object* const pOwner_)
-		:Component{ "POSITION",pOwner_ }
-	{}
+	CONSTRUCTOR_COMPONENT(PositionComponent)
 public:
 	void Update(const float dt_)override{ m_vPrevPosition = m_vPos; }
 	void PostUpdate(const float dt_)noexcept override { m_vPrevPosition = m_vPos; }
@@ -18,16 +16,19 @@ public:
 	void SetWillPos(const Vec2 v_)noexcept { m_vWillPos = v_; }
 	void SetScale(const Vec2 v_)noexcept { m_vScale = v_; }
 	void SetPrevPos(const Vec2 v_)noexcept { m_vPrevPosition = v_; }
+	void SetDir(const int i)noexcept { m_iDir = i; }
 public:
 	const Vec2 GetPos()const noexcept { return m_vPos; }
 	const Vec2 GetWillPos()const noexcept { return m_vWillPos; }
 	const Vec2 GetScale()const noexcept { return m_vScale; }
 	const Vec2 GetPrevPos()const noexcept { return m_vPrevPosition; }
+	const int GetDir()const noexcept { return m_iDir; }
 private:
 	Vec2 m_vPrevPosition;
 	Vec2 m_vPos;
 	Vec2 m_vWillPos;
 	Vec2 m_vScale;
+	int  m_iDir = 1;
 };
 
 class Collider
@@ -36,6 +37,7 @@ class Collider
 	static inline std::atomic<UINT>		g_iNextID;
 public:
 	Collider(Object* const pOwner_);
+	GET_COMP_TYPE_FUNC(Collider)
 	~Collider();
 private:
 	Vec2				m_vOffsetPos = {};
@@ -104,7 +106,7 @@ private:
 private:
 	void Move(const float dt_);
 public:
-	RigidBody(Object* const pOwner_);
+	CONSTRUCTOR_COMPONENT(RigidBody)
 	~RigidBody();
 public:
 	bool  IsGround()const { return m_bIsGround || IsFloatZero(m_vVelocity.y); }
@@ -181,9 +183,7 @@ public:
 		END,
 	};
 public:
-	KeyInputHandler(Object* const pOwner_)
-		:Component{ "KEYINPUTHANDLER",pOwner_ }
-	{}
+	CONSTRUCTOR_COMPONENT(KeyInputHandler)
 	~KeyInputHandler();
 public:
 	void RegisterKeyHandleFunc(const int VK_, std::function<void(Object* const, const KEY_STATE)> fpHandler_) {

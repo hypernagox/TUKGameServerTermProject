@@ -42,14 +42,14 @@ namespace ServerCore
 		return m_pIocpCore->RegisterIOCP(pSession.get(), pSession->GetSessionID()) ? std::move(pSession) : nullptr;
 	}
 
-	const bool Service::AddSession(S_ptr<Session>&& pSession_)noexcept
+	const bool Service::AddSession(S_ptr<Session> pSession_)noexcept
 	{
 		int32 idx;
 		if (!m_idxQueue.try_pop(idx))
 			return false;
 		m_id2Index[static_cast<c_uint32>(pSession_->GetSessionID())] = static_cast<c_uint16>(idx);
 		pSession_->m_serviceIdx.store(idx, std::memory_order_relaxed);
-		m_vecSession[idx].ptr.store(std::move(pSession_), std::memory_order_relaxed);
+		m_vecSession[idx].ptr.store(std::move(pSession_));
 		return true;
 
 		return true;
@@ -60,14 +60,17 @@ namespace ServerCore
 		const int32 idx = pSession_->m_serviceIdx.exchange(-1, std::memory_order_relaxed);
 		if (-1 == idx)
 			return;
-		m_vecSession[idx].ptr.store(nullptr, std::memory_order_relaxed);
+		//m_vecSession[idx].ptr.store(nullptr, std::memory_order_relaxed);
+		pSession_->DecRef();
+		m_vecSession[idx].ptr.reset();
+		
 		m_idxQueue.push(idx);
 	}
 
 	S_ptr<Session> Service::GetSession(const uint64_t sessionID_)noexcept
 	{
 		const int32 idx = m_id2Index[static_cast<c_uint32>(sessionID_)];
-		auto target = m_vecSession[idx].ptr.load(std::memory_order_relaxed);
+		auto target = m_vecSession[idx].ptr.load();
 		if (target && target->GetSessionID() == sessionID_)
 			return target;
 		else
@@ -78,7 +81,7 @@ namespace ServerCore
 	{
 		for (const auto& pSession_ : m_vecSession)
 		{
-			const auto pSession = pSession_.ptr.load(std::memory_order_relaxed);
+			const auto pSession = pSession_.ptr.load();
 			if (pSession)
 				fpIterate_(pSession);
 		}
@@ -103,7 +106,7 @@ namespace ServerCore
 		for (int i = 0; i < sessionCount; ++i)
 		{
 			auto pSession = CreateSession();
-			pSession->register_cache_shared_core(pSession);
+			//pSession->register_cache_shared_core(pSession);
 			if (false == pSession->Connect())
 				return false;
 		}
@@ -134,7 +137,7 @@ namespace ServerCore
 			return false;
 		if (!m_pListener)
 			return false;
-		m_pListener->register_cache_shared_core(m_pListener);
+		//m_pListener->register_cache_shared_core(m_pListener);
 		return m_pListener->StartAccept(this);
 	}
 

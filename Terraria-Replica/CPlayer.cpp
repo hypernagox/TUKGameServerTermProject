@@ -25,6 +25,7 @@
 #include "Protocol.pb.h"
 #include "s2c_PacketHandler.h"
 #include "Enum.pb.h"
+#include "TRItemManager.h"
 
 extern void updateTileCollision(CObject* const _pObj, TRWorld* const _pTRWorld);
 
@@ -150,6 +151,17 @@ void CPlayer::render(HDC _dc)const
 	CObject::component_render(_dc);
 	m_pAnimLeg->component_render(_dc);
 
+	const auto cur_look = Mgr(CCamera)->GetLookAt();
+	const auto vRes = Mgr(CCore)->GetResolutionV();
+	const auto obj_pos = GetPos();
+	const Vec2 relativePos = { obj_pos.x - cur_look.x, obj_pos.y - cur_look.y };
+	const Vec2 screenPos = { (relativePos.x + (vRes.x / 2.f)) ,(relativePos.y + (vRes.y / 2.f)) };
+	
+	if(!((Hero*)m_pTRWolrd->GetPlayer())->m_partyList.contains(GetName()))
+		renderText(Mgr(CCore)->GetMainDC(), RGB(255, 100, 255), (screenPos + Vec2{ -10.f,+10.f }), GetName());
+	else
+		renderText(Mgr(CCore)->GetMainDC(), RGB(255, 0, 0), (screenPos + Vec2{ -10.f,+10.f }), GetName());
+
 	if (PLAYER_STATE::ATTACK == m_eCurState)
 	{
 		if(m_bIsHero)
@@ -217,6 +229,20 @@ void CPlayer::updateAnimation()
 		break;
 	}
 	m_pPrevAnim = pAnim->GetCurAnim();
+}
+
+void CPlayer::SetCurWeapon(const std::wstring_view strItemName)
+{
+	auto pImg = Mgr(CResMgr)->GetImg(strItemName);
+	if (nullptr == pImg)
+	{
+		pImg = Mgr(TRItemManager)->GetItemByKey(strItemName.data())->GetItemElement();
+		m_curWeaponName = Mgr(TRItemManager)->GetItemByKey(strItemName.data())->GetElementName();
+	}
+	else
+		m_curWeaponName = strItemName;
+	m_pCurWeapon->SetName(m_curWeaponName);
+	m_pCurWeapon->SetWeaponState(pImg, m_curWeaponName);
 }
 
 void CPlayer::component_update()

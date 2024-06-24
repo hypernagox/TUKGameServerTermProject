@@ -1,10 +1,11 @@
 #pragma once
+#include "ServerCorePch.h"
 
 namespace ServerCore
 {
 	
-	template<typename T>
-	using S_ptr = std::shared_ptr<T>;
+	//template<typename T>
+	//using S_ptr = std::shared_ptr<T>;
 
 	class SendBuffer;
 	class SessionManageable;
@@ -12,10 +13,24 @@ namespace ServerCore
 	class PacketSession;
 	class c2s_PacketHandler;
 	struct PacketHeader;
+	
+	template <typename T>
+	class S_ptr;
 
 	template<typename T>requires std::is_enum_v<T>
 	constexpr const uint16 etoi(const T eType_)noexcept { return static_cast<const uint16>(eType_); }
 
+	template <typename T>
+	static const bool compareExchange(T* volatile* const ptr, T** const old_ptr, const T* const new_ptr)noexcept
+	{
+		return std::atomic_compare_exchange_strong_explicit(
+			reinterpret_cast<volatile std::atomic_llong* const>(ptr),
+			reinterpret_cast<long long* const>(old_ptr),
+			reinterpret_cast<const long long>(new_ptr),
+			std::memory_order_relaxed,
+			std::memory_order_relaxed
+		);
+	}
 	static inline const uint64_t CombineObjectID(const uint16_t type_id, const uint64_t obj_id)noexcept {
 		return (static_cast<const uint64_t>(type_id) << 48) | obj_id;
 	}
@@ -47,7 +62,7 @@ namespace ServerCore
 
 		constexpr T* const allocate(const size_t size)noexcept
 		{
-			NAGOX_ASSERT(actual_size_ptr);
+			//NAGOX_ASSERT(actual_size_ptr);
 			(*actual_size_ptr) = size * sizeof(T);
 			return static_cast<T* const>(::malloc(size * sizeof(T)));
 		}
@@ -88,45 +103,45 @@ namespace ServerCore
 		U second;
 	};
 
-	template<typename T> requires !std::derived_from<T, PacketHeader>
-	static constexpr SendPairData<S_ptr<PacketSession>, S_ptr<SendBuffer>> operator + (S_ptr<PacketSession> pSendSession_, T&& pkt_)noexcept
-	{
-		return { std::move(pSendSession_), c2s_PacketHandler::MakeSendBuffer(pkt_) };
-	}
-
-	template<typename T> requires !std::derived_from<T, PacketHeader>
-	static constexpr SendPairData<S_ptr<SendBuffer>, uint64> operator - (T&& pkt_, const S_ptr<PacketSession>& pSendSession_)noexcept
-	{
-		return { c2s_PacketHandler::MakeSendBuffer(pkt_),ServerCore::Session::GetID(pSendSession_) };
-	}
-
-	template<typename RoomPtr> requires std::convertible_to<RoomPtr, S_ptr<SessionManageable>> || std::convertible_to<RoomPtr, SessionManageable*>
-	static constexpr void operator<<(RoomPtr&& pRoom_, SendPairData<S_ptr<PacketSession>, S_ptr<SendBuffer>>&& session_msg)noexcept
-	{
-		pRoom_->SendEnqueue(std::move(session_msg.first), std::move(session_msg.second));
-	}
-
-	template<typename RoomPtr> requires std::convertible_to<RoomPtr, S_ptr<SessionManageable>> || std::convertible_to<RoomPtr, SessionManageable*>
-	static constexpr void operator<<(RoomPtr&& pRoom_, SendPairData<S_ptr<SendBuffer>, uint64>&& msg_exceptNum)noexcept
-	{
-		pRoom_->BroadCastEnqueue(std::move(msg_exceptNum.first), std::move(msg_exceptNum.second));
-	}
-
-	template<typename RoomPtr, typename T> requires (std::convertible_to<RoomPtr, S_ptr<SessionManageable>> || std::convertible_to<RoomPtr, SessionManageable*>) && !std::derived_from<T, PacketHeader>
-	static constexpr void operator<<(RoomPtr&& pRoom_, T&& pkt_)noexcept
-	{
-		pRoom_->BroadCastEnqueue(c2s_PacketHandler::MakeSendBuffer(pkt_));
-	}
-
-	template<typename SessionPtr, typename T> requires (std::convertible_to<SessionPtr, S_ptr<Session>> || std::convertible_to<SessionPtr, Session*>) && !std::derived_from<T, PacketHeader>
-	inline static constexpr void operator<<(SessionPtr&& pSession_, T&& pkt_)noexcept
-	{
-		pSession_->SendAsync(c2s_PacketHandler::MakeSendBuffer(pkt_));
-	}
-
-	template<typename SessionPtr> requires (std::convertible_to<SessionPtr, S_ptr<Session>> || std::convertible_to<SessionPtr, Session*>)
-	inline static constexpr void operator<<(SessionPtr&& pSession_, S_ptr<SendBuffer> pkt_)noexcept
-	{
-		pSession_->SendAsync(std::move(pkt_));
-	}
+	//template<typename T> requires !std::derived_from<T, PacketHeader>
+	//static constexpr SendPairData<S_ptr<PacketSession>, S_ptr<SendBuffer>> operator + (S_ptr<PacketSession> pSendSession_, T&& pkt_)noexcept
+	//{
+	//	return { std::move(pSendSession_), c2s_PacketHandler::MakeSendBuffer(pkt_) };
+	//}
+	//
+	//template<typename T> requires !std::derived_from<T, PacketHeader>
+	//static constexpr SendPairData<S_ptr<SendBuffer>, uint64> operator - (T&& pkt_, const S_ptr<PacketSession>& pSendSession_)noexcept
+	//{
+	//	return { c2s_PacketHandler::MakeSendBuffer(pkt_),ServerCore::Session::GetID(pSendSession_) };
+	//}
+	//
+	//template<typename RoomPtr> requires std::convertible_to<RoomPtr, S_ptr<SessionManageable>> || std::convertible_to<RoomPtr, SessionManageable*>
+	//static constexpr void operator<<(RoomPtr&& pRoom_, SendPairData<S_ptr<PacketSession>, S_ptr<SendBuffer>>&& session_msg)noexcept
+	//{
+	//	pRoom_->SendEnqueue(std::move(session_msg.first), std::move(session_msg.second));
+	//}
+	//
+	//template<typename RoomPtr> requires std::convertible_to<RoomPtr, S_ptr<SessionManageable>> || std::convertible_to<RoomPtr, SessionManageable*>
+	//static constexpr void operator<<(RoomPtr&& pRoom_, SendPairData<S_ptr<SendBuffer>, uint64>&& msg_exceptNum)noexcept
+	//{
+	//	pRoom_->BroadCastEnqueue(std::move(msg_exceptNum.first), std::move(msg_exceptNum.second));
+	//}
+	//
+	//template<typename RoomPtr, typename T> requires (std::convertible_to<RoomPtr, S_ptr<SessionManageable>> || std::convertible_to<RoomPtr, SessionManageable*>) && !std::derived_from<T, PacketHeader>
+	//static constexpr void operator<<(RoomPtr&& pRoom_, T&& pkt_)noexcept
+	//{
+	//	pRoom_->BroadCastEnqueue(c2s_PacketHandler::MakeSendBuffer(pkt_));
+	//}
+	//
+	//template<typename SessionPtr, typename T> requires (std::convertible_to<SessionPtr, S_ptr<Session>> || std::convertible_to<SessionPtr, Session*>) && !std::derived_from<T, PacketHeader>
+	//inline static constexpr void operator<<(SessionPtr&& pSession_, T&& pkt_)noexcept
+	//{
+	//	pSession_->SendAsync(c2s_PacketHandler::MakeSendBuffer(pkt_));
+	//}
+	//
+	//template<typename SessionPtr> requires (std::convertible_to<SessionPtr, S_ptr<Session>> || std::convertible_to<SessionPtr, Session*>)
+	//inline static constexpr void operator<<(SessionPtr&& pSession_, S_ptr<SendBuffer> pkt_)noexcept
+	//{
+	//	pSession_->SendAsync(std::move(pkt_));
+	//}
 }

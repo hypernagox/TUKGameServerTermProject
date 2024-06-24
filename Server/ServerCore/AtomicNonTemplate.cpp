@@ -3,20 +3,20 @@
 
 namespace ServerCore
 {
-    constinit static inline const uint8 CACHE_LINE_MINUS_ONE = static_cast<c_uint8>(std::hardware_constructive_interference_size - 1);
-
+    //constinit static inline const uint8 CACHE_LINE_MINUS_ONE = static_cast<c_uint8>(std::hardware_constructive_interference_size - 1);
+    constinit static inline const uint8 CACHE_LINE_MINUS_ONE = static_cast<c_uint8>(8 - 1);
     const uint64_t AtomicNonTemplate::packPointerAndTag(const Block* const ptr, const uint32_t tag) noexcept {
         const uintptr_t ptrVal = reinterpret_cast<uintptr_t>(ptr);
-        return (static_cast<const uint64_t>(ptrVal) & 0x3FFFFFFFFFF) | (static_cast<const uint64_t>(tag) << 42);
+        return (static_cast<const uint64_t>(ptrVal) & 0x7FFFFFFFFFF) | (static_cast<const uint64_t>(tag) << 45);
     }
 
 
     const AtomicNonTemplate::Block* const AtomicNonTemplate::unpackPointer(const uint64_t combined) noexcept {
-        return reinterpret_cast<const Block* const>(combined & 0x3FFFFFFFFFF);
+        return reinterpret_cast<const Block* const>(combined & 0x7FFFFFFFFFF);
     }
 
     constexpr const uint32_t AtomicNonTemplate::unpackTag(const uint64_t combined) noexcept {
-        return static_cast<const uint32_t>(combined >> 42);
+        return static_cast<const uint32_t>(combined >> 45);
     }
 
     void AtomicNonTemplate::initialize() noexcept
@@ -86,7 +86,6 @@ namespace ServerCore
         } while (!head.compare_exchange_weak(oldCombined, newCombined,
             std::memory_order_acquire,
             std::memory_order_relaxed));
-
         return reinterpret_cast<void* const>(const_cast<Block* const>(currentBlock) + 1);
     }
 

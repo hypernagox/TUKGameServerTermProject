@@ -8,7 +8,7 @@ class CScene_Start
 	:public CScene
 {
 private:
-	TRMain* m_pTRMain = nullptr;
+	//static inline TRMain* g_pTRMain = nullptr;
 	bool m_bChangeScene = false;
 public:
 	CScene_Start();

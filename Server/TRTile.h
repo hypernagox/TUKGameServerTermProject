@@ -6,7 +6,7 @@
 
 class TRTile
 {
-protected:
+public:
 	std::wstring name;
 
 	bool solid;

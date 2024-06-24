@@ -1,15 +1,23 @@
 #pragma once
 
-enum class SECTOR :uint16_t
+enum class CHUNK :uint16_t
 {
-	SECTOR_0,
-	SECTOR_1,
-	SECTOR_2,
-	SECTOR_3,
-	SECTOR_4,
+	CHUNK_0,
+	CHUNK_1,
+	CHUNK_2,
+	CHUNK_3,
+
+	CHUNK_4,
+	CHUNK_5,
+	CHUNK_6,
+	CHUNK_7,
+
 
 	END,
 };
+
+constexpr int VIEW_RANGE = 512 + 128;
+
 
 using ServerCore::S_ptr;
 using ServerCore::W_ptr;
@@ -23,3 +31,6 @@ using ServerCore::MakeShared;
 using ServerCore::MakePoolShared;
 using ServerCore::MakeUnique;
 using ServerCore::MakePoolUnique;
+
+using ServerCore::String;
+using ServerCore::WString;

@@ -40,9 +40,17 @@ void CMonster::update()
 	//{
 	//	return;
 	//}
-
+	static float acc = 0.f;
+	acc += DT;
+	if (acc >= 2.f)
+	{
+		acc = 0.f;
+		GetInterPolator().GetCurData().pos = GetPos();
+		GetInterPolator().GetNewData().pos = GetPos();
+	}
 	CObject::update();
 	ServerObject::UpdateMoveData();
+
 	//auto vPlayerPos = Mgr(CSceneMgr)->GetCurScene()->GetPlayer()->GetPos();
 	//auto pAnim = GetComp<CAnimator>();
 	//auto vCurPos = GetPos();

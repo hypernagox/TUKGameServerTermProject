@@ -8,15 +8,18 @@ namespace ServerCore
 	{
 		// 초기화시 필요한 추가동작은 여기에
 
-		register_cache_shared_core(forCacheThis_);
+		//register_cache_shared_core(forCacheThis_);
+		//m_timerEvent.SetIocpObject(forCacheThis_->SharedFromThis<IocpObject>());
 		m_timerEvent.SetIocpObject(forCacheThis_);
 		m_tickInterval = tick_ms;
 
 	}
 
-	const bool TimerObject::ExecuteTimer(const uint64_t awakerID_)noexcept
+	const bool TimerObject::ExecuteTimer(const IocpEntity* const awaker)noexcept
 	{
-		ToAwaker(awakerID_);
+		if (!CanAwake(awaker))
+			return false;
+		ToAwaker(awaker);
 		const TIMER_STATE ePrevState = m_timer_state.exchange(TIMER_STATE::RUN, std::memory_order_relaxed);
 		if (TIMER_STATE::IDLE == ePrevState)
 		{
@@ -35,16 +38,16 @@ namespace ServerCore
 
 	void TimerObject::Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes) noexcept
 	{
+		const TIMER_STATE eCurState = TimerUpdate();
+		std::atomic_thread_fence(std::memory_order_seq_cst);
 		if (true == m_bStopFlag.load(std::memory_order_relaxed))
 		{
+			m_timer_state = eCurState;
 			std::atomic_thread_fence(std::memory_order_acquire);
-			reset_cache_shared();
+			//reset_cache_shared();
 			m_timerEvent.ReleaseIocpObject();
 			return;
 		}
-		
-		const TIMER_STATE eCurState = TimerUpdate();
-		std::atomic_thread_fence(std::memory_order_seq_cst);
 
 		m_timer_state.store(TIMER_STATE::PREPARE, std::memory_order_relaxed);
 		const TIMER_STATE ePrevState = m_timer_state.exchange(eCurState, std::memory_order_relaxed);

@@ -22,8 +22,9 @@ CWeapon::CWeapon(TRWorld* _pTRWorld, CObject* const _pPlayer)
 	:m_pPlayer{ _pPlayer }
 {
 	CreateComponent(COMPONENT_TYPE::COLLIDER);
-	Mgr(CSceneMgr)->GetScene(SCENE_TYPE::START)->AddObject(this, GROUP_TYPE::PLAYER_WEAPON);
+	//Mgr(CSceneMgr)->GetScene(SCENE_TYPE::START)->AddObject(this, GROUP_TYPE::PLAYER_WEAPON);
 	m_pTRWolrd = _pTRWorld;
+	m_pTRWolrd->m_pScene->AddObject(this, GROUP_TYPE::PLAYER_WEAPON);
 }
 
 CWeapon::~CWeapon()
@@ -183,6 +184,7 @@ void CWeapon::render_weapon(HDC _dc) const
 	{
 		return;
 	}
+	
 	if (!m_pWeaponImg)
 		return;
 	const auto [vLT, vScale] = Mgr(CCamera)->GetRenderPos(this);

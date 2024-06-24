@@ -40,6 +40,9 @@ enum class KEY
 	M,
 	ESC,
 	P,
+	BACK,
+	Y,
+	N,
 
 	LAST,		
 

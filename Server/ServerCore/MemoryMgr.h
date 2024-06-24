@@ -49,11 +49,11 @@ namespace ServerCore
 		Mgr(MemoryMgr)->Release(obj);
 	}
 
-	template<typename Type, typename... Args>
-	constexpr S_ptr<Type> MakeShared(Args&&... args)noexcept
-	{
-		return std::allocate_shared<Type>(SharedAllocator<Type>{}, std::forward<Args>(args)...);
-	}
+	//template<typename Type, typename... Args>
+	//constexpr S_ptr<Type> MakeShared(Args&&... args)noexcept
+	//{
+	//	return std::allocate_shared<Type>(SharedAllocator<Type>{}, std::forward<Args>(args)...);
+	//}
 
 	template <typename T, typename... Args>
 	constexpr U_ptr<T> MakeUnique(Args&&... args)noexcept

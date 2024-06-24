@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Component.h"
 
-BaseComponent::BaseComponent(std::string_view compName_, Object* const pOwner_)noexcept
-	: m_strCompName{ compName_ }
+BaseComponent::BaseComponent(const COMP_TYPE compName_, Object* const pOwner_)noexcept
+	: m_eCompType{ compName_ }
 	, m_pOwner{ pOwner_ }
 {
 }

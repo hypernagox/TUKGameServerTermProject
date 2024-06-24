@@ -12,6 +12,7 @@
 TRItem::TRItem(std::wstring name, std::wstring k_element)
 {
 	this->name = name;
+	this->m_KeyName = name;
 	this->k_element = k_element;
 	this->max_stacksize = 99;
 
@@ -40,7 +41,7 @@ CImage* TRItem::GetItemElement() const
 
 bool TRItem::OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target_pos)
 {
-	return false;
+	return true;
 }
 
 TRItemTile::TRItemTile(std::wstring name, std::wstring k_element, std::wstring k_tile) : TRItem(name, k_element)
@@ -71,7 +72,7 @@ bool TRItemTile::OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target_pos
 
 	Send(pkt);
 
-	return false;
+	return true;
 }
 
 TRItemTileWall::TRItemTileWall(std::wstring name, std::wstring k_element, std::wstring k_tilewall) : TRItem(name, k_element)
@@ -132,9 +133,11 @@ bool TRItemPickaxe::OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target_
 	const int x = FloorToInt(target_pos.x);
 	const int y = FloorToInt(target_pos.y);
 	//world->BreakTile(x, y);
+	//std::cout << x << " " << y << std::endl;
 	Protocol::c2s_BREAK_TILE pkt;
 	pkt.set_tile_x(x);
 	pkt.set_tile_y(y);
+	
 	Send(pkt);
 
 	return false;
@@ -161,7 +164,7 @@ bool TRItemHammer::OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target_p
 	Protocol::c2s_BREAK_TILE_WALL pkt;
 	pkt.set_tile_x(x);
 	pkt.set_tile_y(y);
-	Send(pkt);
+	//Send(pkt);
 
 	return false;
 }
@@ -186,7 +189,7 @@ bool TRItemSword::OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target_po
 	pkt.set_time_stamp(NetHelper::GetTimeStampMilliseconds());
 	*pkt.mutable_obj_pos() = ::ToProtoVec2(Vec2{ user->GetScale().x,0.f } * (float)dir);
 
-	Send(pkt);
+	//Send(pkt);
 
 	return false;
 }

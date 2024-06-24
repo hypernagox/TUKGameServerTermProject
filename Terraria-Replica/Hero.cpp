@@ -16,14 +16,117 @@
 #include "CScene.h"
 #include "CEventMgr.h"
 #include "Missile.h"
+#include "TRMain.h"
+#include"CCore.h"
+#include "CCamera.h"
 
 extern void updateTileCollision(CObject* const _pObj, TRWorld* const _pTRWorld);
 
 int sector = 0;
 
+wstring inputBuffer;
+static unordered_map<wchar_t, bool> keymap;
+static bool enterPressed = false;
+static bool prevEnterState = false;
+
+std::unordered_map<wchar_t, wchar_t> alphabetToHangul = {
+	{L'A', L'ㅁ'}, {L'B', L'ㅠ'}, {L'C', L'ㅊ'}, {L'D', L'ㅇ'},
+	{L'E', L'ㄷ'}, {L'F', L'ㄹ'}, {L'G', L'ㅎ'}, {L'H', L'ㅗ'},
+	{L'I', L'ㅑ'}, {L'J', L'ㅓ'}, {L'K', L'ㅏ'}, {L'L', L'ㅣ'},
+	{L'M', L'ㅡ'}, {L'N', L'ㅜ'}, {L'O', L'ㅐ'}, {L'P', L'ㅔ'},
+	{L'Q', L'ㅂ'}, {L'R', L'ㄱ'}, {L'S', L'ㄴ'}, {L'T', L'ㅅ'},
+	{L'U', L'ㅕ'}, {L'V', L'ㅍ'}, {L'W', L'ㅈ'}, {L'X', L'ㅌ'},
+	{L'Y', L'ㅛ'}, {L'Z', L'ㅋ'},
+	{L'a', L'ㅁ'}, {L'b', L'ㅠ'}, {L'c', L'ㅊ'}, {L'd', L'ㅇ'},
+	{L'e', L'ㄷ'}, {L'f', L'ㄹ'}, {L'g', L'ㅎ'}, {L'h', L'ㅗ'},
+	{L'i', L'ㅑ'}, {L'j', L'ㅓ'}, {L'k', L'ㅏ'}, {L'l', L'ㅣ'},
+	{L'm', L'ㅡ'}, {L'n', L'ㅜ'}, {L'o', L'ㅐ'}, {L'p', L'ㅔ'},
+	{L'q', L'ㅂ'}, {L'r', L'ㄱ'}, {L's', L'ㄴ'}, {L't', L'ㅅ'},
+	{L'u', L'ㅕ'}, {L'v', L'ㅍ'}, {L'w', L'ㅈ'}, {L'x', L'ㅌ'},
+	{L'y', L'ㅛ'}, {L'z', L'ㅋ'}
+};
+
+bool IsMouseInsideRectangle(const Vec2& mousePos, const Vec2& center, float width, float height) {
+	
+	const float left = center.x - (width / 2);
+	const float right = center.x + (width / 2);
+	const float top = center.y - (height / 2);
+	const float bottom = center.y + (height / 2);
+
+	return (mousePos.x >= left && mousePos.x <= right &&
+		mousePos.y >= top && mousePos.y <= bottom);
+}
+
+bool ProcessInput()
+{
+	
+	static int enter_state = 0;
+	
+	if (KEY_TAP(KEY::ENTER))
+		enter_state = (enter_state + 1) % 3;
+	
+	if (0 == enter_state)return true;
+	
+	for (int key = 0; key <= 127; ++key)
+	{ 
+		const auto k = static_cast<wchar_t>(key);
+		if (GetAsyncKeyState(key) & 0x8000)
+		{
+			if (!keymap[k])
+			{
+				inputBuffer.push_back(k);
+				keymap[k] = true;
+			}
+		}
+		else
+		{
+			keymap[k] = false;
+		}
+	}
+
+	if (KEY_TAP(KEY::BACK))
+	{
+		if (2 <= inputBuffer.size()) 
+		{
+			inputBuffer.pop_back();
+			inputBuffer.pop_back();
+		}
+	}
+
+	if (2==enter_state) 
+	{
+		std::string message = WideToUtf8(inputBuffer);
+		inputBuffer.clear();
+		Protocol::c2s_BUY_ITEM pkt;
+		std::string temp;
+		
+		for (int i = 0; i < message.size(); ++i)
+		{
+			if (isdigit(message[i])) 
+				temp.push_back(message[i]);
+		}
+		if (!temp.empty())
+		{
+			pkt.set_item_name(temp);
+			Send(pkt);
+		}
+		else
+		{
+			Protocol::c2s_CHAT c;
+			c.set_msg(message);
+			Send(c);
+		}
+
+		enter_state = 0;
+		return true;
+	}
+	return false;
+}
+
 Hero::Hero(TRWorld* const _trWorld)
 	:CPlayer{ _trWorld }
 {
+	//m_pTRWolrd = Mgr(TRMain)->active_world;
 	m_bIsHero = true;
 	SetName(L"HERO");
 	//CreateComponent(COMPONENT_TYPE::RIGIDBODY);
@@ -37,31 +140,67 @@ Hero::~Hero()
 
 void Hero::update()
 {
+	if (!ProcessInput())
+		return;
+
 	static float acc = 0.f;
 	acc += DT;
 	if (m_bSlain)
 	{
 		return;
 	}
-	if (KEY_TAP(KEY::RBTN))
+	if (m_partyList.empty() && false == m_bNowRequset && KEY_TAP(KEY::RBTN))
 	{
-		Protocol::c2s_CREATE_MISSILE pkt;
-		const int dir = GetComp<CAnimator>()->GetAnimDir() == 1 ? -1 : 1;
-		*pkt.mutable_obj_pos() = ToProtoVec2(GetPos());
-		pkt.set_dir(dir);
-		Send(pkt);
+		//const auto v = TRWorld::GlobalToWorld(MOUSE_POS);
+		//std::cout << v.x << " , " << v.y << std::endl;
+		//Protocol::c2s_CREATE_MISSILE pkt;
+		//const int dir = GetComp<CAnimator>()->GetAnimDir() == 1 ? -1 : 1;
+		//*pkt.mutable_obj_pos() = ToProtoVec2(GetPos());
+		//pkt.set_dir(dir);
+		//Send(pkt);
+		const auto scale = GetScale();
+		bool flag = false;
+		uint64 targetId = 0;
+		for (const auto [key, player] : m_pTRWolrd->m_mapOtherPlayer)
+		{
+			if (IsMouseInsideRectangle(MOUSE_POS, player->GetPos(), scale.x, scale.y))
+			{
+				targetId = key;
+				flag = true;
+				break;
+			}
+		}
+		if (flag)
+		{
+			// 신청패킷
+			m_partySinchunza = targetId;
+			m_bNowRequset = true;
+			Protocol::c2s_PARTY_SINCHUNG pkt;
+			pkt.set_target_id(targetId);
+			Send(pkt);
+		}
 	}
 	if (KEY_TAP(KEY::P))
 	{
 		if (acc >= 1.f)
 		{
 			acc = 0.f;
-			Protocol::c2s_CREATE_MONSTER pkt;
+			//Protocol::c2s_CREATE_MONSTER pkt;
+			Protocol::c2s_BUY_ITEM pkt;
+			pkt.set_item_name("Item_28.png");
 			Send(pkt);
 		}
 	}
 	if (KEY_TAP(KEY::W))
 	{
+		sector = (sector + 1) % (etoi(SCENE_TYPE::INTRO));
+		Protocol::c2s_TRY_NEW_ROOM pkt;
+		pkt.set_cur_sector_num(sector);
+		//pkt.set_next_sector_num((sector + 1) % 5);
+		Send(pkt);
+		return;
+		
+		if (5 == sector)return;
 		const auto vPos = GetPos();
 		const auto vScale = GetScale();
 		const auto vScaleX = vScale.x / 2.f;
@@ -117,6 +256,18 @@ void Hero::update()
 	{
 		m_vecWeapon[m_iCurQuickBarIdx]->ReForm();
 	}
+
+	if (!m_partyList.empty())
+	{
+		if (KEY_TAP(KEY::N))
+		{
+			// 파티탈퇴패킷
+			Protocol::c2s_PARTY_OUT pkt;
+			pkt.set_target_id(m_partySinchunza);
+			pkt.set_target_name(WideToUtf8(m_partyRequestUser));
+			Send(pkt);
+		}
+	}
 }
 
 void Hero::updateState()
@@ -127,11 +278,27 @@ void Hero::updateState()
 
 	Protocol::c2s_INPUT_KEY pkt;
 	
+	if (!m_pTRWolrd->GetQuickBarList()[m_iCurQuickBarIdx]->Blank())
+	{
+		const auto item_name = m_pTRWolrd->GetQuickBarList()[m_iCurQuickBarIdx]->GetItemStack().GetItem()->GetElementName();
+		if (std::wstring::npos == item_name.find(L"Item") || L"Item_28.png" !=item_name)
+		{
+			m_curWeaponName
+				= m_pTRWolrd->GetQuickBarList()[m_iCurQuickBarIdx]->GetItemStack().GetItem()->GetElementName();
+		}
+		else
+		{
+			m_curWeaponName
+				= m_pTRWolrd->GetQuickBarList()[m_iCurQuickBarIdx]->GetItemStack().GetItem()->GetKeyName();
+		}
+	}
+
 	if (KEY_TAP(KEY::Z))
 	{
 		Protocol::c2s_TRY_GET_ITEM pkt;
 		pkt.set_time_stamp(NetHelper::GetTimeStampMilliseconds());
-		*pkt.mutable_obj_pos() = ::ToProtoVec2(Vec2{});
+		//*pkt.mutable_obj_pos() = ::ToProtoVec2(Vec2{});
+		*pkt.mutable_obj_pos() = ::ToProtoVec2(GetPos());
 		Send(pkt);
 	}
 
@@ -208,6 +375,11 @@ void Hero::updateState()
 	}
 	if (m_bRequestAttack)
 	{
+		Protocol::c2s_SWING pkt;
+		pkt.set_item_name(::WideToUtf8(m_curWeaponName));
+		pkt.set_dir(GetComp<CAnimator>()->GetAnimDir() == 0 ? 1 : -1);
+		Send(pkt);
+
 		m_eCurState = PLAYER_STATE::ATTACK;
 		m_bIsIDLE = false;
 		m_bRequestAttack = false;
@@ -226,7 +398,7 @@ void Hero::updateState()
 	}
 
 	if (bitwise_absf(pRigid->GetVelocity().y) > 0.f && PLAYER_STATE::ATTACK != m_eCurState)
-	{
+	{	
 		m_eCurState = PLAYER_STATE::JUMP;
 		m_bIsIDLE = false;
 		//m_bDirtyFlag = true;
@@ -297,7 +469,7 @@ void Hero::component_update()
 	//else
 	SendMoveData();
 
-	UpdateMoveData();
+	//UpdateMoveData();
 }
 
 void Hero::UseItem()
@@ -306,6 +478,35 @@ void Hero::UseItem()
 		return;
 
 	m_bRequestAttack = true;
+}
+
+void Hero::render(HDC _dc) const
+{
+	CPlayer::render(_dc);
+	renderText(Mgr(CCore)->GetMainDC(), RGB(255, 255, 255),Mgr(CCore)->GetResolutionV()/2.f, inputBuffer);
+
+	if (m_bPartyRequest)
+	{
+		renderText(Mgr(CCore)->GetMainDC(), RGB(255, 0, 0), { 0,300 },
+			std::format(L"Party Request From User: {} , Press Y/N", m_bPartyRequest));
+		if (KEY_TAP(KEY::Y))
+		{
+			// 수락패킷
+			Protocol::c2s_PARTY_SURAK pkt;
+			pkt.set_is_surak(true);
+			pkt.set_target_id(m_partySinchunza);
+			Send(pkt);
+			
+		}
+		if (KEY_TAP(KEY::N))
+		{
+			Protocol::c2s_PARTY_SURAK pkt;
+			pkt.set_is_surak(false);
+			pkt.set_target_id(m_partySinchunza);
+			Send(pkt);
+			// 거절패킷
+		}
+	}
 }
 
 void Hero::SetNewMoveData(const Protocol::s2c_MOVE& movePkt_) noexcept
@@ -324,7 +525,7 @@ void Hero::SendMoveData() noexcept
 {
 	m_fAccTime += DT;
 	
-	if (m_bDirtyFlag || 0.1f <= m_fAccTime)
+	if (m_bDirtyFlag || 0.15f <= m_fAccTime)
 	{
 		m_fAccTime = 0.f;
 		m_bDirtyFlag = false;

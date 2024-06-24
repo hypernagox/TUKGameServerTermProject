@@ -10,13 +10,13 @@
 namespace ServerCore
 {
 	Session::Session(const PacketHandleFunc* const sessionPacketHandler_)noexcept
-		: m_pRecvEvent{ MakeUnique<RecvEvent>() }
+		: IocpEntity{ 0 }
+		, m_pRecvEvent{ MakePoolUnique<RecvEvent>() }
 		, m_pConnectEvent{ MakeUnique<ConnectEvent>() }
-		, m_pDisconnectEvent{ MakeUnique<DisconnectEvent>() }
-		, m_pSendEvent{ MakeUnique<SendEvent>() }
+		, m_pDisconnectEvent{ MakePoolUnique<DisconnectEvent>() }
+		, m_pSendEvent{ MakePoolUnique<SendEvent>() }
 		, m_pRecvBuffer{ MakePoolUnique<RecvBuffer>(RecvBuffer::BUFFER_SIZE) }
 		, m_sessionSocket{ SocketUtils::CreateSocket() }
-		, m_iSessionID{ IDGenerator::GenerateID() }
 		, m_sessionPacketHandler{ sessionPacketHandler_ }
 		, m_sessionSocketForRecv{ m_sessionSocket }
 	{
@@ -24,10 +24,7 @@ namespace ServerCore
 
 	Session::~Session()
 	{
-		//CancelIoEx(reinterpret_cast<HANDLE>(m_sessionSocket), NULL);
-		//shutdown(m_sessionSocket, SD_BOTH);
 		SocketUtils::Close(m_sessionSocket);
-		m_sessionSocketForRecv = INVALID_SOCKET;
 	}
 
 	bool Session::Connect()
@@ -35,14 +32,14 @@ namespace ServerCore
 		return RegisterConnect();
 	}
 
-	void Session::Disconnect(std::wstring cause)
+	bool Session::Disconnect(const std::wstring_view cause)noexcept
 	{
-		LOG_MSG(std::move(cause));
-		if (false == m_bConnected.exchange(false,std::memory_order_relaxed))
-			return;
-		m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
-		std::atomic_thread_fence(std::memory_order_seq_cst);
+		//LOG_MSG(std::move(cause));
+		if (false == m_bConnected.exchange(false, std::memory_order_relaxed))
+			return false;
+		m_bConnectedNonAtomicForRecv = m_bConnectedNonAtomic = false;
 		RegisterDisconnect();
+		return true;
 	}
 
 	bool Session::SetNagle(const bool bTrueIsOff_FalseIsOn)const noexcept
@@ -52,7 +49,7 @@ namespace ServerCore
 
 	void Session::Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept
 	{
-		if (S_ptr<PacketSession> pThisSessionPtr{ iocpEvent_->PassIocpObject(),static_cast<PacketSession* const>(this) })
+		if (S_ptr<PacketSession> pThisSessionPtr{ StaticCast<PacketSession>(iocpEvent_->PassIocpObject()) })
 		{
 			(this->*g_sessionLookupTable[static_cast<const uint8_t>(iocpEvent_->GetEventType())])(pThisSessionPtr, numOfBytes);
 		}
@@ -71,7 +68,7 @@ namespace ServerCore
 
 		//register_cache_shared(); 어디선가 누가 레지스터 해주긴 해야함
 		m_pConnectEvent->Init();
-		m_pConnectEvent->SetIocpObject(shared_from_this());
+		m_pConnectEvent->SetIocpObject(SharedFromThis<IocpObject>());
 
 		const SOCKADDR_IN& sockAddr = GetService()->GetNetAddress().GetSockAddr(); // 내가 붙어야 할 서버쪽 주소임
 
@@ -93,14 +90,11 @@ namespace ServerCore
 	void Session::ProcessConnect(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept
 	{
 		// 세선 등록
-		if (GetService()->AddSession(pThisSessionPtr))
+		if (GetService()->AddSession(pThisSessionPtr->SharedFromThis<Session>()))
 		{
-			pThisSessionPtr->register_cache_shared_core(pThisSessionPtr);
-
-			m_pSendEvent->m_registerSendEvent.SetIocpObject(pThisSessionPtr);
+			//pThisSessionPtr->register_cache_shared_core(pThisSessionPtr);
 
 			m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = true;
-			std::atomic_thread_fence(std::memory_order_seq_cst);
 			m_bConnected.store(true);
 			// 컨텐츠 코드에서 오버로딩 해야함
 			// 입장시 해야할 일
@@ -114,8 +108,15 @@ namespace ServerCore
 
 	bool Session::RegisterDisconnect()noexcept
 	{
+		//auto pValid = SharedFromThis<IocpObject>();
+		//if (nullptr == pValid)
+		//{
+		//	SocketUtils::Close(m_sessionSocket);
+		//	GetService()->ReleaseSession(this);
+		//	return false;
+		//}
 		m_pDisconnectEvent->Init();
-		m_pDisconnectEvent->SetIocpObject(shared_from_this());
+		m_pDisconnectEvent->SetIocpObject(SharedFromThis<IocpObject>());
 
 		if (false == SocketUtils::DisconnectEx(m_sessionSocket, m_pDisconnectEvent.get(), TF_REUSE_SOCKET, 0))
 		{
@@ -125,44 +126,48 @@ namespace ServerCore
 				m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
 				m_bConnected.store(false);
 
-				HandleError(errorCode);
+				
+				SocketUtils::Close(m_sessionSocket);
+
 				m_pDisconnectEvent->ReleaseIocpObject();
+				
+				GetService()->ReleaseSession(this);
+				OnDisconnected();
 				return false;
 			}
 		}
-
 		return true;
 	}
 
 	void Session::ProcessDisconnect(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept
 	{
+		SocketUtils::Close(m_sessionSocket);
+		
+		GetService()->ReleaseSession(this);
 		OnDisconnected();
-		GetService()->ReleaseSession(pThisSessionPtr);
-		CancelIoEx(reinterpret_cast<HANDLE>(m_sessionSocket), NULL);
-		m_pSendEvent->m_registerSendEvent.ReleaseIocpObject();
+		
 		// 캐시 쉐어드 리셋 해야됌
 	}
 
 	void Session::RegisterRecv(const S_ptr<PacketSession>& pThisSessionPtr)noexcept
 	{
-		//std::atomic_thread_fence(std::memory_order_acquire);
 		if (false == m_bConnectedNonAtomicForRecv)
+		{
+			Disconnect(L"");
 			return;
+		}
 
 		m_pRecvEvent->Init();
 		m_pRecvEvent->SetIocpObject(std::move(const_cast<S_ptr<PacketSession>&>(pThisSessionPtr)));
 
 		WSABUF wsaBuf{ static_cast<const ULONG>(m_pRecvBuffer->FreeSize()),reinterpret_cast<char* const>(m_pRecvBuffer->WritePos()) };
-		//DWORD numOfBytes;
+		
 		DWORD flags = 0;
 		if (SOCKET_ERROR == ::WSARecv(m_sessionSocket, &wsaBuf, 1, NULL, &flags, m_pRecvEvent.get(), nullptr))
 		{
 			const int32 errorCode = ::WSAGetLastError();
 			if (errorCode != WSA_IO_PENDING)
 			{
-				m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
-				m_bConnected.store(false);
-
 				HandleError(errorCode);
 				m_pRecvEvent->ReleaseIocpObject();
 			}
@@ -178,59 +183,63 @@ namespace ServerCore
 		}
 
 		if (false == m_pRecvBuffer->OnWrite(numofBytes_)) [[unlikely]]
-		{
-			Disconnect(L"OnWrite Overflow");
-			return;
-		}
-		const int32 dataSize = m_pRecvBuffer->DataSize(); // 더 읽어야할 데이터 w - r
-		// 컨텐츠 쪽에서 오버로딩 해야함
+			{
+				Disconnect(L"OnWrite Overflow");
+				return;
+			}
+			const int32 dataSize = m_pRecvBuffer->DataSize(); // 더 읽어야할 데이터 w - r
+			// 컨텐츠 쪽에서 오버로딩 해야함
 
-		const RecvStatus recvStatus = static_cast<PacketSession* const>(this)->PacketSession::OnRecv(m_pRecvBuffer->ReadPos(), dataSize, pThisSessionPtr);
+			const RecvStatus recvStatus = static_cast<PacketSession* const>(this)->PacketSession::OnRecv(m_pRecvBuffer->ReadPos(), dataSize, pThisSessionPtr);
 
-		if (false == recvStatus.bIsOK || recvStatus.processLen < 0 || dataSize < recvStatus.processLen || false == m_pRecvBuffer->OnRead(recvStatus.processLen))
-		{
-			Disconnect(L"OnRecv Overflow");
-			return;
-		}
+			if (false == recvStatus.bIsOK || recvStatus.processLen < 0 || dataSize < recvStatus.processLen || false == m_pRecvBuffer->OnRead(recvStatus.processLen))
+			{
+				Disconnect(L"OnRecv Overflow");
+				return;
+			}
 
-		m_pRecvBuffer->Clear(); // 커서 정리
+			m_pRecvBuffer->Clear(); // 커서 정리
 
-		RegisterRecv(pThisSessionPtr);
+			RegisterRecv(pThisSessionPtr);
 	}
 
 	void Session::RegisterSend(const S_ptr<PacketSession>& pThisSessionPtr)noexcept
 	{
 		if (false == IsConnected())
+		{
+			Disconnect(L"");
 			return;
+		}
 
 		m_pSendEvent->Init();
 		m_pSendEvent->SetIocpObject(std::move(const_cast<S_ptr<PacketSession>&>(pThisSessionPtr)));
-
-		auto& sendBuffer = m_pSendEvent->sendBuffer;
+		thread_local Vector<S_ptr<SendBuffer>> sendBuffer;
 		sendBuffer.clear();
 		m_sendQueue.try_flush_single(sendBuffer);
 
-		//int32 writeSize = 0;
-		// 원기옥모아서한방에 보낸다
-		m_wsaBufs.clear();
+		const auto num = sendBuffer.size();
+
+		if (0 == num)
+		{
+			m_pSendEvent->ReleaseIocpObject();
+			m_bIsSendRegistered.store(false, std::memory_order_release);
+			return;
+		}
+
+		Vector<WSABUF> wsaBufs;
+		wsaBufs.reserve(num);
 		for (const auto& sb : sendBuffer)
 		{
-			m_wsaBufs.emplace_back(static_cast<const ULONG>(sb->WriteSize()), reinterpret_cast<char* const>(sb->Buffer()));
-			//writeSize += sb->WriteSize();
+			wsaBufs.emplace_back(static_cast<const ULONG>(sb->WriteSize()), reinterpret_cast<char* const>(sb->Buffer()));
 		}
-		//DWORD numOfBytes;
-		if (SOCKET_ERROR == ::WSASend(m_sessionSocket, m_wsaBufs.data(), static_cast<const DWORD>(m_wsaBufs.size()), NULL, 0, m_pSendEvent.get(), nullptr))
+	
+		if (SOCKET_ERROR == ::WSASend(m_sessionSocket, wsaBufs.data(), static_cast<const DWORD>(num), NULL, 0, m_pSendEvent.get(), nullptr))
 		{
 			const int32 errorCode = ::WSAGetLastError();
 			if (errorCode != WSA_IO_PENDING)
 			{
-
-				m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = false;
-				m_bIsSendRegistered.store(false);
-
 				HandleError(errorCode);
 				m_pSendEvent->ReleaseIocpObject();
-				sendBuffer.clear();
 			}
 		}
 	}
@@ -242,8 +251,7 @@ namespace ServerCore
 			Disconnect(L"Send 0");
 			return;
 		}
-		m_pSendEvent->m_registerSendEvent.SetIocpObject(pThisSessionPtr);
-
+		
 		OnSend(numofBytes_);
 
 		m_bIsSendRegistered.store(false, std::memory_order_release);
@@ -254,6 +262,7 @@ namespace ServerCore
 
 	void Session::HandleError(c_int32 errorCode)
 	{
+		Disconnect(L"HandleError");
 		switch (errorCode)
 		{
 		case WSAECONNRESET:

@@ -34,7 +34,7 @@ extern jthread g_LoadThread;
 extern std::atomic<bool> g_bLoadMainStage;
 
 extern int g_TR_SEED;
-
+std::string id;
 HHOOK hHook;
 #define MAX_LOADSTRING 100
 
@@ -61,7 +61,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 여기에 코드를 입력합니다.
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_TERMPROJECTGAMEFRAMEWORK, szWindowClass, MAX_LOADSTRING);
@@ -90,21 +90,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     freopen_s(&fp, "CONIN$", "r", stdin);
 
     std::wstring inputIP;
-    //do {
-    //RE_INPUT:
-    //    std::wcout << L"Input IP Address: ";
-    //    std::wcin >> inputIP;
-    //    if (!isValidIPAddress(inputIP))
-    //    {
-    //        std::wcout << L"Invalid Address !'\n";
-    //        goto RE_INPUT;
-    //    }
-    //} while (!NetMgr(NetworkMgr)->Connect<ServerSession>(inputIP, 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
+    do {
+    RE_INPUT:
+        std::wcout << L"Input IP Address: ";
+        std::wcin >> inputIP;
+        if (!isValidIPAddress(inputIP))
+        {
+            std::wcout << L"Invalid Address !'\n";
+            goto RE_INPUT;
+        }
+    } while (!NetMgr(NetworkMgr)->Connect<ServerSession>(inputIP, 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
 
-    NET_NAGOX_ASSERT(NetMgr(NetworkMgr)->Connect<ServerSession>(L"127.0.0.1", 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
+    
+    std::cout << "Input ID: ";
+    std::cin >> id;
+
+    //NET_NAGOX_ASSERT(NetMgr(NetworkMgr)->Connect<ServerSession>(L"127.0.0.1", 7777, NetHelper::s2c_PacketHandler::GetPacketHandlerList()));
 
     Protocol::c2s_LOGIN pkt;
+    pkt.set_user_name(id);
     Send(pkt);
+
     while (0 == g_TR_SEED)
     {
         NetMgr(NetworkMgr)->DoNetworkIO();
@@ -117,15 +123,37 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     auto pSceneStart = new CScene_Start;
     Mgr(CSceneMgr)->AddScene(SCENE_TYPE::START, pSceneStart);
 
+   //auto pSceneMain = new CScene_Start;
+   //Mgr(CSceneMgr)->AddScene(SCENE_TYPE::STAGE_01, pSceneMain);
+   //
+   //{
+   //    auto pSceneMain = new CScene_Start;
+   //    Mgr(CSceneMgr)->AddScene(SCENE_TYPE::STAGE_02, pSceneMain);
+   //}
+   //{
+   //    auto pSceneMain = new CScene_Start;
+   //    Mgr(CSceneMgr)->AddScene(SCENE_TYPE::STAGE_03, pSceneMain);
+   //}
+    for (int i = 1; i < etoi(SCENE_TYPE::INTRO); ++i)
+    {
+        auto pSceneMain = new CScene_Start;
+        Mgr(CSceneMgr)->AddScene(SCENE_TYPE(i), pSceneMain);
+    }
+
     auto pSceneIntro = new CScene_Intro;
     Mgr(CSceneMgr)->AddScene(SCENE_TYPE::INTRO, pSceneIntro);
+
 
     // 시작 씬 설정
    // Mgr(CSceneMgr)->init(SCENE_TYPE::INTRO);
 
     pSceneStart->LoadWorld();
     Mgr(CSceneMgr)->SetCurScnene(pSceneStart);
-    //Mgr(CSceneMgr)->init(SCENE_TYPE::START);
+
+   // pSceneMain->LoadWorld();
+    //Mgr(CSceneMgr)->SetCurScnene(pSceneMain);
+
+    //  Mgr(CSceneMgr)->init(SCENE_TYPE::START);
     
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TERMPROJECTGAMEFRAMEWORK));
 
@@ -325,22 +353,26 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 void updateTileCollision(CObject* const _pObj,TRWorld* const _pTRWorld)
 {
 	const auto pRigid = _pObj->GetComp<CRigidBody>();
-    const auto pCol = _pObj->GetComp<CCollider>();
+   // const auto pCol = _pObj->GetComp<CCollider>();
 
    // const CCthulhuEye* const casting = dynamic_cast<CCthulhuEye*>(_pObj);
 
-    if (pCol == nullptr || L"Monster_CthulhuEye" == _pObj->GetName())
+    //if (pCol == nullptr || L"Monster_CthulhuEye" == _pObj->GetName())
+    //{
+    //    _pObj->SetPos(_pObj->GetWillPos());
+    //    return;
+    //}
+    if (L"Monster_CthulhuEye" == _pObj->GetName())
     {
         _pObj->SetPos(_pObj->GetWillPos());
         return;
     }
-
 	const auto pTileMap = _pTRWorld->GetTileMap();
 	const Vec2 world_pos = _pObj->GetWillPos().IsZero() ? TRWorld::GlobalToWorld(_pObj->GetPos()) : TRWorld::GlobalToWorld(_pObj->GetWillPos());
 	const Vec2 world_vel = pRigid->GetVelocity();
 
-	const float w = pCol->GetScale().x / (float)PIXELS_PER_TILE;
-	const float h = pCol->GetScale().y / (float)PIXELS_PER_TILE;
+	const float w = pRigid->GetOwner()->GetScale().x / (float)PIXELS_PER_TILE;
+	const float h = pRigid->GetOwner()->GetScale().y / (float)PIXELS_PER_TILE;
 
 	const Vec2 pre_pos = TRWorld::GlobalToWorld(_pObj->GetPos());
 	Vec2 post_pos = world_pos;
@@ -460,14 +492,16 @@ void updateTileCollision(CObject* const _pObj,TRWorld* const _pTRWorld)
     //    _pObj->SetPos({ xLimit * (sector + 1) - vScaleX * 2- sector * 0.f ,vPos.y });
     //    _pObj->SetWillPos(_pObj->GetPos());
     //}
-    if (vPos.x + vScaleX >= 2000 + sector * 1350)
-    {
-        _pObj->SetPos(Vec2{ 2000.f + sector * 1350.f - vScaleX ,vPos.y});
-        _pObj->SetWillPos(_pObj->GetPos());
-    }
-    else if (vPos.x - vScaleX <= 2000 + (sector-1) * 1350 + 50.f)
-    {
-        _pObj->SetPos(Vec2{ 2000.f + (sector - 1) * 1350.f + vScaleX + 50.f ,vPos.y });
-        _pObj->SetWillPos(_pObj->GetPos());
-    }
+
+    
+   //if (vPos.x + vScaleX >= 2000 + sector * 1350)
+   //{
+   //    _pObj->SetPos(Vec2{ 2000.f + sector * 1350.f - vScaleX ,vPos.y});
+   //    _pObj->SetWillPos(_pObj->GetPos());
+   //}
+   //else if (vPos.x - vScaleX <= 2000 + (sector-1) * 1350 + 50.f)
+   //{
+   //    _pObj->SetPos(Vec2{ 2000.f + (sector - 1) * 1350.f + vScaleX + 50.f ,vPos.y });
+   //    _pObj->SetWillPos(_pObj->GetPos());
+   //}
 }

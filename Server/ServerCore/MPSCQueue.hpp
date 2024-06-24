@@ -10,7 +10,6 @@ namespace ServerCore
 	{
 	private:
 		struct Node
-			:public EBRNode
 		{
 			T data;
 			std::atomic<Node*> next = nullptr;
@@ -58,7 +57,7 @@ namespace ServerCore
 				if(true == compareExchange(&tail, &oldTail, value))
 				{
 					oldTail->next.store(value, std::memory_order_release);
-					break;
+					return;
 				}
 				bo.delay();
 			}

@@ -8,3 +8,10 @@ enum PLAYER_STATE
     JUMP = 2;
     ATTACK = 3;
 }
+
+enum STAT
+{
+    HP=0;
+    EXP=1;
+    GOLD=2;
+}

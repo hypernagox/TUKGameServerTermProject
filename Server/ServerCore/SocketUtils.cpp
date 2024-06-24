@@ -12,7 +12,7 @@ namespace ServerCore
 	LPFN_DISCONNECTEX	SocketUtils::DisconnectEx = nullptr;
 	LPFN_ACCEPTEX		SocketUtils::AcceptEx = nullptr;
 
-	S_ptr<class IocpCore> SocketUtils::Init()noexcept
+	std::shared_ptr<class IocpCore> SocketUtils::Init()noexcept
 	{
 		WSADATA wsaData;
 		NAGOX_ASSERT(::WSAStartup(MAKEWORD(2, 2), OUT & wsaData) == 0);
@@ -26,7 +26,7 @@ namespace ServerCore
 
 		std::atomic_thread_fence(std::memory_order_seq_cst);
 
-		return ServerCore::MakeShared<IocpCore>();
+		return std::make_shared<IocpCore>();
 	}
 
 	void SocketUtils::Clear()noexcept

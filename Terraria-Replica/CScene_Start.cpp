@@ -38,7 +38,7 @@ CScene_Start::~CScene_Start()
 void CScene_Start::Enter()
 {
 	CScene::Enter();
-	Mgr(CEventMgr)->SetTRupdate(&TRMain::Update, m_pTRMain);
+	Mgr(CEventMgr)->SetTRupdate(&TRMain::Update, Mgr(TRMain));
 	g_bLoadMainStage = false;
 	Mgr(CSoundMgr)->PlayEffect("Menu_Close.wav", 1.f);
 	//Protocol::c2s_ENTER pkt;
@@ -47,21 +47,21 @@ void CScene_Start::Enter()
 
 void CScene_Start::Exit()
 {
-	delete m_pTRMain;
+	//delete g_pTRMain;
 	CScene::Exit();
-	m_pTRMain = nullptr;
+	//g_pTRMain = nullptr;
 	m_bChangeScene = false;
 }
 
 void CScene_Start::update()
 {
 	CScene::update();
-	if (KEY_TAP(KEY::RSHIFT) && !m_bChangeScene)
-	{
-		m_bChangeScene = true;
-		g_bLoadMainStage.store(true, std::memory_order_seq_cst);
-		ChangeScene(SCENE_TYPE::INTRO);
-	}
+	//if (KEY_TAP(KEY::RSHIFT) && !m_bChangeScene)
+	//{
+	//	m_bChangeScene = true;
+	//	g_bLoadMainStage.store(true, std::memory_order_seq_cst);
+	//	ChangeScene(SCENE_TYPE::INTRO);
+	//}
 }
 
 void CScene_Start::render(HDC _dc)
@@ -71,6 +71,10 @@ void CScene_Start::render(HDC _dc)
 
 void CScene_Start::CreateStage()
 {
+	static bool bInit = false;
+	if (bInit)
+		return;
+	bInit = true;
 	const Vec2 vRes = Mgr(CCore)->GetResolutionV();
 	float ground_level = 64 * PIXELS_PER_TILE;
 
@@ -93,15 +97,16 @@ void CScene_Start::LoadWorld()
 
 
 	//  TR월드 생성 
-	TRMain* terraria_main = new TRMain();
-	m_pTRMain = terraria_main;
+	
+	TRMain* terraria_main = Mgr(TRMain);
+	//g_pTRMain = terraria_main;
 
 	std::atomic_thread_fence(std::memory_order_seq_cst);
 	//std::this_thread::sleep_for(std::chrono::seconds(3));
 	g_bLoadMainStage = false;
 	Mgr(CSoundMgr)->PlayBGM("03. Overworld Day.mp3", 0.1f);
 
-	Mgr(CEventMgr)->SetTRupdate(&TRMain::Update, m_pTRMain);
+	Mgr(CEventMgr)->SetTRupdate(&TRMain::Update, Mgr(TRMain));
 	//ChangeScene(SCENE_TYPE::START);
 	Protocol::c2s_ENTER pkt;
 	Send(pkt);

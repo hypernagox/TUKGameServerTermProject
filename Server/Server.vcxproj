@@ -155,9 +155,12 @@
     <ClCompile Include="ClientSession.cpp" />
     <ClCompile Include="CollisionChecker.cpp" />
     <ClCompile Include="CollisionHandler.cpp" />
+    <ClCompile Include="CollisionResolver.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="EventHandler.cpp" />
+    <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="ItemComponent.cpp" />
+    <ClCompile Include="NPC.cpp" />
     <ClCompile Include="ObjectFactory.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
     <ClCompile Include="func.cpp" />
@@ -186,6 +189,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Reward.cpp" />
+    <ClCompile Include="Status.cpp" />
+    <ClCompile Include="Store.cpp" />
+    <ClCompile Include="TimerNPC.cpp" />
     <ClCompile Include="TRTile.cpp" />
     <ClCompile Include="TRTileManager.cpp" />
     <ClCompile Include="TRTileMap.cpp" />
@@ -195,6 +202,8 @@
     <ClCompile Include="TRWorldGenerationProcess.cpp" />
     <ClCompile Include="TRWorldMgr.cpp" />
     <ClCompile Include="TRWorldRoom.cpp" />
+    <ClCompile Include="TRWorldChunk.cpp" />
+    <ClCompile Include="TRWorldSector.cpp" />
     <ClCompile Include="Vec2.cpp" />
     <ClCompile Include="Vec2Int.cpp" />
   </ItemGroup>
@@ -202,6 +211,7 @@
     <None Include="ServerCore\GenPackets\Enum.proto" />
     <None Include="ServerCore\GenPackets\Protocol.proto" />
     <None Include="ServerCore\GenPackets\Struct.proto" />
+    <None Include="store.lua" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIComponent.h" />
@@ -209,9 +219,12 @@
     <ClInclude Include="ClientSession.h" />
     <ClInclude Include="CollisionChecker.h" />
     <ClInclude Include="CollisionHandler.h" />
+    <ClInclude Include="CollisionResolver.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="EventHandler.h" />
+    <ClInclude Include="Inventory.h" />
     <ClInclude Include="ItemComponent.h" />
+    <ClInclude Include="NPC.h" />
     <ClInclude Include="ObjectFactory.h" />
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="CustomMath.hpp" />
@@ -225,7 +238,11 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PerlinNoise.hpp" />
     <ClInclude Include="Registry.hpp" />
+    <ClInclude Include="Reward.h" />
     <ClInclude Include="SimpleMath.hpp" />
+    <ClInclude Include="Status.h" />
+    <ClInclude Include="Store.h" />
+    <ClInclude Include="TimerNPC.h" />
     <ClInclude Include="TRdefine.h" />
     <ClInclude Include="TRTile.h" />
     <ClInclude Include="TRTileManager.h" />
@@ -236,6 +253,8 @@
     <ClInclude Include="TRWorldGenerationProcess.h" />
     <ClInclude Include="TRWorldMgr.h" />
     <ClInclude Include="TRWorldRoom.h" />
+    <ClInclude Include="TRWorldChunk.h" />
+    <ClInclude Include="TRWorldSector.h" />
     <ClInclude Include="Vec2.hpp" />
     <ClInclude Include="Vec2Int.hpp" />
     <ClInclude Include="Vector2D.hpp" />

@@ -3,6 +3,7 @@
 #include "IocpObject.h"
 #include "MPSCQueue.hpp"
 #include "RecvBuffer.h"
+#include "ID_Ptr.hpp"
 
 namespace ServerCore
 {
@@ -22,8 +23,9 @@ namespace ServerCore
 
 
 	class Session
-		:public IocpObject
+		:public IocpEntity
 	{
+		friend class Service;
 		friend class Listener;
 		friend class IocpCore;
 		friend class PacketSession;
@@ -39,16 +41,19 @@ namespace ServerCore
 		void SendAsync(S_ptr<SendBuffer> pSendBuff_)noexcept
 		{
 			m_sendQueue.emplace(std::move(pSendBuff_));
+			TrySend();
+		}
+		inline void TrySend()noexcept
+		{
 			if (false == m_bIsSendRegistered.exchange(true, std::memory_order_relaxed))
 			{
 				std::atomic_thread_fence(std::memory_order_acquire);
+				//auto pValid = S_ptr<Session>{ this };
+				//if (nullptr == pValid)
+				//	return;
+				m_pSendEvent->m_registerSendEvent.SetIocpObject(SharedFromThis());
 				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, reinterpret_cast<IocpEvent* const>(reinterpret_cast<char* const>(m_pSendEvent.get()) + sizeof(IocpEvent)));
 			}
-		}
-
-		void DisconnectAsync(std::wstring cause)noexcept
-		{
-			Mgr(ThreadMgr)->EnqueueGlobalTask(PoolNew<Task>(&Session::Disconnect, this->SharedCastThis<Session>(), std::move(cause)));
 		}
 		template <typename S_ptr_SendBuffer>
 		void SendOnlyEnqueue(S_ptr_SendBuffer&& pSendBuff_)noexcept
@@ -56,11 +61,13 @@ namespace ServerCore
 			m_sendQueue.emplace(std::forward<S_ptr_SendBuffer>(pSendBuff_));
 		}
 		bool Connect();
-		void Disconnect(std::wstring cause);
-		constexpr const uint64 GetSessionID()const noexcept { return m_iSessionID; }
+
+		bool Disconnect(const std::wstring_view cause)noexcept;
+
+		const uint64 GetSessionID()const noexcept { return GetObjectID(); }
 		const uint64 GetSessionIDAndAlive()const noexcept {
 			std::atomic_thread_fence(std::memory_order_acquire);
-			return m_iSessionID * m_bConnected;
+			return GetObjectID() * m_bConnected;
 		}
 		Service* const GetService()const noexcept { return m_pService; }
 		void SetService(Service* const pService_)noexcept { m_pService = pService_; }
@@ -74,6 +81,7 @@ namespace ServerCore
 			//std::atomic_thread_fence(std::memory_order_acquire);
 			return m_bConnectedNonAtomic;
 		}
+		const bool IsConnectedAtomic()const noexcept { return m_bConnected.load(std::memory_order_relaxed); }
 		const bool IsHeartBeatAlive()const noexcept {
 			//std::atomic_thread_fence(std::memory_order_acquire);
 			return m_bHeartBeatAlive;
@@ -117,25 +125,24 @@ namespace ServerCore
 
 	private:
 		MPSCQueue<S_ptr<SendBuffer>> m_sendQueue;
-		const U_ptr<SendEvent> m_pSendEvent;
+		const U_Pptr<SendEvent> m_pSendEvent;
 		Atomic<bool> m_bIsSendRegistered = false;
 		volatile bool m_bConnectedNonAtomic = false;
-		Vector<WSABUF> m_wsaBufs;
 		SOCKET m_sessionSocket = INVALID_SOCKET;
 
 		Service* m_pService;
-		const U_ptr<DisconnectEvent> m_pDisconnectEvent;
+		const U_Pptr<DisconnectEvent> m_pDisconnectEvent;
 		NetAddress m_sessionAddr;
 
 		volatile bool m_bConnectedNonAtomicForRecv = false;
 		SOCKET m_sessionSocketForRecv = INVALID_SOCKET;
-		const U_ptr<RecvEvent> m_pRecvEvent;
+		const U_Pptr<RecvEvent> m_pRecvEvent;
 		const U_Pptr<RecvBuffer> m_pRecvBuffer;
 		const PacketHandleFunc* const __restrict m_sessionPacketHandler;
 
-		const uint64 m_iSessionID;
 		std::atomic<ID_Ptr<SessionManageable>> m_CurrentSessionRoomInfo;
 	private:
+		std::atomic_int m_serviceIdx = -1;
 		Atomic<bool>m_bConnected = false;
 		volatile bool m_bHeartBeatAlive = true;
 		int32 m_iLastErrorCode = 1;

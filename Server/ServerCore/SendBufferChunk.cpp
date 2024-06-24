@@ -5,7 +5,7 @@
 
 namespace ServerCore
 {
-	extern thread_local std::shared_ptr<class SendBufferChunk> LSendBufferChunk;
+	extern thread_local S_ptr<class SendBufferChunk> LSendBufferChunk;
 
 	S_ptr<SendBuffer> SendBufferChunk::Open(c_uint32 allocSize)noexcept
 	{

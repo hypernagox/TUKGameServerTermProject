@@ -10,25 +10,25 @@
 #include "ThreadMgr.h"
 #include "TRWorldChunk.h"
 #include "TRWorldMgr.h"
+#include "CollisionResolver.h"
+#include "TaskTimerMgr.h"
+#include "Inventory.h"
+#include "Status.h"
 
-TRWorldRoom::TRWorldRoom(const SECTOR sector_)
-	:SessionManageable{ static_cast<uint16>(sector_) }
-{
-}
-
-TRWorldRoom::TRWorldRoom(const uint16_t sector_)
-	:SessionManageable{ static_cast<uint16>(sector_) }
+TRWorldRoom::TRWorldRoom(const uint16_t sector_, TRWorldChunk* const pChunk_)
+	: SessionManageable{ static_cast<uint16>(sector_) }
+	, m_pParentChunk{ pChunk_ }
 {
 }
 
 TRWorldRoom::~TRWorldRoom()
 {
-	static std::atomic_bool bDelOnce = false;
-	if (false == bDelOnce.exchange(true))
-	{
-		for (auto& i : g_allPlayers)
-			i.clear_unsafe();
-	}
+	//static std::atomic_bool bDelOnce = false;
+	//if (false == bDelOnce.exchange(true))
+	//{
+	//	for (auto& i : g_allPlayers)
+	//		i.clear_unsafe();
+	//}
 }
 
 void TRWorldRoom::Update(const uint64 tick_ms)
@@ -47,6 +47,7 @@ void TRWorldRoom::Update(const uint64 tick_ms)
 			if (obj->IsValid())
 			{
 				obj->Update(dt);
+				obj->PostUpdate(dt);
 				//m_vecCollisionTask.emplace_back(ServerCore::Task(
 				//	[this, obj = obj->SharedCastThis<Object>()]()mutable noexcept {
 				//		this->UpdateTileCollisionForTick(std::move(obj));
@@ -59,8 +60,10 @@ void TRWorldRoom::Update(const uint64 tick_ms)
 			{
 				if (const auto sector = obj->m_pCurSector.exchange(nullptr, std::memory_order_relaxed))
 				{
-					sector->LeaveAndDisconnectEnqueue(obj->GetObjID());
-					obj->reset_cache_shared(*this);
+					obj->ResetEntity();
+					//sector->LeaveAndDisconnectEnqueue(obj->GetObjID());
+					this->LeaveAndDisconnectEnqueue(obj->GetObjID());
+					//obj->reset_cache_shared(*this);
 				}
 				iter = obj_list.EraseItemAndGetIter(obj->GetObjID());
 
@@ -69,7 +72,7 @@ void TRWorldRoom::Update(const uint64 tick_ms)
 			}
 		}
 	}
-	UpdateWorldCollision();
+	//UpdateWorldCollision();
 
 	//TickTileCollision();
 
@@ -103,6 +106,8 @@ void TRWorldRoom::Init()
 
 void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 {
+	if (!pObj_->IsValid())
+		return;
 	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
 	const uint64 objID = pObj_->GetObjID();
 	m_worldObjectList[threadID][etoi(eType_)].AddItem(objID, pObj_);
@@ -117,6 +122,12 @@ void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 	EnqueueAsync(&TRWorldRoom::AddObject, GROUP_TYPE{ eType_ }, std::move(pObj_), uint64{ threadID }, bool(pIsSession));
 }
 
+void TRWorldRoom::AddEnterEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
+{
+	EnterEnqueue(pObj_->GetIocpEntity());
+	AddObjectEnqueue(eType_, std::move(pObj_));
+}
+
 //void TRWorldRoom::DeleteObjectEnqueue(const GROUP_TYPE eType_, const uint64 objID_)
 //{
 //	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID();
@@ -125,27 +136,102 @@ void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 //	EnqueueAsync(&TRWorldRoom::DeleteObject, GROUP_TYPE{ eType_ }, uint64{ objID_ }, uint64{ threadID });
 //}
 
-void TRWorldRoom::LeavePlayer(const uint64 playerID) noexcept
+void TRWorldRoom::TryCollisionCheckEnqueue(Attackable* pCol, const GROUP_TYPE targetGroup,const Vec2 offset)
 {
-	const uint64 thID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
-	const auto player = m_worldObjectList[thID][etoi(GROUP_TYPE::PLAYER)].ExtractItem(playerID);
-	if (player)
+	const auto id = pCol->GetOwner()->GetObjID();
+	
+	for (const auto sector : GetAdjSector4())
 	{
-		//const auto& pSession = player->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
-		const auto pSession = (ClientSession*)player->GetIocpEntity().get();
-		for (const auto others : GetSessionList())
+		((TRWorldRoom*)sector)->EnqueueAsync(&TRWorldRoom::TryCollisionCheck, uint64_t{ id }, pCol->SharedFromThis<Attackable>(), GROUP_TYPE{targetGroup}, Vec2{offset});
+	}
+}
+
+void TRWorldRoom::TryCollisionCheckRangeEnqueue(RangeAttack* pCol, const GROUP_TYPE targetGroup, const int dir)
+{
+	const auto id = pCol->GetOwner()->GetObjID();
+
+	for (const auto sector : GetAdjSector4())
+	{
+		((TRWorldRoom*)sector)->EnqueueAsync(&TRWorldRoom::TryCollisionCheckRange, uint64_t{ id }, pCol->SharedFromThis<RangeAttack>(), GROUP_TYPE{ targetGroup }, int{dir});
+	}
+}
+
+void TRWorldRoom::TryCollisionCheckRange(const uint64 id, const S_ptr<RangeAttack> pCol, const GROUP_TYPE targetGroup, const int dir)
+{
+	const auto& mon_list = GetCurThreadGroupObject(targetGroup);
+	const auto user = ServerCore::GetSession(id);
+	if (!user)
+		return;
+	const auto col = pCol->GetOwner()->GetComp<Collider>();
+	const float r = pCol->GetRange() * (float)dir;
+	const float speed = pCol->GetSpeed();
+	const auto cur_x = user->GetContentsEntity()->ObjectCast()->GetPos().x;
+	for (const auto& mon : mon_list)
+	{
+		if (!mon->IsValid())
+			continue;
+		mon->GetComp<Collider>()->Update(0.f);
+		if (m_collisionChecker.IsCollisionRange(col, mon->GetComp<Collider>(),r))
 		{
-			Protocol::s2c_LEAVE_OBJECT pkt;
-			pkt.set_is_player(true);
-			pkt.set_obj_id(others->GetSessionID());
-			pkt.set_sector(GetRoomID());
-			pSession << pkt;
+			if (const auto resolver = mon->GetComp<CollisionResolver>())
+			{
+				const float dist = bitwise_absf(cur_x - mon->GetPos().x);
+				const int t = (int)((dist / speed)) * 100;
+				Mgr(TaskTimerMgr)->ReserveAsyncTask(t, [user,mon=mon->SharedFromThis<Object>(),pCol]() {
+					if (!mon->IsValid())
+						return;
+					const auto resolver = mon->GetComp<CollisionResolver>();
+					resolver->ResolveCollision(pCol->GetOwner(), pCol.get());
+					});
+				//resolver->ResolveCollision(pCol->GetOwner(), pCol.get());
+			}
 		}
 	}
+}
+
+void TRWorldRoom::TryCollisionCheck(const uint64 id, const S_ptr<Attackable> pCol, const GROUP_TYPE targetGroup,const Vec2 offset)
+{
+	const auto& mon_list = GetCurThreadGroupObject(targetGroup);
+	const auto user = ServerCore::GetSession(id);
+	if (!user)
+		return;
+	const auto col = pCol->GetOwner()->GetComp<Collider>();
+	for (const auto& mon : mon_list)
+	{
+		if (!mon->IsValid())
+			continue;
+		mon->GetComp<Collider>()->Update(0.f);
+		if (m_collisionChecker.IsCollision(col, mon->GetComp<Collider>(), offset))
+		{
+			if (const auto resolver = mon->GetComp<CollisionResolver>())
+			{
+				resolver->ResolveCollision(pCol->GetOwner(),pCol.get());
+			}
+		}
+	}
+}
+
+void TRWorldRoom::LeaveObject(const uint64 playerID, const GROUP_TYPE eType) noexcept
+{
+	const uint64 thID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
+	const auto player = m_worldObjectList[thID][etoi(eType)].ExtractItem(playerID);
+	//if (player)
+	//{
+	//	//const auto& pSession = player->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
+	//	const auto pSession = (ClientSession*)player->GetIocpEntity().get();
+	//	//for (const auto others : GetSessionList())
+	//	//{
+	//	//	Protocol::s2c_LEAVE_OBJECT pkt;
+	//	//	pkt.set_is_player(true);
+	//	//	pkt.set_obj_id(others->GetSessionID());
+	//	//	pkt.set_sector(GetRoomID());
+	//	//	pSession << pkt;
+	//	//}
+	//}
 	for (int i = 0; i < CONTAINER_SIZE; ++i)
 	{
 		if (thID == i)continue;
-		m_worldObjectList[i][etoi(GROUP_TYPE::PLAYER)].EraseItem(playerID);
+		m_worldObjectList[i][etoi(eType)].EraseItem(playerID);
 	}
 }
 
@@ -155,11 +241,11 @@ void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_, const 
 	if (bIsSession)
 	{
 		const auto pSession = pObj_->GetIocpEntity();
-		g_trWorldMain.TransmitTileRecord(pSession->SharedCastThis<ClientSession>());
+		//m_pParentChunk->TransmitTileRecord(pSession->SharedCastThis<ClientSession>());
 		for (int i = 0; i < CONTAINER_SIZE; ++i)
 		{
 			if (exceptThreadID == i)continue;
-			m_worldObjectList[i][etoi(eType_)].AddItem_endLock(obj_id, pObj_);
+			m_worldObjectList[i][etoi(eType_)].AddItem(obj_id, pObj_);
 			//g_allPlayers[i].AddItem_endLock(obj_id, pSession->SharedCastThis<ClientSession>());
 		}
 		//MoveBroadCast()
@@ -167,14 +253,15 @@ void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_, const 
 	}
 	else
 	{
-		EnterEnqueue(pObj_->GetIocpEntity()->SharedCastThis<ServerCore::IocpEntity>());
+		//EnterEnqueue(pObj_->GetIocpEntity()->SharedCastThis<ServerCore::IocpEntity>());
 		for (int i = 0; i < CONTAINER_SIZE; ++i)
 		{
 			if (exceptThreadID == i)continue;
-			m_worldObjectList[i][etoi(eType_)].AddItem_endLock(obj_id, pObj_);
+			m_worldObjectList[i][etoi(eType_)].AddItem(obj_id, pObj_);
 		}
 		//EnterEnqueue(pObj_->GetIocpEntity()->SharedCastThis<ServerCore::IocpEntity>());
 	}
+	pObj_->m_pCurSector.store(this, std::memory_order_release);
 }
 
 //void TRWorldRoom::DeleteObject(const GROUP_TYPE eType_, const uint64 objID_, const uint64 exceptThreadID)
@@ -205,18 +292,16 @@ void TRWorldRoom::UpdateWorldCollision()
 void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManageable> beforeRoom, const S_ptr<ServerCore::IocpEntity> pSession)noexcept
 {
 	const uint64 thID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
-	const auto pSession_ = static_cast<ClientSession* const>(pSession.get());
-	const uint64 sessionID = pSession_->GetObjectID();
-	const auto& player = pSession_->GetPlayer();
+	const uint64 sessionID = pSession->GetObjectID();
+	auto obj = (pSession->GetContentsEntity())->SharedFromThis<Object>();
 	const auto trBefromRoom = static_cast<TRWorldRoom* const>(beforeRoom.get());
+	const auto type = obj->GetObjectGroup();
+	trBefromRoom->LeaveObjectEnqueue(sessionID,type);
 
-
-	//trBefromRoom->LeavePlayerEnqueue(sessionID);
-
-	Protocol::s2c_LEAVE_OBJECT pkt1;
-	pkt1.set_is_player(true);
-	pkt1.set_obj_id(sessionID);
-	pkt1.set_sector(beforeRoom->GetRoomID());
+	//Protocol::s2c_LEAVE_OBJECT pkt1;
+	//pkt1.set_is_player(true);
+	//pkt1.set_obj_id(sessionID);
+	//pkt1.set_sector(beforeRoom->GetRoomID());
 
 	//trBefromRoom << pkt1;
 	
@@ -244,12 +329,12 @@ void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManagea
 	//	pSession_ << pkt;
 	//}
 
-	//AddObjectEnqueue(GROUP_TYPE::PLAYER, player);
+	AddObjectEnqueue(type, std::move(obj));
 }
 
 void TRWorldRoom::BroadCastToWorld(const S_ptr<ServerCore::SendBuffer> pSendBuffer)
 {
-	TRMgr(TRWorldMgr)->GetMainWorld()->BroadCastToWorld(pSendBuffer);
+	m_pParentChunk->BroadCastToWorld(pSendBuffer);
 	//const uint64 thID_ = Mgr(ThreadMgr)->GetCurThreadID() - 1;
 	//
 	//const auto end_iter = g_allPlayers[thID_].cend_safe();
@@ -278,9 +363,9 @@ void TRWorldRoom::BroadCastToWorld(const S_ptr<ServerCore::SendBuffer> pSendBuff
 	//}
 }
 
-void TRWorldRoom::LeavePlayerEnqueue(const uint64 playerID) noexcept
+void TRWorldRoom::LeaveObjectEnqueue(const uint64 playerID, const GROUP_TYPE eType) noexcept
 {
-	EnqueueAsync(&TRWorldRoom::LeavePlayer, uint64{ playerID });
+	EnqueueAsync(&TRWorldRoom::LeaveObject, uint64{ playerID }, GROUP_TYPE{ eType });
 }
 
 void TRWorldRoom::TickTileCollision()
@@ -322,21 +407,22 @@ void TRWorldRoom::TickTileCollision()
 bool TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer, const Vec2 offset_)
 {
 	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
-	const auto pPlayerCollider = pPlayer->GetComp("COLLIDER")->Cast<Collider>();
+	const auto pPlayerCollider = pPlayer->GetComp<Collider>();
 	//const auto& pSession = pPlayer->GetComp("SESSIONOBJECT")->Cast<SessionObject>()->GetSession();
 	const auto pSession = (ClientSession*)pPlayer->GetIocpEntity().get();
 
 	auto begin_iter = m_worldObjectList[threadID][etoi(GROUP_TYPE::DROP_ITEM)].cbegin();
-	const auto end_iter = m_worldObjectList[threadID][etoi(GROUP_TYPE::DROP_ITEM)].cend_safe();
+	const auto end_iter = m_worldObjectList[threadID][etoi(GROUP_TYPE::DROP_ITEM)].cend();
 	bool flag = false;
 	for (; begin_iter != end_iter; ++begin_iter)
 	{
 		const auto pItem = (*begin_iter);
-		const auto pCol = pItem->GetComp("COLLIDER")->Cast<Collider>();
+		const auto pCol = pItem->GetComp<Collider>();
 
 		if (CollisionChecker::IsCollision(pPlayerCollider, pCol,offset_))
 		{
-			if (pItem->GetComp("ACQUIREITEM")->Cast<AcquireItem>()->TryGetItem())
+			const auto acquire_item = pItem->GetComp<AcquireItem>();
+			if (acquire_item->TryGetItem())
 			{
 				pItem->SetInvalid();
 
@@ -344,9 +430,14 @@ bool TRWorldRoom::TryGetItem(const S_ptr<Object>& pPlayer, const Vec2 offset_)
 				pkt.set_obj_id(pSession->GetSessionID());
 				pkt.set_item_name(pItem->GetObjectName());
 				pkt.set_item_id(pItem->GetObjID());
-				pkt.set_sector(GetRoomID());
+				pkt.set_is_gold(acquire_item->IsGold());
 
-				pSession << pkt;
+				//pSession << pkt;
+				pSession->SendAsync(ServerCore::c2s_PacketHandler::MakeSendBuffer(pkt));
+				if (!acquire_item->IsGold())
+					pPlayer->GetComp<Inventory>()->IncItem(pItem->GetObjectName());
+				else
+					pPlayer->GetComp<Status>()->ModifyGold(1);
 				//BroadCastToWorld(ServerCore::c2s_PacketHandler::MakeSendBuffer(pkt));
 				//this << pkt;
 				flag = true;
@@ -377,14 +468,14 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 	//}
 
 	
-	const auto pRigid = pObj_->GetComp("RIGIDBODY")->Cast<RigidBody>();
+	const auto pRigid = pObj_->GetComp<RigidBody>();
 	//if (nullptr == pRigid)
 	//	return;
 	if (!pRigid) {
 		pObj_->PostUpdate(m_timer.GetDT());
 		return;
 	}
-	const auto pCol = pObj_->GetComp("COLLIDER")->Cast<Collider>();
+	const auto pCol = pObj_->GetComp<Collider>();
 
 	if (pCol == nullptr || "Monster_CthulhuEye" == pObj_->GetObjectName())[[unlikely]]
 	{
@@ -416,7 +507,7 @@ void TRWorldRoom::UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noe
 	//Vec2 temp_prev_vel;
 	bool prev_landed = pRigid->IsGround();
 	bool bCollide = false;
-	const auto& trWorld = g_trWorld;
+	const auto& trWorld = *m_pParentChunk;
 	for (int i = 1; i <= try_num; ++i)
 	{
 		const Vec2 seq_pos = prev_pos + delta_pos * (float)i;

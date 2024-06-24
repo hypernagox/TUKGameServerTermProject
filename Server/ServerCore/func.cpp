@@ -3,6 +3,7 @@
 #include "ThreadMgr.h"
 #include "Service.h"
 #include "Session.h"
+#include "RefCountable.h"
 
 namespace ServerCore
 {

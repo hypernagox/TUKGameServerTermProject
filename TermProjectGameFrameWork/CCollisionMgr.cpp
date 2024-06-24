@@ -40,30 +40,34 @@ bool CCollisionMgr::IsCollision(const CCollider* const _pLeftCol, const CCollide
 
 void CCollisionMgr::update()
 {
-	for (int iRow = 0; iRow < etoi(GROUP_TYPE::END); ++iRow)
-	{
-		for (int iCol = iRow; iCol < etoi(GROUP_TYPE::END); ++iCol)
-		{
-			if (m_bitColTable[iRow][iCol])
-			{
-				//CollisionUpdateGroup(static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
-				//Mgr(CThreadMgr)->EnqueueUpdate(&CCollisionMgr::CollisionUpdateGroup,this, static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
-			}
-		}
-	}
+	//for (int iRow = 0; iRow < etoi(GROUP_TYPE::END); ++iRow)
+	//{
+	//	for (int iCol = iRow; iCol < etoi(GROUP_TYPE::END); ++iCol)
+	//	{
+	//		if (m_bitColTable[iRow][iCol])
+	//		{
+	//			//CollisionUpdateGroup(static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
+	//			//Mgr(CThreadMgr)->EnqueueUpdate(&CCollisionMgr::CollisionUpdateGroup,this, static_cast<GROUP_TYPE>(iRow), static_cast<GROUP_TYPE>(iCol));
+	//		}
+	//	}
+	//}
 
 	const auto& arrCurSceneObj = Mgr(CSceneMgr)->GetCurScene()->GetSceneObj();
 
 	//Mgr(CThreadMgr)->JoinUpdate();
-	for (const auto& vecObj : arrCurSceneObj)
+	//for (const auto& vecObj : arrCurSceneObj)
+	//{
+	//	const auto vecPtr = vecObj.data();
+	//	for (size_t i = 0, size = vecObj.size(); i < size; ++i)
+	//	{
+	//		//Mgr(CThreadMgr)->EnqueueUpdate(&CObject::updateTileCollision, vecPtr[i].get());
+	//		if(vecPtr[i]->GetName()==L"HERO")
+	//			vecPtr[i]->updateTileCollision();
+	//	}
+	//}
+	if (const auto p = Mgr(CSceneMgr)->GetCurScene()->GetPlayer())
 	{
-		const auto vecPtr = vecObj.data();
-		for (size_t i = 0, size = vecObj.size(); i < size; ++i)
-		{
-			//Mgr(CThreadMgr)->EnqueueUpdate(&CObject::updateTileCollision, vecPtr[i].get());
-			if(vecPtr[i]->GetName()==L"HERO")
-				vecPtr[i]->updateTileCollision();
-		}
+		p->updateTileCollision();
 	}
 	//if (const auto p = Mgr(CSceneMgr)->GetCurScene()->GetPlayer())
 	//{

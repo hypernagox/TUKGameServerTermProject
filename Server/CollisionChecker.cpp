@@ -5,7 +5,8 @@
 
 bool CollisionChecker::IsCollision(const Collider* const _pLeftCol, const Collider* const _pRightCol, const Vec2 offSet_) noexcept
 {
-	const Vec2 vLeftPos = _pLeftCol->GetFinalPos() + offSet_;
+	//const Vec2 vLeftPos = _pLeftCol->GetFinalPos() + offSet_;
+	const Vec2 vLeftPos = _pLeftCol->GetFinalPos();
 	const Vec2 vLeftScale = _pLeftCol->GetScale();
 
 	const Vec2 vRightPos = _pRightCol->GetFinalPos();
@@ -20,17 +21,27 @@ bool CollisionChecker::IsCollision(const Collider* const _pLeftCol, const Collid
 	return false;
 }
 
-bool CollisionChecker::IsCollisionCCD(const Collider* const _pLeftCol, const Collider* const _pRightCol) noexcept
+bool CollisionChecker::IsCollisionCCD(const Collider* const _pLeftCol, const Collider* const _pRightCol,
+	const int try_num ,
+	const Vec2 aOffset, 
+	const Vec2 bOffset) noexcept
 {
 	// 거리 너무 과하면 바로 쳐냄
-
-	constexpr const int try_num = 5;
-
-	const Vec2 vPrev_A = _pLeftCol->GetPrevPos();
-	const Vec2 vPrev_B = _pRightCol->GetPrevPos();
+	const Vec2 vPrev_A = _pLeftCol->GetPrevPos() + aOffset;
+	const Vec2 vPrev_B = _pRightCol->GetPrevPos() + bOffset;
 
 	const Vec2 vScale_A = _pLeftCol->GetScale() / 2.f;
 	const Vec2 vScale_B = _pRightCol->GetScale() / 2.f;
+
+	
+	const int dx = (int)bitwise_absf(vPrev_B.x - vPrev_A.x);
+	const int dy = (int)bitwise_absf(vPrev_B.y - vPrev_A.y);
+
+	const int combinedHalfWidth =  ((int)(vScale_A.x + vScale_B.x)) * 2;
+	const int combinedHalfHeight = ((int)(vScale_A.y + vScale_B.y)) * 2;
+
+	if (!(dx <= combinedHalfWidth && dy <= combinedHalfHeight))
+		return false;
 
 	const Vec2 vDelta_A = (_pLeftCol->GetFinalPos() - vPrev_A) / (float)try_num;
 	const Vec2 vDelta_B = (_pRightCol->GetFinalPos() - vPrev_B) / (float)try_num;
@@ -54,6 +65,26 @@ bool CollisionChecker::IsCollisionCCD(const Collider* const _pLeftCol, const Col
 	return false;
 }
 
+bool CollisionChecker::IsCollisionRange(const Collider* const _pLeftCol, const Collider* const _pRightCol, const float range) noexcept
+{
+	const Vec2 LeftPos = _pLeftCol->GetFinalPos();
+	const Vec2 vRangePos = LeftPos + Vec2{ range/2.f,0.f };
+	const float x_range = bitwise_absf(LeftPos.x - vRangePos.x);
+	const Vec2 vLeftPos = Vec2{ (LeftPos.x + vRangePos.x) / 2.f,LeftPos.y };
+	const Vec2 vLeftScale = Vec2{ 0.f,_pLeftCol->GetScale().y } + Vec2{ x_range,0.f };
+
+	const Vec2 vRightPos = _pRightCol->GetFinalPos();
+	const Vec2 vRightScale = _pRightCol->GetScale();
+
+	if (bitwise_absf(vLeftPos.x - vRightPos.x) <= (vLeftScale.x + vRightScale.x) / 2.f
+		&& bitwise_absf(vLeftPos.y - vRightPos.y) <= (vLeftScale.y + vRightScale.y) / 2.f)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void CollisionChecker::CollisionUpdateGroup(const ServerCore::LinkedHashMap<uint64, Object>& a, const ServerCore::LinkedHashMap<uint64, Object>& b)
 {
 	const auto& left_list = a.GetItemListRef();
@@ -61,14 +92,14 @@ void CollisionChecker::CollisionUpdateGroup(const ServerCore::LinkedHashMap<uint
 
 	for (const auto iter_a : left_list)
 	{
-		const auto pLeftCol = iter_a->GetComp("COLLIDER")->Cast<Collider>();
+		const auto pLeftCol = iter_a->GetComp<Collider>();
 
 		if (nullptr == pLeftCol)
 			continue;
 
 		for (const auto iter_b : right_list)
 		{
-			const auto pRightCol = iter_b->GetComp("COLLIDER")->Cast<Collider>();
+			const auto pRightCol = iter_b->GetComp<Collider>();
 			
 			if (nullptr == pRightCol || pLeftCol == pRightCol)
 				continue;

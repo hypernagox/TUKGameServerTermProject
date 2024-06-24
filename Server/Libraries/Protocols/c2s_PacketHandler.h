@@ -13,36 +13,53 @@ namespace ServerCore
 		s2c_LOGIN = 1001,
 		c2s_ENTER = 1002,
 		s2c_ENTER = 1003,
-		c2s_BREAK_TILE = 1004,
-		s2c_BREAK_TILE = 1005,
-		c2s_BREAK_TILE_WALL = 1006,
-		s2c_BREAK_TILE_WALL = 1007,
-		c2s_PLACE_TILE = 1008,
-		s2c_PLACE_TILE = 1009,
-		c2s_PLACE_TILE_WALL = 1010,
-		s2c_PLACE_TILE_WALL = 1011,
-		c2s_MOVE = 1012,
-		s2c_MOVE = 1013,
-		c2s_CREATE_ITEM = 1014,
-		s2c_CREATE_ITEM = 1015,
-		c2s_GET_ITEM = 1016,
-		s2c_GET_ITEM = 1017,
-		c2s_INPUT_KEY = 1018,
-		s2c_INPUT_KEY = 1019,
-		c2s_TRY_GET_ITEM = 1020,
-		s2c_TRY_GET_ITEM = 1021,
-		c2s_TRY_NEW_ROOM = 1022,
-		s2c_TRY_NEW_ROOM = 1023,
-		c2s_ARRIVE_NEW_ROOM = 1024,
-		s2c_ARRIVE_NEW_ROOM = 1025,
-		c2s_APPEAR_NEW_OBJECT = 1026,
-		s2c_APPEAR_NEW_OBJECT = 1027,
-		c2s_LEAVE_OBJECT = 1028,
-		s2c_LEAVE_OBJECT = 1029,
-		c2s_CREATE_MISSILE = 1030,
-		s2c_CREATE_MISSILE = 1031,
-		c2s_CREATE_MONSTER = 1032,
-		s2c_CREATE_MONSTER = 1033,
+		c2s_SWING = 1004,
+		s2c_SWING = 1005,
+		c2s_BREAK_TILE = 1006,
+		s2c_BREAK_TILE = 1007,
+		c2s_BREAK_TILE_WALL = 1008,
+		s2c_BREAK_TILE_WALL = 1009,
+		c2s_PLACE_TILE = 1010,
+		s2c_PLACE_TILE = 1011,
+		c2s_PLACE_TILE_WALL = 1012,
+		s2c_PLACE_TILE_WALL = 1013,
+		c2s_MOVE = 1014,
+		s2c_MOVE = 1015,
+		c2s_CREATE_ITEM = 1016,
+		s2c_CREATE_ITEM = 1017,
+		c2s_GET_ITEM = 1018,
+		s2c_GET_ITEM = 1019,
+		c2s_INPUT_KEY = 1020,
+		s2c_INPUT_KEY = 1021,
+		c2s_TRY_GET_ITEM = 1022,
+		s2c_TRY_GET_ITEM = 1023,
+		c2s_TRY_NEW_ROOM = 1024,
+		s2c_TRY_NEW_ROOM = 1025,
+		c2s_ARRIVE_NEW_ROOM = 1026,
+		s2c_ARRIVE_NEW_ROOM = 1027,
+		c2s_APPEAR_NEW_OBJECT = 1028,
+		s2c_APPEAR_NEW_OBJECT = 1029,
+		c2s_LEAVE_OBJECT = 1030,
+		s2c_LEAVE_OBJECT = 1031,
+		c2s_CREATE_MISSILE = 1032,
+		s2c_CREATE_MISSILE = 1033,
+		c2s_CREATE_MONSTER = 1034,
+		s2c_CREATE_MONSTER = 1035,
+		s2c_DMG_INFO = 1036,
+		s2c_STAT_MODIFY = 1037,
+		s2c_LEVEL_UP = 1038,
+		c2s_BUY_ITEM = 1039,
+		s2c_BUY_ITEM = 1040,
+		s2c_INIT_ALL_STAT = 1041,
+		c2s_CHAT = 1042,
+		s2c_CHAT = 1043,
+		s2c_LOGIN_FAIL = 1044,
+		c2s_PARTY_SINCHUNG = 1045,
+		s2c_PARTY_SINCHUNG = 1046,
+		c2s_PARTY_SURAK = 1047,
+		s2c_PARTY_SURAK = 1048,
+		c2s_PARTY_OUT = 1049,
+		s2c_PARTY_OUT = 1050,
 	};
 	
 	class PacketSession;
@@ -53,6 +70,7 @@ namespace ServerCore
 	const bool Handle_Invalid(const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_);
 	const bool Handle_c2s_LOGIN(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_LOGIN& pkt_);
 	const bool Handle_c2s_ENTER(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_ENTER& pkt_);
+	const bool Handle_c2s_SWING(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_SWING& pkt_);
 	const bool Handle_c2s_BREAK_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE& pkt_);
 	const bool Handle_c2s_BREAK_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE_WALL& pkt_);
 	const bool Handle_c2s_PLACE_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE& pkt_);
@@ -68,6 +86,11 @@ namespace ServerCore
 	const bool Handle_c2s_LEAVE_OBJECT(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_LEAVE_OBJECT& pkt_);
 	const bool Handle_c2s_CREATE_MISSILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CREATE_MISSILE& pkt_);
 	const bool Handle_c2s_CREATE_MONSTER(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CREATE_MONSTER& pkt_);
+	const bool Handle_c2s_BUY_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BUY_ITEM& pkt_);
+	const bool Handle_c2s_CHAT(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CHAT& pkt_);
+	const bool Handle_c2s_PARTY_SINCHUNG(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PARTY_SINCHUNG& pkt_);
+	const bool Handle_c2s_PARTY_SURAK(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PARTY_SURAK& pkt_);
+	const bool Handle_c2s_PARTY_OUT(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PARTY_OUT& pkt_);
 	
 	class c2s_PacketHandler
 	{
@@ -78,6 +101,7 @@ namespace ServerCore
 		{
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_LOGIN)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_LOGIN>(Handle_c2s_LOGIN, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_ENTER)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_ENTER>(Handle_c2s_ENTER, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_SWING)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_SWING>(Handle_c2s_SWING, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_BREAK_TILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_BREAK_TILE>(Handle_c2s_BREAK_TILE, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_BREAK_TILE_WALL)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_BREAK_TILE_WALL>(Handle_c2s_BREAK_TILE_WALL, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_PLACE_TILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_PLACE_TILE>(Handle_c2s_PLACE_TILE, pSession_, pBuff_, len_); };
@@ -93,6 +117,11 @@ namespace ServerCore
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_LEAVE_OBJECT)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_LEAVE_OBJECT>(Handle_c2s_LEAVE_OBJECT, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_CREATE_MISSILE)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_CREATE_MISSILE>(Handle_c2s_CREATE_MISSILE, pSession_, pBuff_, len_); };
 			g_fpPacketHandler[net_etoi(PKT_ID::c2s_CREATE_MONSTER)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_CREATE_MONSTER>(Handle_c2s_CREATE_MONSTER, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_BUY_ITEM)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_BUY_ITEM>(Handle_c2s_BUY_ITEM, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_CHAT)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_CHAT>(Handle_c2s_CHAT, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_PARTY_SINCHUNG)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_PARTY_SINCHUNG>(Handle_c2s_PARTY_SINCHUNG, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_PARTY_SURAK)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_PARTY_SURAK>(Handle_c2s_PARTY_SURAK, pSession_, pBuff_, len_); };
+			g_fpPacketHandler[net_etoi(PKT_ID::c2s_PARTY_OUT)] = [](const S_ptr<PacketSession>& pSession_, BYTE* const pBuff_, c_int32 len_)->const bool { return HandlePacket<Protocol::c2s_PARTY_OUT>(Handle_c2s_PARTY_OUT, pSession_, pBuff_, len_); };
 			for (auto& fpHandlerFunc : g_fpPacketHandler) 
 			{
 				if (nullptr == fpHandlerFunc)
@@ -115,6 +144,7 @@ namespace ServerCore
 		}
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_LOGIN& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_LOGIN); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_ENTER& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_ENTER); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_SWING& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_SWING); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_BREAK_TILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_BREAK_TILE); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_BREAK_TILE_WALL& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_BREAK_TILE_WALL); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_PLACE_TILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_PLACE_TILE); }
@@ -130,6 +160,16 @@ namespace ServerCore
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_LEAVE_OBJECT& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_LEAVE_OBJECT); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_CREATE_MISSILE& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_CREATE_MISSILE); }
 		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_CREATE_MONSTER& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_CREATE_MONSTER); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_DMG_INFO& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_DMG_INFO); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_STAT_MODIFY& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_STAT_MODIFY); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_LEVEL_UP& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_LEVEL_UP); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_BUY_ITEM& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_BUY_ITEM); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_INIT_ALL_STAT& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_INIT_ALL_STAT); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_CHAT& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_CHAT); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_LOGIN_FAIL& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_LOGIN_FAIL); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_PARTY_SINCHUNG& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_PARTY_SINCHUNG); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_PARTY_SURAK& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_PARTY_SURAK); }
+		static S_ptr<SendBuffer> MakeSendBuffer(Protocol::s2c_PARTY_OUT& pkt)noexcept { return MakeSendBuffer(pkt, PKT_ID::s2c_PARTY_OUT); }
 	
 	private:
 		template<typename PacketType, typename ProcessFunc>

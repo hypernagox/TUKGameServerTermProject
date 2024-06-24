@@ -3,6 +3,7 @@
 class Object;
 
 class CollisionHandler
+	:public ServerCore::RefCountable
 {
 public:
 	virtual void OnCollisionEnter(Object* const a, Object* const b) {}

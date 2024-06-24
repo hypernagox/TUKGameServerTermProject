@@ -5,7 +5,7 @@
 
 namespace ServerCore
 {
-	extern thread_local std::shared_ptr<class SendBufferChunk> LSendBufferChunk;
+	extern thread_local S_ptr<class SendBufferChunk> LSendBufferChunk;
 
 	template<typename T>
 	class SendBufferAllocator
@@ -30,7 +30,7 @@ namespace ServerCore
 	};
 
 	SendBufferMgr::SendBufferMgr()
-		:m_pSendBufferPool{ MakeUnique<AtomicNonTemplate>(AllocateSharedActualSize<SendBufferChunk>()) }
+		:m_pSendBufferPool{ sizeof(SendBufferChunk)}
 	{
 	}
 
@@ -54,6 +54,12 @@ namespace ServerCore
 
 	S_ptr<SendBufferChunk> SendBufferMgr::Pop()noexcept
 	{
-		return std::allocate_shared<SendBufferChunk>(SendBufferAllocator<SendBufferChunk>{});
+		const auto temp = std::construct_at(SendBufferAllocator<SendBufferChunk>::allocate(0));
+		SetDeleterExternal(temp,[](RefCountable* const p) {
+			std::destroy_at(static_cast<SendBufferChunk* const>(p));
+			SendBufferAllocator<SendBufferChunk>::deallocate(static_cast<SendBufferChunk* const>(p), 1);
+				});
+		return S_ptr<SendBufferChunk>{temp};
+		//return std::allocate_shared<SendBufferChunk>(SendBufferAllocator<SendBufferChunk>{});
 	}
 }

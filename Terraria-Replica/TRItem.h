@@ -28,6 +28,7 @@ public:
 	int GetMaxStacksize() const;
 	CImage* GetItemElement() const;
 	virtual bool OnUseItem(CPlayer* user, TRWorld* world, const Vec2& target_pos);
+	const std::wstring_view GetElementName()const noexcept { return k_element; }
 };
 
 class TRItemTile : public TRItem

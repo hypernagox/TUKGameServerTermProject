@@ -19,7 +19,7 @@ namespace ServerCore
 		Execute();
 	}
 
-	void TaskQueueable::EnqueueAsyncTask(U_Pptr<Task>&& task_, const bool pushOnly)noexcept
+	void TaskQueueable::EnqueueAsyncTask(Task&& task_, const bool pushOnly)noexcept
 	{
 		// 동적으로 생겼다가 사라질 수 있다면, 사라질때 절대 여기로 들어오지 못하게 해야한다.
 
@@ -46,13 +46,14 @@ namespace ServerCore
 	void TaskQueueable::Execute()noexcept
 	{
 		LCurTaskQueue = this;
+		thread_local Vector<Task> taskVec;
 		for (;;)
 		{
-			m_taskQueue.try_flush_single(m_taskVec);
+			m_taskQueue.try_flush_single(taskVec);
 
-			const int32 taskCount = static_cast<int32>(m_taskVec.size());
-			for (const auto& task : m_taskVec)task->ExecuteTask();
-			m_taskVec.clear();
+			const int32 taskCount = static_cast<c_int32>(taskVec.size());
+			for (const auto& task : taskVec)task.ExecuteTask();
+			taskVec.clear();
 			// 남은 일감이 0개라면 종료
 			if (m_taskCount.fetch_sub(taskCount, std::memory_order_release) == taskCount)
 			{

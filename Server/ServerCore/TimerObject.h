@@ -21,11 +21,12 @@ namespace ServerCore
 			:IocpEntity{ type_id }
 		{}
 	public:
-		virtual void ToAwaker(const uint64_t awakerID_)noexcept abstract;
+		virtual void ToAwaker(const IocpEntity* const awaker)noexcept abstract;
 		virtual void InitTimer(const S_ptr<TimerObject>& forCacheThis_, const uint64 tick_ms)noexcept;
-		const bool ExecuteTimer(const uint64_t awakerID_)noexcept;
+		const bool ExecuteTimer(const IocpEntity* const awaker)noexcept;
 		void StopTimer()noexcept { m_bStopFlag.store(true, std::memory_order_release); }
 		void SetTickInterval(const uint64 tick_ms)noexcept { m_tickInterval = tick_ms; }
+		virtual const bool CanAwake(const IocpEntity* const awaker)const noexcept { return true; }
 	protected:
 		virtual HANDLE GetHandle()const noexcept { return nullptr; }
 		virtual const ServerCore::TIMER_STATE TimerUpdate()noexcept = 0;

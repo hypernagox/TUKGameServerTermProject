@@ -9,6 +9,7 @@ namespace ServerCore
 	class SendBufferChunk;
 
 	class SendBuffer
+		:public RefCountable
 	{
 	public:
 		SendBuffer(const S_ptr<SendBufferChunk>& owner, BYTE* const buffer, c_uint32 allocSize_)noexcept

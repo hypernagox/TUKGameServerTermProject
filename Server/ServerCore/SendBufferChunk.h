@@ -9,6 +9,7 @@ namespace ServerCore
 	class SendBuffer;
 
 	class SendBufferChunk
+		:public RefCountable
 	{
 		friend class SendBufferMgr;
 		enum

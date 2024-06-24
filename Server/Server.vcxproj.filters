@@ -76,6 +76,27 @@
     <Filter Include="NetContents\Component\AIComponent">
       <UniqueIdentifier>{a515311d-8d11-4e7a-af43-d858f6b6039c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NetContents\TRWorldMgr\TRWorldSector">
+      <UniqueIdentifier>{ad1deb9a-be65-422b-9105-d8756f1a43da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\NPC">
+      <UniqueIdentifier>{b0d9e908-7a35-4329-8cd2-91c9ca82c841}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\Component\Inventory">
+      <UniqueIdentifier>{12b89f1d-904a-42f1-8512-8cc0731ab92f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\NPC\TimerNPC">
+      <UniqueIdentifier>{9cbd6c75-d747-4cc7-9cb5-48b3a4f0b7c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Status">
+      <UniqueIdentifier>{66a24a9a-1b56-4550-a31e-bb278ef7a343}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetContents\NPC\Reward">
+      <UniqueIdentifier>{5bc0e219-8954-460f-8ca9-8a9236b56254}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua">
+      <UniqueIdentifier>{43b9d5c8-2053-40fb-8892-3db4a249e6cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -165,6 +186,33 @@
     <ClCompile Include="AIComponent.cpp">
       <Filter>NetContents\Component\AIComponent</Filter>
     </ClCompile>
+    <ClCompile Include="TRWorldChunk.cpp">
+      <Filter>NetContents\TRWorldMgr\TRWorldSector</Filter>
+    </ClCompile>
+    <ClCompile Include="TRWorldSector.cpp">
+      <Filter>NetContents\TRWorldMgr\TRWorldSector</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC.cpp">
+      <Filter>NetContents\NPC</Filter>
+    </ClCompile>
+    <ClCompile Include="Inventory.cpp">
+      <Filter>NetContents\Component\Inventory</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerNPC.cpp">
+      <Filter>NetContents\NPC\TimerNPC</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionResolver.cpp">
+      <Filter>NetContents\Component\ItemComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Status.cpp">
+      <Filter>Status</Filter>
+    </ClCompile>
+    <ClCompile Include="Reward.cpp">
+      <Filter>NetContents\NPC\Reward</Filter>
+    </ClCompile>
+    <ClCompile Include="Store.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ServerCore\GenPackets\Enum.proto">
@@ -175,6 +223,9 @@
     </None>
     <None Include="ServerCore\GenPackets\Struct.proto">
       <Filter>Protocols\Protos</Filter>
+    </None>
+    <None Include="store.lua">
+      <Filter>Lua</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -285,6 +336,33 @@
     </ClInclude>
     <ClInclude Include="AIComponent.h">
       <Filter>NetContents\Component\AIComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorldChunk.h">
+      <Filter>NetContents\TRWorldMgr\TRWorldSector</Filter>
+    </ClInclude>
+    <ClInclude Include="TRWorldSector.h">
+      <Filter>NetContents\TRWorldMgr\TRWorldSector</Filter>
+    </ClInclude>
+    <ClInclude Include="NPC.h">
+      <Filter>NetContents\NPC</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory.h">
+      <Filter>NetContents\Component\Inventory</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionResolver.h">
+      <Filter>NetContents\Component\ItemComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerNPC.h">
+      <Filter>NetContents\NPC\TimerNPC</Filter>
+    </ClInclude>
+    <ClInclude Include="Status.h">
+      <Filter>Status</Filter>
+    </ClInclude>
+    <ClInclude Include="Reward.h">
+      <Filter>NetContents\NPC\Reward</Filter>
+    </ClInclude>
+    <ClInclude Include="Store.h">
+      <Filter>Lua</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

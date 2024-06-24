@@ -14,11 +14,16 @@ enum class COMP_TYPE : uint8
 	MoveBroadCaster,
 	Astar,
 	Inventory,
+	CollisionResolver,
+	Status,
+	HP,
+	CountableItem,
 
 	END
 };
 
 class BaseComponent
+	:public ServerCore::RefCountable
 {
 public:
 	BaseComponent(const COMP_TYPE compName_, Object* const pOwner_)noexcept;

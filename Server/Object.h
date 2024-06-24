@@ -8,7 +8,7 @@ class Object;
 #define GET_COMP(object, type) (object->GetCompByEnum(COMP_TYPE::type)->Cast<type>())
 
 class ContentsEntity
-	:public ServerCore::enable_shared_cache_this_core<ContentsEntity>
+	:public ServerCore::RefCountable
 {
 public:
 	virtual ~ContentsEntity() = default;
@@ -31,8 +31,8 @@ public:
 	{}
 	~Object();
 public:
-	ServerCore::S_ptr<Object> shared_from_this()noexcept { return SharedCastThis<Object>(); }
-	ServerCore::S_ptr<const Object> shared_from_this()const noexcept { return SharedCastThis<const Object>(); }
+	ServerCore::S_ptr<Object> shared_from_this()noexcept { return SharedFromThis<Object>(); }
+	ServerCore::S_ptr<const Object> shared_from_this()const noexcept { return SharedFromThis<const Object>(); }
 
 	void Update(const float dt_) {
 		//m_positionComponent.Update(dt_);
@@ -52,6 +52,15 @@ public:
 	T* const GetComp()const noexcept {
 		constexpr const COMP_TYPE type = T::GetCompTypeNameGlobal();
 		return GetCompByEnum(type)->Cast<T>();
+	}
+	const S_ptr<BaseComponent>& GetCompByEnumShared(const COMP_TYPE compName)const noexcept {
+		const auto iter = m_mapComponent.find(compName);
+		return m_mapComponent.end() != iter ? iter->second : nullptr;
+	}
+	template <typename T>
+	S_ptr<T> GetCompShared()const noexcept {
+		constexpr const COMP_TYPE type = T::GetCompTypeNameGlobal();
+		return std::static_pointer_cast<T>(GetCompByEnumShared(type));
 	}
 	template<typename T> requires std::convertible_to<T,S_ptr<Component>>
 	const auto AddComponent(T&& pComp)noexcept {
@@ -101,7 +110,7 @@ public:
 	const bool IsValid()const noexcept { return m_bIsValid.load(std::memory_order_acquire); }
 	const bool SetInvalid()noexcept { return m_bIsValid.exchange(false,std::memory_order_acq_rel); }
 	//ServerCore::IocpEntity* const GetIocpEntity()noexcept { return m_pOwnerEntity.get(); }
-	ServerCore::S_ptr<ServerCore::IocpEntity> const GetIocpEntity()noexcept { return m_pOwnerEntity.lock(); }
+	const ServerCore::S_ptr<ServerCore::IocpEntity>& GetIocpEntity()noexcept { return m_pOwnerEntity; }
 	//const ServerCore::IocpEntity* const GetIocpEntity()const noexcept { return m_pOwnerEntity; }
 	//const S_ptr<ServerCore::IocpEntity>& GetIocpEntity()const noexcept { return m_pOwnerEntity; } 
 	template <typename... Components>
@@ -112,8 +121,11 @@ public:
 	void AddBaseComponents()noexcept {
 		(AddBaseComponent<Components>(), ...);
 	}
+	void ResetEntity()noexcept { m_pOwnerEntity.reset(); }
+	void SetDir(const int i) { m_positionComponent.SetDir(i); }
+	const int GetDir()const noexcept { return m_positionComponent.GetDir(); }
 private:
-	const W_ptr<ServerCore::IocpEntity> m_pOwnerEntity;
+	S_ptr<ServerCore::IocpEntity> m_pOwnerEntity;
 	ServerCore::Vector<S_ptr<Component>> m_vecComponentList;
 	ServerCore::HashMap<COMP_TYPE, S_ptr<BaseComponent>> m_mapComponent;
 
@@ -125,3 +137,11 @@ private:
 	const std::string m_strObjectName;
 	std::string m_strImgName;
 };
+
+static int GetObjectDistancePow2(const Object* const a, const Object* const b)noexcept {
+	const Vec2 apos = a->GetPos();
+	const Vec2 bpos = b->GetPos();
+	const int x = (int)(apos.x - bpos.x);
+	const int y = (int)(apos.y - bpos.y);
+	return x * x + y * y;
+}

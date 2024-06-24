@@ -128,12 +128,30 @@ public:
 public:
 	void update();
 	CamRect GetCamRect()const { return m_CamRect; }
-	void SetCamRect(Vec2 _vCamLookMid,const int sector)noexcept 
-	{ 
-		_vCamLookMid.x = max(m_vOriginMid.x, _vCamLookMid.x + g_xLimit * sector);
-		_vCamLookMid.y = max(m_vOriginMid.y , _vCamLookMid.y);
-		_vCamLookMid.x = min(((float)(g_xLimit)*(sector+1) - 700.f), _vCamLookMid.x) - sector * 700;
-		_vCamLookMid.y = min(4096.f - m_vOriginMid.y , _vCamLookMid.y);
+
+	//void SetCamRect(Vec2 _vCamLookMid,const int sector)noexcept 
+	//{ 
+	//	if (5 == sector)
+	//	{
+	//		SetCamRect(_vCamLookMid);
+	//		return;
+	//	}
+	//	_vCamLookMid.x = max(m_vOriginMid.x, _vCamLookMid.x + g_xLimit * sector);
+	//	_vCamLookMid.y = max(m_vOriginMid.y , _vCamLookMid.y);
+	//	_vCamLookMid.x = min(((float)(g_xLimit)*(sector+1) - 700.f), _vCamLookMid.x) - sector * 700;
+	//	_vCamLookMid.y = min(4096.f - m_vOriginMid.y , _vCamLookMid.y);
+	//	m_CamRect.vLookMid = _vCamLookMid;
+	//	m_CamRect.vLT = _vCamLookMid - m_CamRect.vCamSize / 2.f;
+	//	m_CamRect.vRB = _vCamLookMid + m_CamRect.vCamSize / 2.f;
+	//	SetNowLookAt(_vCamLookMid);
+	//}
+
+	void SetCamRect(Vec2 _vCamLookMid)
+	{
+		_vCamLookMid.x = max(m_vOriginMid.x, _vCamLookMid.x);
+		_vCamLookMid.y = max(m_vOriginMid.y, _vCamLookMid.y);
+		_vCamLookMid.x = min(((float)(8192.f) - 700.f), _vCamLookMid.x);
+		_vCamLookMid.y = min(4096.f - m_vOriginMid.y, _vCamLookMid.y);
 		m_CamRect.vLookMid = _vCamLookMid;
 		m_CamRect.vLT = _vCamLookMid - m_CamRect.vCamSize / 2.f;
 		m_CamRect.vRB = _vCamLookMid + m_CamRect.vCamSize / 2.f;
@@ -142,7 +160,7 @@ public:
 
 	void SetCamRect(Vec2 _vGlobalLT, Vec2 _vGlobalRB)
 	{
-		SetCamRect((_vGlobalLT + _vGlobalRB) / 2.f, sector);
+		SetCamRect((_vGlobalLT + _vGlobalRB) / 2.f);
 	}
 
 	void SetShakeFlag(bool _b) { ShakeFlag = _b; }

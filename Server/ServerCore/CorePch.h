@@ -36,6 +36,11 @@
 #include <ws2tcpip.h>
 #include <concurrent_priority_queue.h>
 #include "concurrentqueue.h"
+#include <concurrent_queue.h>
+#include <concurrent_unordered_map.h>
+#include <sql.h>
+#include <sqlext.h>
+
 #pragma comment(lib, "ws2_32.lib")
 
 #include "IDGenerator.hpp"
@@ -44,7 +49,6 @@
 #include "TypeCast.h"
 #include "MemoryMgr.h"
 #include "MemoryHeader.hpp"
-#include "func.h"
 #include "Singleton.hpp"
 #include "SpinLock.hpp"
 #include "SRWLock.hpp"
@@ -54,6 +58,7 @@
 #include "TaskQueueable.h"
 #include "SendBufferMgr.h"
 #include "SendBuffer.h"
+#include "PacketSession.h"
 #include "CoRoutine.hpp"
 #include "Logger.h"
 #include "ThreadMgr.h"
@@ -61,3 +66,6 @@
 #include "Interpolator.hpp"
 #include "ID_Ptr.hpp"
 #include "Timer.h"
+#include "DBBindRAII.h"
+#include "RefCountable.h"
+#include "func.h"

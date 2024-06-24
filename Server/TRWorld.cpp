@@ -3,6 +3,14 @@
 #include "TRWorld.h"
 #include "TRTileManager.h"
 #include "TRTile.h"
+#include "ThreadMgr.h"
+#include "Session.h"
+#include "c2s_PacketHandler.h"
+#include "ObjectFactory.h"
+#include "TRWorldMgr.h"
+#include "TRWorldChunk.h"
+#include "TRWorldRoom.h"
+#include "Object.h"
 
 //#include "CTimeMgr.h"
 //#include "CKeyMgr.h"
@@ -33,16 +41,25 @@
 //#include "CParticleMgr.h"
 
 TRWorld* g_TRWorld = nullptr;
+TRWorld* g_TRWorldMain = nullptr;
 //extern bool g_bStopToken;
 
 static std::mt19937 randDigSound{std::random_device{}()};
 static std::uniform_int_distribution<> uidDig{0, 2};
 
-TRWorld::TRWorld()
+TRWorld::TRWorld(int seed)
 {
-	g_TRWorld = this;
-	TRMgr(TRTileManager)->LoadTiles();
-	tile_map = new TRTileMap(TRWorld::WORLD_WIDTH, TRWorld::WORLD_HEIGHT);
+	if (0 == seed)
+	{
+		g_TRWorld = this;
+		TRMgr(TRTileManager)->LoadTiles();
+		tile_map = new TRTileMap(TRWorld::WORLD_WIDTH, TRWorld::WORLD_HEIGHT);
+	}
+	else
+	{
+		g_TRWorldMain = this;
+		tile_map = new TRTileMap(TRWorld::WORLD_WIDTH, TRWorld::WORLD_HEIGHT);
+	}
 	
 	//for (int i = 0; i < 50; ++i)
 	//	player_inventory[i] = new TRItemContainer();
@@ -146,6 +163,25 @@ void TRWorld::Update()
 	//TRMonGenerator::GenerateMonster();
 }
 
+void TRWorld::InitMonsters(const CHUNK eChunk)
+{
+	static std::default_random_engine dre;
+	constexpr int CNT = 1000;
+	std::vector<Vec2Int> arr;
+	for (int i = 0; i < CNT; ++i)
+	{
+		std::sample(nodes.begin(), nodes.end(), std::back_inserter(arr), 1, dre);
+	}
+	for (const auto v : arr)
+	{
+		ObjectBuilder b;
+		b.pos = TRWorld::WorldToGlobal(v);
+		auto mon = ObjectFactory::CreateMonster(b);
+		TRMgr(TRWorldMgr)->GetWorldChunk(eChunk)->GetWorldSector(b.pos)->AddObjectEnqueue(GROUP_TYPE::MONSTER, mon);
+		TRMgr(TRWorldMgr)->GetWorldChunk(eChunk)->GetWorldSector(b.pos)->EnterEnqueue(mon->GetIocpEntity());
+	}
+}
+
 void TRWorld::CreateWorld(int seed)
 {
 	TRWorldGeneration* generator = new TRWorldGeneration();
@@ -176,6 +212,52 @@ void TRWorld::CreateWorld(int seed)
 			m_bitSolid[y][x] = tile_map->GetTile(x, y)->Solid();
 		}
 	}
+
+	int prev_level = -1;
+	std::bitset<WORLD_HEIGHT> flag{ 0 };
+
+	//for (int x = 0; x < TRWorld::WORLD_WIDTH; ++x)
+	//{
+	//	for (int y = TRWorld::WORLD_HEIGHT-1; y >=0 ; --y)
+	//	{
+	//		if (!flag[y] && m_bitSolid[y][x])
+	//		{
+	//			flag[y] = 1;
+	//			++y;
+	//			level_nodes[x].level = y;
+	//			level_nodes[x].pos.emplace_back(x, y);
+	//			if (-1 != prev_level && prev_level != y)
+	//			{
+	//				const int target_x = x - (prev_level < y);
+	//				int temp_y = prev_level < y ? prev_level + 1 : y + 1;
+	//				level_nodes[target_x].pos.emplace_back(target_x, temp_y);
+	//				flag[temp_y] = 1;
+	//				temp_y += 1;
+	//				while (prev_level > temp_y)
+	//				{
+	//					flag[temp_y] = 1;
+	//					level_nodes[target_x].pos.emplace_back(target_x, temp_y);
+	//					temp_y += 1;
+	//				} 
+	//			}
+	//			--y;
+	//			prev_level = y;
+	//			break;
+	//		}
+	//	}
+	//}
+	for (int x = 0; x < TRWorld::WORLD_WIDTH; ++x)
+	{
+		for (int y = TRWorld::WORLD_HEIGHT - 1; y >= 0; --y)
+		{
+			if (m_bitSolid[y][x])
+			{
+				nodes.emplace_back(Vec2Int{ x,y + 1 });
+				break;
+			}
+		}
+	}
+	std::cout << "!!" << std::endl;
 }	
 
 void TRWorld::OnSceneCreate()
@@ -237,8 +319,10 @@ void TRWorld::OnSceneCreate()
 //	return player;
 //}
 
-bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
+bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile, std::string_view tile_key, std::wstring& name)
 {
+	const int th_idx = Mgr(ThreadMgr)->GetCurThreadIdx();
+
 	TRTile* const tile = tile_map->GetTile(x, y);
 
 	if (tile == nullptr)
@@ -277,20 +361,32 @@ bool TRWorld::PlaceTile(int x, int y, TRTile* new_tile)
 	//}
 
 	{
-		std::lock_guard<ServerCore::SpinLock> lock{ m_tileWorldLock };
+		std::lock_guard<ServerCore::SRWLock> lock{ m_tileWorldLock };
 		tile_map->SetTile(x, y, new_tile, true);
 		m_bitSolid[y][x] = 1;
+		const Vec2Int key{ x,y };
+		const auto iter = m_setEraseRecords.find(key);
+		if (m_setEraseRecords.cend() != iter)
+		{
+			m_setEraseRecords.erase(iter);
+		}
+		m_mapCreateRecords.emplace(key, TileInfo{ x, y, tile_key });
 	}
+	name = new_tile->DropItem();
+	//m_recordLock[1][th_idx].lock();
+	//m_vecCreateRecords[th_idx].tile_record.emplace_back(x, y, tile_key);
+	//m_recordLock[1][th_idx].unlock();
 
 	return true;
 }
 
 bool TRWorld::BreakTile(int x, int y, std::string& outName)
 {
+	const int th_idx = Mgr(ThreadMgr)->GetCurThreadIdx();
 	const TRTile* tile;
 	TRTile* const air_tile = TRTileManager::GetInst()->TileAir();
 	{
-		std::lock_guard<ServerCore::SpinLock> lock{ m_tileWorldLock };
+		std::lock_guard<ServerCore::SRWLock> lock{ m_tileWorldLock };
 		tile = tile_map->GetTile(x, y);
 
 		if (tile == nullptr)
@@ -307,6 +403,17 @@ bool TRWorld::BreakTile(int x, int y, std::string& outName)
 
 		tile_map->SetTile(x, y, air_tile, true);
 		m_bitSolid[y][x] = 0;
+		
+		const Vec2Int key{ x,y };
+		const auto iter = m_mapCreateRecords.find(key);
+		if (m_mapCreateRecords.cend()!=iter)
+		{
+			m_mapCreateRecords.erase(iter);
+		}
+		else
+		{
+			m_setEraseRecords.emplace(key);
+		}
 	}
 	const Vec2 vParticlePos = TRWorld::WorldToGlobal(Vec2{ (float)x,(float)y });
 	//CAtlasElement* pImg = tile->GetTileImg();
@@ -366,7 +473,7 @@ bool TRWorld::PlaceTileWall(int x, int y, TRTileWall* new_tile)
 	//Mgr(CSoundMgr)->PlayEffect(buffer, 0.5f);
 	//
 	{
-		std::lock_guard<ServerCore::SpinLock> lock{ m_tileWallWorldLock };
+		std::lock_guard<ServerCore::SRWLock> lock{ m_tileWallWorldLock };
 		tile_map->SetTileWall(x, y, new_tile, true);
 	}
 	return true;
@@ -376,7 +483,7 @@ bool TRWorld::BreakTileWall(int x, int y)
 {
 	const TRTileWall* tile;
 	{
-		std::lock_guard<ServerCore::SpinLock> lock{ m_tileWallWorldLock };
+		std::lock_guard<ServerCore::SRWLock> lock{ m_tileWallWorldLock };
 
 		tile = tile_map->GetTileWall(x, y);
 
@@ -509,6 +616,34 @@ void TRWorld::SpawnBoss()
 	//Mgr(CCamera)->FadeIn(1.f);
 	//
 	//StartCoEvent(Mgr(CCamera)->ZoomInBoss(pMon->GetPos()));
+}
+
+void TRWorld::TransmitTileRecord(const ServerCore::S_ptr<ServerCore::Session>& pSession_) const noexcept
+{
+	m_tileWorldLock.lock_shared();
+	for (int i = 0; i < ServerCore::NUM_OF_THREADS; ++i)
+	{
+		for (const auto& [key, tile] : m_mapCreateRecords)
+		{
+			Protocol::s2c_PLACE_TILE pkt;
+			pkt.set_success(true);
+			pkt.set_tile_x(tile.x);
+			pkt.set_tile_y(tile.y);
+			pkt.set_tile_key(tile.tile_name);
+			//pSession_ << pkt;
+			pSession_->SendAsync(ServerCore::c2s_PacketHandler::MakeSendBuffer(pkt));
+		}
+		for (const auto key : m_setEraseRecords)
+		{
+			Protocol::s2c_BREAK_TILE pkt;
+			pkt.set_success(true);
+			pkt.set_tile_x(key.x);
+			pkt.set_tile_y(key.y);
+			//pSession_ << pkt;
+			pSession_->SendAsync(ServerCore::c2s_PacketHandler::MakeSendBuffer(pkt));
+		}
+	}
+	m_tileWorldLock.unlock_shared();
 }
 
 Protocol::s2c_MOVE TRWorld::updateTileCollision(const Protocol::c2s_MOVE& pkt_) const noexcept

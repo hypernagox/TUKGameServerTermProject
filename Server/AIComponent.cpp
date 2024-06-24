@@ -13,13 +13,17 @@ Astar::~Astar()
 {
 }
 
-void Astar::ExecuteAI() noexcept
+const bool Astar::ExecuteAI() noexcept
 {
-	const auto pOwner = static_pointer_cast<TimerNPC>(m_pOwner->GetIocpEntity());
+	const auto pOwner = (m_pOwner->GetIocpEntity())->SharedFromThis<TimerNPC>();
 	const auto player = ServerCore::GetSession(pOwner->GetCurChaseUser());
 	
 	if (!player)
-		return;
+		return false;
+	if (!player->GetContentsEntity())
+		return false;
+	if (!pOwner->CanAwake(player.get()))
+		return false;
 
 	thread_local std::priority_queue<AstarNode, ServerCore::Vector<AstarNode>, std::greater<AstarNode>> m_pqAstar;
 	thread_local ServerCore::HashMap<Vec2Int, Vec2Int> m_parent;
@@ -31,7 +35,7 @@ void Astar::ExecuteAI() noexcept
 
 	m_dest = TRWorld::GlobalToWorld(((ClientSession*)player.get())->GetPlayer()->GetPos());
 	
-	const auto& pworld = TRMgr(TRWorldMgr)->GetStartWorld();
+	const auto pworld = ((TRWorldRoom*)m_pOwner->m_pCurSector.load())->GetWorldChunk();
 	
 	::memset(best, 0, sizeof(uint16) * TRWorld::WORLD_WIDTH * TRWorld::WORLD_HEIGHT);
 	
@@ -63,7 +67,7 @@ void Astar::ExecuteAI() noexcept
 	while (!m_pqAstar.empty())
 	{
 		const auto end_time = std::chrono::steady_clock::now() - start_time;
-		if (200 <= std::chrono::duration_cast<std::chrono::milliseconds>(end_time).count())
+		if (20 <= std::chrono::duration_cast<std::chrono::milliseconds>(end_time).count())
 			break;
 		
 		const AstarNode node = m_pqAstar.top();
@@ -99,12 +103,17 @@ void Astar::ExecuteAI() noexcept
 		}
 	}
 	
-	Vec2Int pos = bFound ? m_dest : m_pqAstar.top().pos;
+	const Vec2Int top_pos = m_pqAstar.empty() ? m_start : m_pqAstar.top().pos;
+
+	Vec2Int pos = bFound && !m_pqAstar.empty() ? m_dest : top_pos;
 
 	while (false == m_pqAstar.empty()) { m_pqAstar.pop(); }
 	
 	for (;;)
 	{
+		const auto end_time = std::chrono::steady_clock::now() - start_time;
+		if (40 <= std::chrono::duration_cast<std::chrono::milliseconds>(end_time).count())
+			break;
 		m_path.emplace_back(pos);
 		const auto iter = m_parent.find(pos);
 		if (m_parent.end() != iter)
@@ -131,4 +140,6 @@ void Astar::ExecuteAI() noexcept
 	m_start.y = yy + 1;
 	
 	m_pOwner->SetPos(TRWorld::WorldToGlobal(m_start + Vec2Int{0,2}));
+
+	return true;
 }

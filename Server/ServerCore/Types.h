@@ -59,7 +59,7 @@ namespace ServerCore
 		ACCEPT,
 		TIMER,
 		TASK,
-		
+		DB,
 
 		END
 	};
@@ -70,7 +70,7 @@ namespace ServerCore
 		c2s_HEART_BEAT = 54321
 	};
 
-	static constexpr const size_t DEFAULT_MEM_POOL_SIZE = 256;
+	static constexpr const size_t DEFAULT_MEM_POOL_SIZE = 128;
 
-	static constexpr const int32 NUM_OF_THREADS = 6 - 1;
+	static constexpr const int32 NUM_OF_THREADS = 10;
 }

@@ -37,8 +37,8 @@ namespace ServerCore
 		{
 			Join();
 		}
-		Task* task;
-		while (m_globalTask.try_dequeue(*LCon_tokenGlobalTask, task))PoolDelete<Task>(task);
+		Task task;
+		while (m_globalTask.try_dequeue(*LCon_tokenGlobalTask, task)) { std::destroy_at<Task>(&task); }
 
 		//xdelete<moodycamel::ProducerToken>(LPro_token);
 		//xdelete<moodycamel::ConsumerToken>(LCon_token);
@@ -49,6 +49,7 @@ namespace ServerCore
 
 	void ThreadMgr::Launch(S_ptr<Service> pService)
 	{
+		m_pMainService = pService.get();
 		for (int i = 0; i < NUM_OF_THREADS; ++i)
 		{
 			m_threads.emplace_back([this, pService = pService.get()]()noexcept
@@ -57,21 +58,17 @@ namespace ServerCore
 					const bool& bStopRequest = m_bStopRequest;
 					const auto pIocpCore = pService->GetIocpCore().get();
 					const auto taskTimer = Mgr(TaskTimerMgr);
-					//const auto threadMgr = Mgr(ThreadMgr);
 					for (;;)
 					{
 						if (bStopRequest) [[unlikely]]
 							break;
 
-						//LEndTickCount = ::GetTickCount64() + WORKER_TICK;
-
-						if (false == pIocpCore->Dispatch(10))
+						if (false == pIocpCore->Dispatch(INFINITE))
 						{
 							this->TryGlobalQueueTask();
 						}
-
-						//taskTimer->DistributeTask();
 					}
+
 					DestroyTLS();
 				});
 		}
@@ -95,7 +92,6 @@ namespace ServerCore
 				}
 				DestroyTLS();
 			} };
-		
 		std::string strFin(32, 0);
 		if (SERVICE_TYPE::SERVER == pService->GetServiceType())
 		{
@@ -114,17 +110,17 @@ namespace ServerCore
 						Join();
 					}
 				}
-				//std::this_thread::sleep_for(std::chrono::seconds(5));
-				//if (::GetAsyncKeyState(VK_END))
-				//{
-				//	if (false == registerFinish.exchange(true))
-				//	{
-				//		pService->CloseService();
-				//		Mgr(Logger)->m_bStopRequest = true;
-				//		std::this_thread::sleep_for(std::chrono::seconds(5));
-				//		Join();
-				//	}
-				//}
+				std::this_thread::sleep_for(std::chrono::seconds(5));
+				if (::GetAsyncKeyState(VK_END))
+				{
+					if (false == registerFinish.exchange(true))
+					{
+						pService->CloseService();
+						Mgr(Logger)->m_bStopRequest = true;
+						std::this_thread::sleep_for(std::chrono::seconds(5));
+						Join();
+					}
+				}
 			}
 		}
 	}
@@ -155,7 +151,8 @@ namespace ServerCore
 		//LCon_token = xnew <moodycamel::ConsumerToken>(m_globalTaskQueue);
 		LCon_tokenGlobalTask = xnew <moodycamel::ConsumerToken>(m_globalTask);
 
-		LSendBufferChunk = Mgr(SendBufferMgr)->Pop();
+		if (NUM_OF_THREADS >= LThreadId)
+			LSendBufferChunk = Mgr(SendBufferMgr)->Pop();
 	}
 
 	void ThreadMgr::DestroyTLS()
@@ -164,17 +161,10 @@ namespace ServerCore
 
 	void ThreadMgr::TryGlobalQueueTask()noexcept
 	{
-		//while (::GetTickCount64() < LEndTickCount)
-		//{
-		//	S_ptr<TaskQueueable> qPtr;
-		//	if (!m_globalTaskQueue.try_dequeue(*LCon_token, qPtr))
-		//		break;
-		//	qPtr->Execute();
-		//}
-		Task* task;
+		Task task;
 		while (m_globalTask.try_dequeue(*LCon_tokenGlobalTask, task)) {
-			task->ExecuteTask();
-			PoolDelete<Task>(task);
+			task.ExecuteTask();
+			std::destroy_at<Task>(&task);
 		}
 	}
 }

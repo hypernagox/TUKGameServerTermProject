@@ -9,15 +9,15 @@ namespace ServerCore
     public:
         constexpr LinkedHashMap(const std::size_t size_ = DEFAULT_ATOMIC_ALLOCATOR_SIZE)noexcept :m_mapForGetItem(size_) { m_mapForFindItem.reserve(size_); }
     public:
-        template<typename V> requires std::same_as<std::remove_cvref_t<V>, S_ptr<Value>>
+        template<typename V> //requires std::same_as<std::remove_cvref_t<V>, S_ptr<Value>>
         Value* const AddItem(const Key& key, V&& value)noexcept
         {
             if (HasItem(key))
                 return nullptr;
             const auto temp_ptr = value.get();
-            m_mapForFindItem.emplace(key, m_listItem.insert(m_listItem.cend(), temp_ptr));
+            m_mapForFindItem.try_emplace(key, m_listItem.insert(m_listItem.cend(), temp_ptr));
             m_mapForGetItem.emplace_unsafe(key, std::forward<V>(value));
-            return temp_ptr;
+            return static_cast<Value* const>(temp_ptr);
         }
         template<typename V> requires std::same_as<std::remove_cvref_t<V>, S_ptr<Value>>
         Value* const AddItem_endLock(const Key& key, V&& value)noexcept
@@ -31,7 +31,7 @@ namespace ServerCore
             m_srwLock.unlock();
             m_mapForFindItem.emplace(key, insert_iter);
             m_mapForGetItem.emplace_unsafe(key, std::forward<V>(value));
-            return temp_ptr;
+            return static_cast<Value* const>(temp_ptr);
         }
         S_ptr<Value> FindItem(const Key& key)const noexcept
         {
@@ -84,6 +84,20 @@ namespace ServerCore
                 return false;
             }
         }
+        const bool EraseItemSafe(const Key& key)noexcept
+        {
+            if (const auto item = m_mapForGetItem.extract(key))
+            {
+                m_srwLock.lock();
+                m_listItem.erase(m_mapForFindItem.extract(key).mapped());
+                m_srwLock.unlock();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         const auto EraseItemAndGetIter(const Key& key)noexcept
         {
             if (const auto iter = m_mapForFindItem.extract(key))
@@ -101,6 +115,20 @@ namespace ServerCore
             if (auto item = m_mapForGetItem.extract_unsafe(key))
             {
                 m_listItem.erase(m_mapForFindItem.extract(key).mapped());
+                return std::move(item->second);
+            }
+            else
+            {
+                return nullptr;
+            }
+        }
+        S_ptr<Value> ExtractItemSafe(const Key& key)noexcept
+        {
+            if (auto item = m_mapForGetItem.extract(key))
+            {
+                m_srwLock.lock();
+                m_listItem.erase(m_mapForFindItem.extract(key).mapped());
+                m_srwLock.unlock();
                 return std::move(item->second);
             }
             else
@@ -170,8 +198,9 @@ namespace ServerCore
             m_srwLock.unlock_shared();
             return end_iter;
         }
+        constexpr inline auto& GetSRWLock()noexcept { return m_srwLock; }
     private:
-        SRWLock m_srwLock;
+        mutable SRWLock m_srwLock;
         std::list<Value*, AtomicAllocator<Value*>> m_listItem;
         HashMap<Key, decltype(m_listItem.begin())> m_mapForFindItem;
         ConcurrentHashMap<Key, S_ptr<Value>> m_mapForGetItem;

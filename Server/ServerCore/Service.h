@@ -21,10 +21,12 @@ namespace ServerCore
 	using SessionFactory = std::function<S_ptr<Session>(void)>;
 
 	class Service
+		:public RefCountable
 	{
 		struct alignas(64) AtomicSessionPtr
 		{
-			std::atomic<S_ptr<Session>> ptr;
+			//std::atomic<S_ptr<Session>> ptr;
+			AtomicS_ptr<Session> ptr;
 		};
 	public:
 		Service(const std::shared_ptr<IocpCore>& pIocp_, SERVICE_TYPE eServiceType_, NetAddress addr_, SessionFactory factory_, c_int32 maxSessionCount_ = 1);
@@ -36,13 +38,13 @@ namespace ServerCore
 		bool CanStart()const { return nullptr != m_sessionFactory; }
 
 		S_ptr<Session> CreateSession()noexcept;
-		const bool AddSession(S_ptr<Session>&& pSession_)noexcept;
+		const bool AddSession(S_ptr<Session> pSession_)noexcept;
 		void ReleaseSession(Session* const pSession_)noexcept;
 		//int32 GetCurrentSessionCount()const noexcept { return m_sessionCount; }
 		int32 GetMaxSessionCount()const noexcept { return m_maxSessionCount; }
 		SERVICE_TYPE GetServiceType()const noexcept { return m_eServiceType; }
 		NetAddress GetNetAddress()const noexcept { return m_netAddr; }
-		const S_ptr<IocpCore>& GetIocpCore()const noexcept { return m_pIocpCore; }
+		const std::shared_ptr<IocpCore>& GetIocpCore()const noexcept { return m_pIocpCore; }
 		S_ptr<Session> GetSession(const uint64_t sessionID_)noexcept;
 	public:
 		void IterateSession(std::function<void(const S_ptr<Session>&)> fpIterate_)noexcept;
@@ -56,7 +58,7 @@ namespace ServerCore
 		const std::span<AtomicSessionPtr> m_vecSession;
 		Concurrency::concurrent_queue<int32, StlAllocator<int32>> m_idxQueue;
 
-		const S_ptr<IocpCore> m_pIocpCore;
+		const std::shared_ptr<IocpCore> m_pIocpCore;
 		const SERVICE_TYPE m_eServiceType;
 		const NetAddress m_netAddr;
 		const SessionFactory m_sessionFactory;

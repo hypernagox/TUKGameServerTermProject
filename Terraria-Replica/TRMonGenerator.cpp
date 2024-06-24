@@ -7,10 +7,11 @@
 #include "CSceneMgr.h"
 #include "CScene.h"
 #include "CTimeMgr.h"
+#include "TRMain.h"
 
 static std::mt19937 rng{std::random_device{}()};
 static std::uniform_int_distribution<> uid{0, 3};
-extern TRWorld* g_TRWorld;
+//extern TRWorld* g_TRWorld;
 
 void TRMonGenerator::GenerateMonster()
 {
@@ -39,7 +40,7 @@ void TRMonGenerator::GenerateMonster()
 	case 0:
 	{
 		{
-			auto pMon = new CZombie{ g_TRWorld,L"Monster_Zombie",L"NPC_3.png" };
+			auto pMon = new CZombie{ Mgr(TRMain)->active_world,L"Monster_Zombie",L"NPC_3.png"};
 			pMon->SetPos(TRWorld::WorldToGlobal(vSpawnPos));
 			pMon->SetScale(Vec2{ 38.0f, 46.0f });
 			scene->AddObject(pMon, GROUP_TYPE::MONSTER);
@@ -50,7 +51,7 @@ void TRMonGenerator::GenerateMonster()
 	case 1:
 	{
 		{
-			auto pMon = new CSlime{ g_TRWorld,L"Monster_Slime",L"NPC_1.png" };
+			auto pMon = new CSlime{ Mgr(TRMain)->active_world,L"Monster_Slime",L"NPC_1.png" };
 			pMon->SetPos(TRWorld::WorldToGlobal(vSpawnPos));
 			pMon->SetScale(Vec2{ 32.0f, 24.0f });
 			scene->AddObject(pMon, GROUP_TYPE::MONSTER);
@@ -61,7 +62,7 @@ void TRMonGenerator::GenerateMonster()
 	case 2:
 	{
 		{
-			auto pMon = new CEyeMonster{ g_TRWorld,L"Monster_EyeMonster",L"NPC_2.png" };
+			auto pMon = new CEyeMonster{ Mgr(TRMain)->active_world,L"Monster_EyeMonster",L"NPC_2.png" };
 			pMon->SetPos(TRWorld::WorldToGlobal(Vec2(TRWorld::WORLD_WIDTH / 2 - 10, TRWorld::WORLD_HEIGHT)));
 			pMon->SetScale(Vec2{ 38.0f, 22.0f });
 			scene->AddObject(pMon, GROUP_TYPE::MONSTER);

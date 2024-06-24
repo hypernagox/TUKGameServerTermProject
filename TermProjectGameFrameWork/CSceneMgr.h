@@ -1,6 +1,7 @@
 #pragma once
 
 class CScene;
+class CLayer;
 
 class CSceneMgr
 	:public Singleton<CSceneMgr>
@@ -12,7 +13,8 @@ class CSceneMgr
 private:	
 	array<unique_ptr<CScene>, (UINT)SCENE_TYPE::END>			m_arrScene ;
 	CScene* m_pCurScene{};						
-
+public:
+	std::vector<unique_ptr<CLayer>> m_prevLayer;
 public:
 	void update();
 	void render(HDC _dc);

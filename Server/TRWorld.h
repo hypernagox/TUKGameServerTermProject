@@ -31,15 +31,24 @@ struct alignas(64) CacheLineWrapper
 	ServerCore::Vector<TileInfo> tile_record;
 };
 
+struct LevelNode
+{
+	int level;
+	ServerCore::Vector<Vec2Int> pos;
+};
+
 class TRWorld
-	: public ServerCore::enable_shared_cache_this<TRWorld>
+	: public ServerCore::RefCountable
 {
 public:
 	static constexpr int WORLD_WIDTH = 512;
 	static constexpr int WORLD_HEIGHT = 256;
+
+	LevelNode level_nodes[WORLD_WIDTH];
+	std::vector<Vec2Int> nodes;
 private:
 	TRTileMap* tile_map;
-	std::bitset<WORLD_WIDTH> m_bitSolid[WORLD_WIDTH] = {};
+	std::bitset<WORLD_WIDTH> m_bitSolid[WORLD_HEIGHT] = {};
 
 	ServerCore::HashMap<Vec2Int, TileInfo> m_mapCreateRecords;
 	ServerCore::HashSet<Vec2Int> m_setEraseRecords;
@@ -64,6 +73,7 @@ public:
 	~TRWorld();
 
 	void Update();
+	void InitMonsters(const CHUNK eChunk);
 
 	void CreateWorld(int seed);
 	void OnSceneCreate();
@@ -83,7 +93,7 @@ public:
 	const bool GetTileSolid(const int x_, const int y_)const noexcept { return m_bitSolid[y_][x_]; }
 	//CPlayer* GetPlayer() const;
 
-	bool PlaceTile(int x, int y, TRTile* new_tile,std::string_view tile_key);
+	bool PlaceTile(int x, int y, TRTile* new_tile,std::string_view tile_key,std::wstring& name);
 	bool BreakTile(int x, int y,std::string& outName);
 	bool PlaceTileWall(int x, int y, TRTileWall* new_tile);
 	bool BreakTileWall(int x, int y);
