@@ -2,7 +2,7 @@
 #include "ServerCorePch.h"
 #include "ObjectPool.hpp"
 #include "SRWLock.hpp"
-
+#include <cassert>
 namespace ServerCore
 {
 	
@@ -21,20 +21,12 @@ namespace ServerCore
 		template<typename T = RefCountable>
 		S_ptr<T> SharedFromThis()const noexcept { return S_ptr<T>{this}; }
 		inline const uint64_t UseCount()const noexcept { return m_refCount.load(std::memory_order_relaxed) >> 48; }
-	public:
+	private:
 		inline void SetDeleter(const DeleterFunc deleter) noexcept {
-			const uint64_t combined = (m_refCount.load(std::memory_order_relaxed) & (0xFFFFULL << 48)) | (reinterpret_cast<uint64_t>(deleter) & ((1ULL << 48) - 1));
+			const uint64_t combined = (m_refCount.load(std::memory_order_relaxed) & (0xFFFFULL << 48)) | (reinterpret_cast<const uint64_t>(deleter) & ((1ULL << 48) - 1));
 			m_refCount.store(combined, std::memory_order_relaxed);
 		}
-		//inline void IncRef()const noexcept { 
-		//	//if (dynamic_cast<const Session*>(this))
-		//	//	std::cout << UseCount() << std::endl;
-		//	m_refCount.fetch_add(1ULL << 48, std::memory_order_relaxed); 
-		//	//if (dynamic_cast<const Session*>(this))
-		//	//	std::cout << UseCount() << std::endl;
-		//	::printf("%d \n", UseCount());
-		//}
-		void IncRef()const noexcept;
+		inline void IncRef()const noexcept { m_refCount.fetch_add(1ULL << 48, std::memory_order_relaxed); }
 		void DecRef()const noexcept;
 		inline const RefCountable* const IncAndGetPtrInternal()const noexcept {
 			IncRef(); return this;
@@ -115,6 +107,7 @@ namespace ServerCore
 			:m_count_ptr{ std::exchange(*ptr,nullptr) }
 		{}
 	public:
+		const uint64_t UseCount()const noexcept { return m_count_ptr ? m_count_ptr->UseCount() : 0; }
 		void reset()noexcept { DecRef(); release(); }
 		void release()noexcept { m_count_ptr = nullptr; }
 		template <typename U> requires std::derived_from<U, T>

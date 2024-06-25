@@ -4,16 +4,6 @@
 
 namespace ServerCore
 {
-    void RefCountable::IncRef() const noexcept
-    {
-        	//if (dynamic_cast<const Session*>(this))
-        	//	std::cout << UseCount() << std::endl;
-        	m_refCount.fetch_add(1ULL << 48, std::memory_order_relaxed); 
-        	if (dynamic_cast<const Session*>(this))
-
-               std::cout << UseCount() << std::endl;
-        	//::printf("%d \n", UseCount());
-    }
     void RefCountable::DecRef() const noexcept
 	{
         const uint64_t old_value = m_refCount.fetch_sub(1ULL << 48, std::memory_order_acq_rel);
