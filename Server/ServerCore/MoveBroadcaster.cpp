@@ -45,21 +45,27 @@ namespace ServerCore
 		new_view_list.clear();
 		thread_local HashSet<Session*> send_list;
 		send_list.clear();
+		thread_local Vector<S_ptr<IocpEntity>> entity_copy;
+		entity_copy.clear();
 		for (const auto sector : *sectors)
 		{
 			sector->GetSRWLock().lock_shared();
-			for (const auto pSession : sector->GetObjectList())
+			for (const auto pEntity : sector->GetObjectList())
 			{
-				const bool bFlag = static_cast<const bool>(pSession->IsSession());
-				if (bIsNPC && !bFlag)
-					continue;
-				if (g_huristic(cache_obj_ptr, pSession))
-				{
-					new_view_list.emplace(pSession);
-					sector_state |= (bFlag + 1);
-				}
+				entity_copy.emplace_back(pEntity);
 			}
 			sector->GetSRWLock().unlock_shared();
+		}
+		for (const auto& pEntity : entity_copy)
+		{
+			const bool bFlag = static_cast<const bool>(pEntity->IsSession());
+			if (bIsNPC && !bFlag)
+				continue;
+			if (g_huristic(cache_obj_ptr, pEntity.get()))
+			{
+				new_view_list.emplace(pEntity);
+				sector_state |= (bFlag + 1);
+			}
 		}
 
 		new_view_list.erase(thisSession_);

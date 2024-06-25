@@ -27,7 +27,7 @@ public:
 	//void SetTRWorld(TRWorld* p) { m_pTRWorld = p; }
 	//TRWorld* const GetTRWorld()noexcept { return m_pTRWorld; }
 public:
-	void Update(const uint64 tick_ms = 100);
+	void Update(const uint64 tick_ms = 3000);
 
 	void Init();
 public:
