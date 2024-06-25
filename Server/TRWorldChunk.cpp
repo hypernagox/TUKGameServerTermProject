@@ -28,7 +28,7 @@ void TRWorldChunk::Init()
 		sector->GetAdjSector4().reserve(5);
 
 		//sector->StartExecute(sector);
-		sector->StartExecute();
+		//sector->StartExecute();
 
 		sector->Update();
 
@@ -103,7 +103,7 @@ void TRWorldChunk::ImigrationWorldChunk(const S_ptr<ServerCore::PacketSession>& 
 		const auto& next_sector = TRMgr(TRWorldMgr)->GetWorldChunk(eType_)->GetWorldSector(pSession_);
 		//next_sector->GetWorldChunk()->TransmitTileRecord(pSession_);
 
-		pSession_->GetCurrentSessionRoomInfo().GetPtr()->ImmigrationEnqueue(next_sector, player->GetObjID());
+		pSession_->GetCurSector()->ImmigrationEnqueue(next_sector, player->GetObjID());
 		
 		player->SetPos(TRWorld::WorldToGlobal(Vec2Int(x, GetTileMap()->GetTopYpos(x))) - Vec2(20.0f, 28.0f));
 

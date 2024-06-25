@@ -4,7 +4,6 @@
 #include "Session.h"
 #include "Listener.h"
 #include "SendBufferMgr.h"
-#include "SessionManageable.h"
 
 namespace ServerCore
 {
@@ -16,6 +15,8 @@ namespace ServerCore
 		, m_maxSessionCount{ maxSessionCount_ }
 		, m_vecSession{ CreateDynamicSpan<AtomicSessionPtr>(maxSessionCount_ + 1) }
 	{
+		m_idxQueue.set_capacity(maxSessionCount_ + 1);
+		m_id2Index.reserve(maxSessionCount_ * 2);
 		for (int i = 1; i <= m_maxSessionCount; ++i)
 		{
 			m_idxQueue.push(i);
@@ -29,9 +30,7 @@ namespace ServerCore
 
 	void Service::CloseService()
 	{
-		// TODO: ¾î¶»°Ô ¼Ò¸ê½ÃÅ³Áö °í¹Î
 		IterateSession([](const S_ptr<Session>& p)noexcept {p->Disconnect(L"Bye"); });
-		//reset_cache_shared();
 	}
 
 	S_ptr<Session> Service::CreateSession()noexcept
@@ -47,11 +46,9 @@ namespace ServerCore
 		int32 idx;
 		if (!m_idxQueue.try_pop(idx))
 			return false;
-		m_id2Index[static_cast<c_uint32>(pSession_->GetSessionID())] = static_cast<c_uint16>(idx);
+		m_id2Index.emplace(static_cast<c_uint32>(pSession_->GetSessionID()), static_cast<c_uint16>(idx));
 		pSession_->m_serviceIdx.store(idx, std::memory_order_relaxed);
 		m_vecSession[idx].ptr.store(std::move(pSession_));
-		return true;
-
 		return true;
 	}
 
@@ -60,11 +57,8 @@ namespace ServerCore
 		const int32 idx = pSession_->m_serviceIdx.exchange(-1, std::memory_order_relaxed);
 		if (-1 == idx)
 			return;
-		//m_vecSession[idx].ptr.store(nullptr, std::memory_order_relaxed);
-		pSession_->DecRef();
 		m_vecSession[idx].ptr.reset();
-		
-		m_idxQueue.push(idx);
+		m_idxQueue.emplace(idx);
 	}
 
 	S_ptr<Session> Service::GetSession(const uint64_t sessionID_)noexcept
@@ -106,7 +100,6 @@ namespace ServerCore
 		for (int i = 0; i < sessionCount; ++i)
 		{
 			auto pSession = CreateSession();
-			//pSession->register_cache_shared_core(pSession);
 			if (false == pSession->Connect())
 				return false;
 		}
@@ -137,7 +130,6 @@ namespace ServerCore
 			return false;
 		if (!m_pListener)
 			return false;
-		//m_pListener->register_cache_shared_core(m_pListener);
 		return m_pListener->StartAccept(this);
 	}
 

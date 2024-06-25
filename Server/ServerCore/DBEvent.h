@@ -18,11 +18,7 @@ namespace ServerCore
 		virtual void ExecuteQuery()noexcept abstract;
 		virtual void Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept  abstract;
 	public:
-		void SetEventPtr(S_ptr<DBEvent> pDBEvent)noexcept {
-			//m_dbEvent.SetIocpObject(std::move(pDBEvent));
-			m_dbEvent.SetIocpObject(S_ptr<IocpObject>(pDBEvent));
-
-		}
+		void SetEventPtr()noexcept { m_dbEvent.SetIocpObject(SharedFromThis<DBEvent>()); }
 	protected:
 		bool m_bSuccess = false;
 		ServerCore::IocpEvent m_dbEvent{ ServerCore::EVENT_TYPE::DB };

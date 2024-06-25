@@ -16,7 +16,7 @@
 #include "Status.h"
 
 TRWorldRoom::TRWorldRoom(const uint16_t sector_, TRWorldChunk* const pChunk_)
-	: SessionManageable{ static_cast<uint16>(sector_) }
+	: Sector{ static_cast<uint16>(sector_) }
 	, m_pParentChunk{ pChunk_ }
 {
 }
@@ -60,9 +60,11 @@ void TRWorldRoom::Update(const uint64 tick_ms)
 			{
 				if (const auto sector = obj->m_pCurSector.exchange(nullptr, std::memory_order_relaxed))
 				{
+					obj->GetIocpEntity()->GetMoveBroadcaster()->ReleaseViewList();
+					if (const auto s = obj->GetIocpEntity()->GetCurSector())
+						s->LeaveAndDisconnectEnqueue(obj->GetObjID());
 					obj->ResetEntity();
 					//sector->LeaveAndDisconnectEnqueue(obj->GetObjID());
-					this->LeaveAndDisconnectEnqueue(obj->GetObjID());
 					//obj->reset_cache_shared(*this);
 				}
 				iter = obj_list.EraseItemAndGetIter(obj->GetObjID());
@@ -124,7 +126,7 @@ void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 
 void TRWorldRoom::AddEnterEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 {
-	EnterEnqueue(pObj_->GetIocpEntity());
+	EnterEnqueue(pObj_->GetIocpEntity().get());
 	AddObjectEnqueue(eType_, std::move(pObj_));
 }
 
@@ -289,11 +291,11 @@ void TRWorldRoom::UpdateWorldCollision()
 	}
 }
 
-void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManageable> beforeRoom, const S_ptr<ServerCore::IocpEntity> pSession)noexcept
+void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::Sector> beforeRoom, ServerCore::IocpEntity* const pEntity_)noexcept
 {
 	const uint64 thID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
-	const uint64 sessionID = pSession->GetObjectID();
-	auto obj = (pSession->GetContentsEntity())->SharedFromThis<Object>();
+	const uint64 sessionID = pEntity_->GetObjectID();
+	const auto obj = (pEntity_->GetContentsEntity())->ObjectCast();
 	const auto trBefromRoom = static_cast<TRWorldRoom* const>(beforeRoom.get());
 	const auto type = obj->GetObjectGroup();
 	trBefromRoom->LeaveObjectEnqueue(sessionID,type);
@@ -329,7 +331,7 @@ void TRWorldRoom::ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManagea
 	//	pSession_ << pkt;
 	//}
 
-	AddObjectEnqueue(type, std::move(obj));
+	AddObjectEnqueue(type, obj->SharedFromThis<Object>());
 }
 
 void TRWorldRoom::BroadCastToWorld(const S_ptr<ServerCore::SendBuffer> pSendBuffer)

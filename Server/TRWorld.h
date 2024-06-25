@@ -4,7 +4,6 @@
 #include "TRTileMap.h"
 #include "TRWorldGeneration.h"
 #include "Protocol.pb.h"
-#include "SessionManageable.h"
 
 //#include "CPlayer.h"
 //#include "CScene.h"

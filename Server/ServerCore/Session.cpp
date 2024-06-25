@@ -90,7 +90,7 @@ namespace ServerCore
 	void Session::ProcessConnect(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept
 	{
 		// 세선 등록
-		if (GetService()->AddSession(pThisSessionPtr->SharedFromThis<Session>()))
+		if (GetService()->AddSession(pThisSessionPtr))
 		{
 			//pThisSessionPtr->register_cache_shared_core(pThisSessionPtr);
 
@@ -205,8 +205,11 @@ namespace ServerCore
 
 	void Session::RegisterSend(const S_ptr<PacketSession>& pThisSessionPtr)noexcept
 	{
+		thread_local Vector<WSABUF> wsaBufs;
+
 		if (false == IsConnected())
 		{
+			wsaBufs.clear();
 			Disconnect(L"");
 			return;
 		}
@@ -221,13 +224,12 @@ namespace ServerCore
 
 		if (0 == num)
 		{
+			wsaBufs.clear();
 			m_pSendEvent->ReleaseIocpObject();
 			m_bIsSendRegistered.store(false, std::memory_order_release);
 			return;
 		}
 
-		Vector<WSABUF> wsaBufs;
-		wsaBufs.reserve(num);
 		for (const auto& sb : sendBuffer)
 		{
 			wsaBufs.emplace_back(static_cast<const ULONG>(sb->WriteSize()), reinterpret_cast<char* const>(sb->Buffer()));
@@ -238,10 +240,13 @@ namespace ServerCore
 			const int32 errorCode = ::WSAGetLastError();
 			if (errorCode != WSA_IO_PENDING)
 			{
+				wsaBufs.clear();
 				HandleError(errorCode);
 				m_pSendEvent->ReleaseIocpObject();
 			}
 		}
+
+		wsaBufs.clear();
 	}
 
 	void Session::ProcessSend(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept

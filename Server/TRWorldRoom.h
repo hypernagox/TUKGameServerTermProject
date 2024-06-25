@@ -1,4 +1,5 @@
 #pragma once
+#include "ServerCorePch.h"
 #include "TRWorld.h"
 #include "CollisionChecker.h"
 #include "EventHandler.h"
@@ -10,7 +11,7 @@ class Attackable;
 class RangeAttack;
 
 class TRWorldRoom
-	: public ServerCore::SessionManageable
+	: public ServerCore::Sector
 {
 	friend class TRWorldMgr;
 public:
@@ -65,7 +66,7 @@ private:
 private:
 	void UpdateWorldCollision();
 	
-	virtual void ImigrationAfterBehavior(const S_ptr<ServerCore::SessionManageable> beforeRoom, const S_ptr<ServerCore::IocpEntity> pSession_)noexcept override;
+	virtual void ImigrationAfterBehavior(const S_ptr<ServerCore::Sector> beforeRoom, ServerCore::IocpEntity* const pEntity_)noexcept override;
 	
 
 	void UpdateTileCollisionForTick(const S_ptr<Object> pObj_)const noexcept;
@@ -85,7 +86,7 @@ private:
 	std::atomic_int m_jobCount = 0;
 
 	ServerCore::Vector<ServerCore::Task*> m_vecForBroadCastToWorld;
-	ServerCore::Vector <ServerCore::SessionManageable*> m_adjSector8;
-	ServerCore::Vector <ServerCore::SessionManageable*> m_adjSector4;
+	ServerCore::Vector <ServerCore::Sector*> m_adjSector8;
+	ServerCore::Vector <ServerCore::Sector*> m_adjSector4;
 };
 

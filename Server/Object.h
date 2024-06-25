@@ -13,7 +13,7 @@ class ContentsEntity
 public:
 	virtual ~ContentsEntity() = default;
 public:
-	std::atomic<ServerCore::SessionManageable*> m_pCurSector = nullptr;
+	std::atomic<ServerCore::Sector*> m_pCurSector = nullptr;
 public:
 	Object* const ObjectCast()noexcept { return reinterpret_cast<Object* const>(this); }
 };

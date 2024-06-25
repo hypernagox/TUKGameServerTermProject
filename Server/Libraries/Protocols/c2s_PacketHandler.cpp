@@ -18,7 +18,7 @@ static ClientSession* const GetClientSession(const S_ptr<ServerCore::PacketSessi
 }
 
 //static std::shared_ptr<TRWorldRoom> GetWorldRoom(const std::shared_ptr<ServerCore::PacketSession>& pSession_)noexcept {
-//    return TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(pSession_->GetCurrentSessionRoomInfo().GetID()));
+//    return TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(pSession_->GetCurSector.GetID()));
 //}
 
 concurrency::concurrent_unordered_map<std::string, std::unique_ptr<std::atomic_bool>> g_connectHash;
@@ -76,7 +76,7 @@ namespace ServerCore
 
        // const auto start_room = TRMgr(TRWorldMgr)->GetWorldRoom(SECTOR::SECTOR_5);
 
-        if (const auto pStage = pSession_->GetCurrentSessionRoomInfo().GetPtr()) 
+        if (const auto pStage = pSession_->GetCurSector()) 
         {
             ((TRWorldRoom*)pStage)->GetWorldChunk()->TransmitTileRecord(pSession_);
             return true;
@@ -130,9 +130,9 @@ namespace ServerCore
 
     const bool Handle_c2s_BREAK_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE& pkt_)
     {
-        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto room_id = pSession_->GetCurSector.GetID();
         //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
-        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurSector());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
         const Vec2 item_pos = TRWorld::WorldToGlobal(Vec2{ (float)x,(float)y});
@@ -194,9 +194,9 @@ namespace ServerCore
 
     const bool Handle_c2s_BREAK_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_BREAK_TILE_WALL& pkt_)
     {
-        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto room_id = pSession_->GetCurSector.GetID();
         //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
-        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurSector());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
         if (session_room->GetWorldChunk()->BreakTileWall(x, y))
@@ -214,9 +214,9 @@ namespace ServerCore
 
     const bool Handle_c2s_PLACE_TILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE& pkt_)
     {
-        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto room_id = pSession_->GetCurSector.GetID();
         //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
-        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurSector());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
         const auto key = ::Utf8ToWide(pkt_.tile_key());
@@ -245,9 +245,9 @@ namespace ServerCore
 
     const bool Handle_c2s_PLACE_TILE_WALL(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_PLACE_TILE_WALL& pkt_)
     {
-        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto room_id = pSession_->GetCurSector.GetID();
         //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
-        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurSector());
         const int x = pkt_.tile_x();
         const int y = pkt_.tile_y();
         const auto key = ::Utf8ToWide(pkt_.tile_key());
@@ -268,9 +268,9 @@ namespace ServerCore
 
     const bool Handle_c2s_MOVE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_MOVE& pkt_)
     {
-        //const auto room_id = pSession_->GetCurrentSessionRoomInfo().GetID();
+        //const auto room_id = pSession_->GetCurSector.GetID();
         //const auto session_room = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(room_id));
-        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurSector());
        
         if (!session_room)return true;
         auto pkt = session_room->GetWorldChunk()->updateTileCollision(pkt_);
@@ -360,7 +360,7 @@ namespace ServerCore
 
     const bool Handle_c2s_TRY_GET_ITEM(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_TRY_GET_ITEM& pkt_)
     {
-        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+        const auto session_room = static_cast<TRWorldRoom* const>(pSession_->GetCurSector());
 
         if (const auto& player = GetClientSession(pSession_)->GetPlayer())
         {
@@ -377,7 +377,7 @@ namespace ServerCore
 
        //const auto nextSector = pkt_.next_sector_num();
 
-       const auto pCurRoom = static_cast<TRWorldRoom*>(pClientSession->GetCurrentSessionRoomInfo().GetPtr());
+       const auto pCurRoom = static_cast<TRWorldRoom*>(pClientSession->GetCurSector());
 
        pCurRoom->GetWorldChunk()->ImigrationWorldChunk(pSession_, (CHUNK)pkt_.cur_sector_num());
        //auto pNextRoom = TRMgr(TRWorldMgr)->GetWorldRoom(static_cast<SECTOR>(nextSector));
@@ -406,7 +406,7 @@ namespace ServerCore
     const bool Handle_c2s_CREATE_MISSILE(const S_ptr<PacketSession>& pSession_, const Protocol::c2s_CREATE_MISSILE& pkt_)
     {
         return true;
-        const auto cur_room = static_cast<TRWorldRoom* const>(pSession_->GetCurrentSessionRoomInfo().GetPtr());
+        const auto cur_room = static_cast<TRWorldRoom* const>(pSession_->GetCurSector());
         const auto player = GetClientSession(pSession_)->GetPlayer();
 
         //const float dir = (player->GetPos().x - player->GetPrevPos().x) > 0.f ? 1.f : -1.f;

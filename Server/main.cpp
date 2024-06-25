@@ -42,7 +42,7 @@ int main()
 		if (i >= 4)
 			trseed = 987654321 + i;
 		TRMgr(TRWorldMgr)->GetWorldChunk((CHUNK)i)->CreateWorld(trseed + (int)std::pow(2024, i) * (0 != i));
-		//TRMgr(TRWorldMgr)->GetWorldChunk((CHUNK)i)->InitMonsters((CHUNK)i);
+		TRMgr(TRWorldMgr)->GetWorldChunk((CHUNK)i)->InitMonsters((CHUNK)i);
 	}
 	//TRMgr(TRWorldMgr)->GetStartWorld()->InitMonsters();
 	//TRMgr(TRWorldMgr)->GetWorldChunk(CHUNK::CHUNK_0)->CreateWorld(10);

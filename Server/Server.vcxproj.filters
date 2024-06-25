@@ -171,9 +171,6 @@
     <ClCompile Include="ObjectFactory.cpp">
       <Filter>NetContents\Factory</Filter>
     </ClCompile>
-    <ClCompile Include="ItemComponent.cpp">
-      <Filter>NetContents\Component\ItemComponent</Filter>
-    </ClCompile>
     <ClCompile Include="CollisionChecker.cpp">
       <Filter>NetContents\CollisionChecker</Filter>
     </ClCompile>
@@ -213,6 +210,9 @@
     <ClCompile Include="Store.cpp">
       <Filter>Lua</Filter>
     </ClCompile>
+    <ClCompile Include="ItemComponent.cpp">
+      <Filter>NetContents\Component\ItemComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ServerCore\GenPackets\Enum.proto">
@@ -227,6 +227,7 @@
     <None Include="store.lua">
       <Filter>Lua</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\Protocols\Enum.pb.h">

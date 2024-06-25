@@ -1,7 +1,7 @@
 #pragma once
 
 class Object;
-class ServerCore::SessionManageable;
+class ServerCore::Sector;
 class ClientSession;
 class Item;
 
@@ -12,7 +12,7 @@ struct ObjectBuilder
 	uint64_t id;
 	Vec2 pos;
 	float dir;
-	ServerCore::SessionManageable* sector;
+	ServerCore::Sector* sector;
 
 	void ConvertProtoVec2AndSet(const Protocol::Vec2 v)noexcept { pos = ::ToOriginVec2(v); }
 };

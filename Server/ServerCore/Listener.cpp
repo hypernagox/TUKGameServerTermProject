@@ -47,7 +47,7 @@ namespace ServerCore
 
 		for (int i = 0; i < acceptCount; ++i)
 		{
-			auto acceptEvent = MakeShared<AcceptEvent>();
+			auto acceptEvent = MakeSharedSTD<AcceptEvent>();
 			acceptEvent->SetIocpObject(SharedFromThis<IocpObject>());
 			RegisterAccept(acceptEvent.get());
 			m_vecAcceptEvent.emplace_back(std::move(acceptEvent));
@@ -67,10 +67,9 @@ namespace ServerCore
 	{
 		for (auto& accepts : m_vecAcceptEvent)
 		{
-			//if (const auto pSession = accepts->ReleaseSession())pSession->reset_cache_shared();
+			accepts->ReleaseSession();
 			accepts->ReleaseIocpObject();
 		}
-		//reset_cache_shared();
 	}
 
 	void Listener::Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept
@@ -115,14 +114,12 @@ namespace ServerCore
 		if (false == SocketUtils::SetUpdateAcceptSocket(sessionSocket, m_socket))
 		{
 			RegisterAccept(acceptEvent);
-			//session_ptr->reset_cache_shared(*this);
 			return;
 		}
 
 		if (false == SocketUtils::SetTcpNoDelay(sessionSocket, true))
 		{
 			RegisterAccept(acceptEvent);
-			//session_ptr->reset_cache_shared(*this);
 			return;
 		}
 
@@ -131,7 +128,6 @@ namespace ServerCore
 		if (SOCKET_ERROR == ::getpeername(sessionSocket, reinterpret_cast<SOCKADDR* const>(&sockAddress), &sizeOfSockAddr))
 		{
 			RegisterAccept(acceptEvent);
-			//session_ptr->reset_cache_shared(*this);
 			return;
 		}
 
@@ -145,11 +141,10 @@ namespace ServerCore
 		else
 		{
 			LOG_MSG(L"Server Is Full");
-			//session_ptr->reset_cache_shared(*this);
 			// TODO: 입장 정원 초과 메시지 보내기 또는 현재 더 받을 여유가 없음
 			//std::this_thread::sleep_for(std::chrono::seconds(3));
 		}
-		//session_ptr->DecRef();
+
 		RegisterAccept(acceptEvent);
 	}
 }

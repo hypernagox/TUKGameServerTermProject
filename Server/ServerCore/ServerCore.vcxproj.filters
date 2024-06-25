@@ -127,6 +127,9 @@
     <Filter Include="DB\DBProtocols">
       <UniqueIdentifier>{e95a64ca-0cbe-4529-95a0-c77b23204b1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils\struct\CustomDS">
+      <UniqueIdentifier>{909a6c27-5e21-47f1-a3c4-144bf04f496b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CorePch.h">
@@ -195,7 +198,7 @@
     <ClInclude Include="AtomicNonTemplate.h">
       <Filter>Memory\AtomicNonTemplate</Filter>
     </ClInclude>
-    <ClInclude Include="SessionManageable.h">
+    <ClInclude Include="Sector.h">
       <Filter>Network\SessionManageable</Filter>
     </ClInclude>
     <ClInclude Include="PacketSession.h">
@@ -255,20 +258,11 @@
     <ClInclude Include="Logger.h">
       <Filter>Manager\Logger</Filter>
     </ClInclude>
-    <ClInclude Include="MPSCQueue.hpp">
-      <Filter>Utils\struct</Filter>
-    </ClInclude>
     <ClInclude Include="concurrentqueue.h">
-      <Filter>Utils\struct</Filter>
-    </ClInclude>
-    <ClInclude Include="LinkedHashMap.hpp">
       <Filter>Utils\struct</Filter>
     </ClInclude>
     <ClInclude Include="IDGenerator.hpp">
       <Filter>Network\IDGenerator</Filter>
-    </ClInclude>
-    <ClInclude Include="enable_shared_cache_this.hpp">
-      <Filter>Utils\struct</Filter>
     </ClInclude>
     <ClInclude Include="Interpolator.hpp">
       <Filter>Network\Session</Filter>
@@ -314,6 +308,15 @@
     </ClInclude>
     <ClInclude Include="RefCountable.h">
       <Filter>Utils\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkedHashMap.hpp">
+      <Filter>Utils\struct\CustomDS</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSCQueue.hpp">
+      <Filter>Utils\struct\CustomDS</Filter>
+    </ClInclude>
+    <ClInclude Include="SlimLinkedHashMap.hpp">
+      <Filter>Utils\struct\CustomDS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -371,7 +374,7 @@
     <ClCompile Include="AtomicNonTemplate.cpp">
       <Filter>Memory\AtomicNonTemplate</Filter>
     </ClCompile>
-    <ClCompile Include="SessionManageable.cpp">
+    <ClCompile Include="Sector.cpp">
       <Filter>Network\SessionManageable</Filter>
     </ClCompile>
     <ClCompile Include="PacketSession.cpp">
@@ -439,6 +442,7 @@
     <None Include="GenPackets\Struct.proto">
       <Filter>Protocols</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="delay_loop.asm">

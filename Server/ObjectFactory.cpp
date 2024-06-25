@@ -157,6 +157,7 @@ S_ptr<Object> ObjectFactory::CreateDropItem(ObjectBuilder& builder)
 	auto npc = MakePoolShared<NPC>();
 	//npc->register_cache_shared_core(npc);
 	auto drop_item = MakeShared<Object>((npc), GROUP_TYPE::DROP_ITEM, std::move(strName));
+	//npc->IncRef();
 
 	auto collider = MakeShared<Collider>(drop_item.get());
 
@@ -245,8 +246,8 @@ S_ptr<Object> ObjectFactory::CreateMonster(ObjectBuilder& builder)
 	
 	auto mon = MakePoolShared<Object>(npc, GROUP_TYPE::MONSTER, "MONSTER");
 	npc->SetEntity(mon);
-	
-	npc->InitTimer(npc, 1000);
+	//npc->IncRef();
+	npc->InitTimer(1000);
 
 	auto collider = MakeShared<Collider>(mon.get());
 

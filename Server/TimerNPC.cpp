@@ -9,9 +9,9 @@
 
 using namespace ServerCore;
 
-void TimerNPC::InitTimer(const S_ptr<TimerObject>& forCacheThis_, const uint64 tick_ms) noexcept
+void TimerNPC::InitTimer(const uint64 tick_ms) noexcept
 {
-    ServerCore::TimerObject::InitTimer(forCacheThis_, tick_ms);
+    ServerCore::TimerObject::InitTimer(tick_ms);
 }
 
 void TimerNPC::ToAwaker(const IocpEntity* const awaker) noexcept

@@ -1,7 +1,6 @@
 #include "ClientSession.h"
 #include "c2s_PacketHandler.h"
 #include "Object.h"
-#include "SessionManageable.h"
 #include "ObjectFactory.h"
 #include "Inventory.h"
 #include "ItemComponent.h"
@@ -39,12 +38,12 @@ void ClientSession::OnDisconnected()
 	if (m_pPlayer)
 	{
 		m_pPlayer->SetInvalid();
-        m_pPlayer->ResetEntity();
+        //m_pPlayer->ResetEntity();
 		m_pPlayer.reset();
 	}
-	if (const auto pCurRoom = GetCurrentSessionRoomInfo().GetPtr())
+	if (const auto pCurRoom = GetCurSector())
 	{
-		GetCurrentSessionRoomInfo().GetPtr()->LeaveAndDisconnectEnqueue(GetSessionID());
+      //  pCurRoom->LeaveAndDisconnectEnqueue(GetSessionID());
 	}
 	else
 	{
@@ -66,6 +65,7 @@ void ClientSession::OnDisconnected()
         this->SendAsync(ServerCore::c2s_PacketHandler::MakeSendBuffer(pkt));
         m_partyOne.reset();
     }
+   // GetMoveBroadcaster()->ReleaseViewList();
 }
 
 const std::string_view ClientSession::GetCurSelectItemName() const noexcept
@@ -257,11 +257,13 @@ void DB_PlayerLogin::Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 n
     {
         m_pSession->Disconnect(L"");
         m_pSession->GetPlayer()->ResetEntity();
+        iocpEvent_->ReleaseIocpObject();
         return;
     }
     if (!m_pSession->IsConnectedAtomic())
     {
         m_pSession->GetPlayer()->ResetEntity();
+        iocpEvent_->ReleaseIocpObject();
         return;
     }
     //Protocol::s2c_LOGIN pkt3;
@@ -288,12 +290,13 @@ void DB_PlayerLogin::Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 n
     Protocol::s2c_ENTER pkt;
     pkt.set_player_id(m_pSession->GetObjectID());
     *pkt.mutable_pos() = pos;
+   // m_pSession->IncRef();
     start_room->AddObjectEnqueue(GROUP_TYPE::PLAYER, player);
-    start_room->EnterEnqueue(m_pSession->SharedFromThis<IocpEntity>());
-    start_room->GetWorldChunk()->TransmitTileRecord(m_pSession);
+    start_room->EnterEnqueue(m_pSession.get());
+    //start_room->GetWorldChunk()->TransmitTileRecord(m_pSession);
     //
 
     m_pSession->SendAsync(c2s_PacketHandler::MakeSendBuffer(pkt));
    // m_pSession << pkt;
-
+    iocpEvent_->ReleaseIocpObject();
 }

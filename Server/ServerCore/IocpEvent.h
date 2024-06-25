@@ -85,7 +85,6 @@ namespace ServerCore
 
 	class AcceptEvent
 		:public IocpEvent
-		,public RefCountable
 	{
 	public:
 		AcceptEvent() :IocpEvent{ EVENT_TYPE::ACCEPT } {}

@@ -2,7 +2,7 @@
 #include "ServerCorePch.h"
 #include "ObjectPool.hpp"
 #include "SRWLock.hpp"
-#include <cassert>
+
 namespace ServerCore
 {
 	
@@ -21,16 +21,14 @@ namespace ServerCore
 		template<typename T = RefCountable>
 		S_ptr<T> SharedFromThis()const noexcept { return S_ptr<T>{this}; }
 		inline const uint64_t UseCount()const noexcept { return m_refCount.load(std::memory_order_relaxed) >> 48; }
+		inline void IncRef()const noexcept { m_refCount.fetch_add(1ULL << 48, std::memory_order_relaxed); }
+		void DecRef()const noexcept;
 	private:
 		inline void SetDeleter(const DeleterFunc deleter) noexcept {
 			const uint64_t combined = (m_refCount.load(std::memory_order_relaxed) & (0xFFFFULL << 48)) | (reinterpret_cast<const uint64_t>(deleter) & ((1ULL << 48) - 1));
 			m_refCount.store(combined, std::memory_order_relaxed);
 		}
-		inline void IncRef()const noexcept { m_refCount.fetch_add(1ULL << 48, std::memory_order_relaxed); }
-		void DecRef()const noexcept;
-		inline const RefCountable* const IncAndGetPtrInternal()const noexcept {
-			IncRef(); return this;
-		}
+		inline const RefCountable* const IncAndGetPtrInternal()const noexcept { IncRef(); return this; }
 		inline RefCountable* const IncAndGetPtr()const noexcept {
 			return const_cast<RefCountable* const>(IncAndGetPtrInternal());
 		}
@@ -42,7 +40,7 @@ namespace ServerCore
 	static inline void DecRefExternal(const RefCountable* const ref_ptr) noexcept { ref_ptr->DecRef(); }
 	static inline void SetDeleterExternal(RefCountable* const ptr, const RefCountable::DeleterFunc deleter) noexcept { ptr->SetDeleter(deleter); }
 
-	template <typename T> //requires std::derived_from<T,RefCountable>
+	template <typename T>
 	class S_ptr
 	{
 	public:

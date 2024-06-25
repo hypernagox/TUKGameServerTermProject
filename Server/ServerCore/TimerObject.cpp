@@ -4,13 +4,11 @@
 
 namespace ServerCore
 {
-	void TimerObject::InitTimer(const S_ptr<TimerObject>& forCacheThis_, const uint64 tick_ms) noexcept
+	void TimerObject::InitTimer(const uint64 tick_ms) noexcept
 	{
 		// 초기화시 필요한 추가동작은 여기에
 
-		//register_cache_shared_core(forCacheThis_);
-		//m_timerEvent.SetIocpObject(forCacheThis_->SharedFromThis<IocpObject>());
-		m_timerEvent.SetIocpObject(forCacheThis_);
+		m_timerEvent.SetIocpObject(SharedFromThis<IocpObject>());
 		m_tickInterval = tick_ms;
 
 	}

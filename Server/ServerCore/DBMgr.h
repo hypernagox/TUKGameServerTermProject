@@ -55,7 +55,7 @@ template <typename DBEVENT> requires std::derived_from<DBEVENT, ServerCore::DBEv
 static void RequestQuery(DBEVENT& db)noexcept
 {
 	ServerCore::S_ptr<ServerCore::DBEvent> dbEvent = ServerCore::MakeShared<DBEVENT>(std::move(db));
-	dbEvent->SetEventPtr(dbEvent);
+	dbEvent->SetEventPtr();
 	Mgr(DBMgr)->EnqueueDBEvent(std::move(dbEvent));
 }
 
@@ -63,7 +63,7 @@ template <typename DBEVENT> requires std::derived_from<DBEVENT, ServerCore::DBEv
 static void RequestQuery(DBEVENT&& db)noexcept
 {
 	ServerCore::S_ptr<ServerCore::DBEvent> dbEvent = ServerCore::MakeShared<DBEVENT>(std::move(db));
-	dbEvent->SetEventPtr(dbEvent);
+	dbEvent->SetEventPtr();
 	Mgr(DBMgr)->EnqueueDBEvent(std::move(dbEvent));
 }
 

@@ -8,6 +8,7 @@ namespace ServerCore
 
 	TaskQueueable::TaskQueueable()
 	{
+		m_taskEvent.SetIocpObject(SharedFromThis<IocpObject>());
 	}
 
 	TaskQueueable::~TaskQueueable()noexcept

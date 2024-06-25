@@ -40,9 +40,13 @@
 #include <concurrent_unordered_map.h>
 #include <sql.h>
 #include <sqlext.h>
+#include "tbb/concurrent_queue.h"
+#include "tbb/concurrent_priority_queue.h"
+#include "tbb/concurrent_unordered_map.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
+#include "NetAddress.h"
 #include "IDGenerator.hpp"
 #include "Lock.h"
 #include "ObjectPool.hpp"
@@ -60,9 +64,11 @@
 #include "SendBuffer.h"
 #include "PacketSession.h"
 #include "CoRoutine.hpp"
+#include "Sector.h"
 #include "Logger.h"
 #include "ThreadMgr.h"
 #include "LinkedHashMap.hpp"
+#include "SlimLinkedHashMap.hpp"
 #include "Interpolator.hpp"
 #include "ID_Ptr.hpp"
 #include "Timer.h"

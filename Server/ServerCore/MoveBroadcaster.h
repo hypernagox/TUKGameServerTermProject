@@ -6,6 +6,7 @@ namespace ServerCore
 	class Session;
 	class SendBuffer;
 	class PacketSession;
+	class Sector;
 
 	enum SECTOR_STATE
 	{
@@ -29,22 +30,16 @@ namespace ServerCore
 		using HuristicFunc = bool(*)(const IocpEntity* const, const IocpEntity* const);
 		using PacketFunc = S_ptr<SendBuffer>(*)(const S_ptr<IocpEntity>&);
 	public:
-
 		const int BroadcastMove(
 			const S_ptr<SendBuffer>& in_pkt,
 			const S_ptr<SendBuffer>& out_pkt,
 			const S_ptr<SendBuffer>& move_pkt,
 			const S_ptr<IocpEntity>& thisSession,
-			const Vector<SessionManageable*>* const sectors
+			const Vector<Sector*>* const sectors
 		)noexcept;
 		
 		void ReleaseViewList()noexcept
 		{
-			//if (IDLE == m_work_flag.exchange(STOP, std::memory_order_relaxed))
-			//{
-			//	std::atomic_thread_fence(std::memory_order_acquire);
-			//	//m_viewList.clear();
-			//}
 			m_viewListPtr.store(nullptr, std::memory_order_release);
 		}
 	public:
@@ -68,9 +63,7 @@ namespace ServerCore
 			return g_create_out_pkt(pEntity_);
 		}
 	private:
-		//std::atomic<SECTOR_STATE> m_work_flag = IDLE; 
-		//HashSet<S_ptr<IocpEntity>> m_viewList;
-		std::atomic<std::shared_ptr<HashSet<S_ptr<IocpEntity>>>> m_viewListPtr = std::shared_ptr<HashSet<S_ptr<IocpEntity>>>();
+		std::atomic<std::shared_ptr<HashSet<S_ptr<IocpEntity>>>> m_viewListPtr = MakeSharedSTD<HashSet<S_ptr<IocpEntity>>>();
 		
 	private:
 		static inline HuristicFunc g_huristic = {};

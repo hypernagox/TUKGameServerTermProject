@@ -17,27 +17,27 @@ namespace ServerCore
 
 	AcceptEvent::~AcceptEvent()
 	{
-		ReleaseIocpObject();
-		ReleaseSession();
+		//ReleaseIocpObject();
+		//ReleaseSession();
 	}
 
 	ConnectEvent::~ConnectEvent()
 	{
-		ReleaseIocpObject();
+		//ReleaseIocpObject();
 	}
 
 	DisconnectEvent::~DisconnectEvent()
 	{
-		ReleaseIocpObject();
+		//ReleaseIocpObject();
 	}
 
 	RecvEvent::~RecvEvent()
 	{
-		ReleaseIocpObject();
+		//ReleaseIocpObject();
 	}
 
 	SendEvent::~SendEvent()
 	{
-		ReleaseIocpObject();
+		//ReleaseIocpObject();
 	}
 }

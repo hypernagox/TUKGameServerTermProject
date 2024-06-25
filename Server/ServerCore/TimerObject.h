@@ -22,7 +22,7 @@ namespace ServerCore
 		{}
 	public:
 		virtual void ToAwaker(const IocpEntity* const awaker)noexcept abstract;
-		virtual void InitTimer(const S_ptr<TimerObject>& forCacheThis_, const uint64 tick_ms)noexcept;
+		virtual void InitTimer(const uint64 tick_ms)noexcept;
 		const bool ExecuteTimer(const IocpEntity* const awaker)noexcept;
 		void StopTimer()noexcept { m_bStopFlag.store(true, std::memory_order_release); }
 		void SetTickInterval(const uint64 tick_ms)noexcept { m_tickInterval = tick_ms; }

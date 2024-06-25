@@ -1,7 +1,5 @@
 #pragma once
-#include "NetAddress.h"
 #include "IocpObject.h"
-#include "MPSCQueue.hpp"
 #include "RecvBuffer.h"
 #include "ID_Ptr.hpp"
 
@@ -14,7 +12,6 @@ namespace ServerCore
 	class RecvBuffer;
 	class SendBuffer;
 	class SendEvent;
-	class SessionManageable;
 	class PacketSession;
 
 	/*--------------
@@ -48,9 +45,6 @@ namespace ServerCore
 			if (false == m_bIsSendRegistered.exchange(true, std::memory_order_relaxed))
 			{
 				std::atomic_thread_fence(std::memory_order_acquire);
-				//auto pValid = S_ptr<Session>{ this };
-				//if (nullptr == pValid)
-				//	return;
 				m_pSendEvent->m_registerSendEvent.SetIocpObject(SharedFromThis());
 				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, reinterpret_cast<IocpEvent* const>(reinterpret_cast<char* const>(m_pSendEvent.get()) + sizeof(IocpEvent)));
 			}
@@ -78,21 +72,16 @@ namespace ServerCore
 		NetAddress GetAddress()const noexcept{ return m_sessionAddr; }
 		SOCKET GetSocket()const noexcept{ return m_sessionSocket; }
 		const bool IsConnected()const noexcept {
-			//std::atomic_thread_fence(std::memory_order_acquire);
 			return m_bConnectedNonAtomic;
 		}
 		const bool IsConnectedAtomic()const noexcept { return m_bConnected.load(std::memory_order_relaxed); }
 		const bool IsHeartBeatAlive()const noexcept {
-			//std::atomic_thread_fence(std::memory_order_acquire);
 			return m_bHeartBeatAlive;
 		}
 		void SetHeartBeat(const bool bHeartBeat_)noexcept {
 			m_bHeartBeatAlive = bHeartBeat_;
-			//std::atomic_thread_fence(std::memory_order_release);
 		}
 		void SetLastError(c_int32 errCode_)noexcept { m_iLastErrorCode *= errCode_; }
-		const ID_Ptr<SessionManageable> GetCurrentSessionRoomInfo()const noexcept { return m_CurrentSessionRoomInfo.load(std::memory_order_acquire); }
-		void SetSessionRoomInfo(const uint16_t roomID_, const SessionManageable* const pSessionRoom_)noexcept { m_CurrentSessionRoomInfo.store(ID_Ptr<SessionManageable>{ roomID_, pSessionRoom_ }, std::memory_order_release); }
 	private:
 		virtual HANDLE GetHandle()const noexcept override { return  reinterpret_cast<HANDLE>(m_sessionSocket); }
 		virtual void Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept override;
@@ -139,8 +128,6 @@ namespace ServerCore
 		const U_Pptr<RecvEvent> m_pRecvEvent;
 		const U_Pptr<RecvBuffer> m_pRecvBuffer;
 		const PacketHandleFunc* const __restrict m_sessionPacketHandler;
-
-		std::atomic<ID_Ptr<SessionManageable>> m_CurrentSessionRoomInfo;
 	private:
 		std::atomic_int m_serviceIdx = -1;
 		Atomic<bool>m_bConnected = false;

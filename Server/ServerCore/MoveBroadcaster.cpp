@@ -1,12 +1,12 @@
 #include "ServerCorePch.h"
 #include "MoveBroadcaster.h"
 #include "PacketSession.h"
-#include "SessionManageable.h"
+#include "Sector.h"
 
 namespace ServerCore
 {
 	MoveBroadcaster::MoveBroadcaster()
-		: m_viewListPtr{ std::make_shared<HashSet<S_ptr<IocpEntity>>>() }
+		: m_viewListPtr{ MakeSharedSTD<HashSet<S_ptr<IocpEntity>>>() }
 	{
 	}
 
@@ -19,11 +19,9 @@ namespace ServerCore
 		const S_ptr<SendBuffer>& out_pkt,
 		const S_ptr<SendBuffer>& move_pkt,
 		const S_ptr<IocpEntity>& thisSession_,
-		const Vector<SessionManageable*>* const sectors
+		const Vector<Sector*>* const sectors
 	)noexcept
 	{
-		//if (IDLE != m_work_flag.exchange(WORK, std::memory_order_relaxed))
-		//	return NONE;
 		int sector_state = 0;
 		
 		const uint16 obj_type = thisSession_->GetObjectType();
@@ -120,12 +118,6 @@ namespace ServerCore
 		for (const auto pSession : send_list)
 			pSession->TrySend();
 
-		//if (WORK != m_work_flag.exchange(IDLE, std::memory_order_release))
-		//{
-		//	m_viewList.clear();
-		//	return STOP;
-		//}
-			
 		return 3 ^ sector_state;
 	}
 }

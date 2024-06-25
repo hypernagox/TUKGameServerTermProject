@@ -1,6 +1,5 @@
 #pragma once
 #include "ServerCorePch.h"
-#include "SessionManageable.h"
 #include "TRWorld.h"
 
 class TRWorld;

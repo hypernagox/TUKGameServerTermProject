@@ -11,7 +11,7 @@ public:
 		:TimerObject{ 2 }
 	{}
 public:
-	virtual void InitTimer(const S_ptr<TimerObject>& forCacheThis_, const uint64 tick_ms)noexcept override;
+	virtual void InitTimer(const uint64 tick_ms)noexcept override;
 	virtual void ToAwaker(const IocpEntity* const awaker)noexcept override;
 	virtual const ServerCore::TIMER_STATE TimerUpdate()noexcept override;
 public:

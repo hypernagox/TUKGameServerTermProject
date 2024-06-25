@@ -80,11 +80,6 @@ namespace ServerCore
 		{
 			Mgr(ThreadMgr)->EnqueueGlobalTask(memFunc, S_ptr<T>{this}, std::forward<Args>(args)...);
 		}
-		void StartExecute(const S_ptr<TaskQueueable>& forCacheThis_=nullptr)noexcept {
-			//register_cache_shared_core(forCacheThis_);
-			//m_taskEvent.SetIocpObject(shared_from_this());
-			m_taskEvent.SetIocpObject(S_ptr<IocpObject>{this});
-		}
 		void StopExecute()noexcept {
 			if (true == m_bIsValid.exchange(false, std::memory_order_relaxed))
 				EnqueueAsync(&TaskQueueable::clear);
@@ -95,9 +90,7 @@ namespace ServerCore
 	private:
 		void	EnqueueAsyncTask(Task&& task_, const bool pushOnly = false)noexcept;
 		void	Execute()noexcept;
-		void	clear()noexcept { m_taskEvent.ReleaseIocpObject(); m_taskQueue.clear_single();
-		//reset_cache_shared();
-		}
+		void	clear()noexcept { m_taskQueue.clear_single(); m_taskEvent.ReleaseIocpObject(); }
 	private:
 		MPSCQueue<Task> m_taskQueue;
 		std::atomic<int32> m_taskCount = 0;

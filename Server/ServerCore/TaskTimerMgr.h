@@ -52,7 +52,7 @@ namespace ServerCore
 		template<typename Func, typename... Args> requires std::invocable<Func, Args...>
 		void ReserveAsyncTask(c_uint64 tickAfter, Func&& fp, Args&&... args)noexcept
 		{
-			m_timerTaskQueue.push(
+			m_timerTaskQueue.emplace(
 				TimerTask(::GetTickCount64() + tickAfter, Task([task = Task(std::forward<Func>(fp), std::forward<Args>(args)...)]()mutable noexcept
 					{
 						Mgr(ThreadMgr)->EnqueueGlobalTask(std::move(task));
@@ -62,6 +62,6 @@ namespace ServerCore
 		void ReserveAsyncTask(c_uint64 tickAfter, IocpEvent* const pTimerEvent_)noexcept;
 		void DistributeTask()noexcept;
 	private:
-		Concurrency::concurrent_priority_queue<TimerTask, TimerCompare, StlAllocator<TimerTask>> m_timerTaskQueue;
+		tbb::concurrent_priority_queue<TimerTask, TimerCompare, StlAllocator<TimerTask>> m_timerTaskQueue;
 	};
 }

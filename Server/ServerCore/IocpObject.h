@@ -1,13 +1,14 @@
 #pragma once
-#include "enable_shared_cache_this.hpp"
 #include "MoveBroadcaster.h"
 #include "RefCountable.h"
+#include "ID_Ptr.hpp"
 
 class ContentsEntity;
 
 namespace ServerCore
 {
 	class IocpEvent;
+	class Sector;
 
 	/*--------------
 		IocpCore
@@ -26,22 +27,18 @@ namespace ServerCore
 
 		template<typename T = IocpObject>
 		S_ptr<T> SharedFromThis()const noexcept { return S_ptr<T>{this}; }
-		//S_ptr<IocpObject> SharedFromThis()const noexcept { return S_ptr<IocpObject>{this}; }
 	};
 
 	class IocpEntity
 		:public IocpObject
 	{
 	public:
-		const U_Pptr<MoveBroadcaster> m_broadCaster = MakePoolUnique<MoveBroadcaster>();
 		IocpEntity(const uint16_t type_id) noexcept
 			: m_objectCombineID{ CombineObjectID(type_id,IDGenerator::GenerateID()) }
 		{}
 		virtual ~IocpEntity()noexcept = default;
 	public:
 		const S_ptr<ContentsEntity>& GetContentsEntity()const noexcept { return m_pContentsEntity; }
-		//const ContentsEntity* const GetContentsEntity()const noexcept { return m_pContentsEntity; }
-		//ContentsEntity* const GetContentsEntity()const noexcept { return const_cast<ContentsEntity* const>(m_pContentsEntity); }
 		const uint64_t GetObjectID()const noexcept { return ServerCore::GetObjectID(m_objectCombineID); }
 		const uint16_t GetObjectType()const noexcept { return ServerCore::GetObjectType(m_objectCombineID); }
 		PacketSession* const IsSession()noexcept
@@ -66,14 +63,21 @@ namespace ServerCore
 				reinterpret_cast<const int64_t>(this)
 				);
 		}
-		//inline S_ptr<IocpEntity> GetSharedThis()noexcept { return IocpObject::SharedCastThis<IocpEntity>(); }
-		//inline S_ptr<const IocpEntity> GetSharedThis()const noexcept { return IocpObject::SharedCastThis<IocpEntity>(); }
-		//S_ptr<IocpEntity> SharedFromThis()const noexcept { return S_ptr<IocpEntity>{this}; }
 		template<typename T = IocpEntity>
 		S_ptr<T> SharedFromThis()const noexcept { return S_ptr<T>{this}; }
 		void SetEntity(S_ptr<ContentsEntity> pEntity_)noexcept { m_pContentsEntity.swap(pEntity_); }
+		MoveBroadcaster* const GetMoveBroadcaster()const noexcept { return m_broadCaster.get(); }
+		const ID_Ptr<Sector> GetCombinedSectorInfo()const noexcept { return m_CurrentSectorInfo.load(std::memory_order_acquire); }
+		void SetSectorInfo(const uint16_t prev_sector_id, const Sector* const cur_sector)noexcept {
+			m_CurrentSectorInfo.store(ID_Ptr<Sector>{ prev_sector_id, cur_sector }, std::memory_order_release);
+		}
+		const uint16_t GetPrevSectorID()const noexcept { GetCombinedSectorInfo().GetID(); }
+		template <typename T = Sector>
+		T* const GetCurSector()const noexcept { return GetCombinedSectorInfo().GetPtr(); }
 	private:
-		S_ptr<ContentsEntity> m_pContentsEntity;
 		const uint64_t m_objectCombineID;
+		const U_Pptr<MoveBroadcaster> m_broadCaster = MakePoolUnique<MoveBroadcaster>();
+		std::atomic<ID_Ptr<Sector>> m_CurrentSectorInfo;
+		S_ptr<ContentsEntity> m_pContentsEntity;
 	};
 }

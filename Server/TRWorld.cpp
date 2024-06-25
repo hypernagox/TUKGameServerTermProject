@@ -178,7 +178,7 @@ void TRWorld::InitMonsters(const CHUNK eChunk)
 		b.pos = TRWorld::WorldToGlobal(v);
 		auto mon = ObjectFactory::CreateMonster(b);
 		TRMgr(TRWorldMgr)->GetWorldChunk(eChunk)->GetWorldSector(b.pos)->AddObjectEnqueue(GROUP_TYPE::MONSTER, mon);
-		TRMgr(TRWorldMgr)->GetWorldChunk(eChunk)->GetWorldSector(b.pos)->EnterEnqueue(mon->GetIocpEntity());
+		TRMgr(TRWorldMgr)->GetWorldChunk(eChunk)->GetWorldSector(b.pos)->EnterEnqueue(mon->GetIocpEntity().get());
 	}
 }
 

@@ -16,12 +16,10 @@ namespace ServerCore
 
 	void TaskTimerMgr::ReserveAsyncTask(c_uint64 tickAfter, S_ptr<TaskQueueable>&& memfuncInstance, Task&& task)noexcept
 	{
-		m_timerTaskQueue.push(
+		m_timerTaskQueue.emplace(
 			TimerTask(::GetTickCount64() + tickAfter, Task
 			([memfuncInstance = std::move(memfuncInstance), task = std::move(task)]()mutable noexcept
 				{
-					//if (1 == memfuncInstance.use_count())
-					//	return;
 					memfuncInstance->EnqueueAsyncTask(std::move(task), true);
 				}
 		)));
@@ -29,7 +27,7 @@ namespace ServerCore
 
 	void TaskTimerMgr::ReserveAsyncTask(c_uint64 tickAfter, IocpEvent* const pTimerEvent_) noexcept
 	{
-		m_timerTaskQueue.push(
+		m_timerTaskQueue.emplace(
 			TimerTask(::GetTickCount64() + tickAfter, Task
 			([pTimerEvent_]()noexcept
 				{
@@ -45,7 +43,7 @@ namespace ServerCore
 		{
 			if (::GetTickCount64() < task.executeTime)
 			{
-				m_timerTaskQueue.push(std::move(task));
+				m_timerTaskQueue.emplace(std::move(task));
 				return;
 			}
 			else
