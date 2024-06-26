@@ -6,3 +6,8 @@ NPC::NPC()
 	:ServerCore::IocpEntity{ 1 }
 {
 }
+
+const bool NPC::IsValid() const noexcept
+{
+	return GetContentsEntity()->ObjectCast()->IsValid();
+}

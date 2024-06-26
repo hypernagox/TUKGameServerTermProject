@@ -14,6 +14,7 @@ namespace ServerCore
 			:m_dbEvent{ std::move(other.m_dbEvent) }
 		{}
 	public:
+		virtual const bool IsValid()const noexcept override { return m_bSuccess; }
 		virtual void BindData()noexcept {}
 		virtual void ExecuteQuery()noexcept abstract;
 		virtual void Dispatch(ServerCore::IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept  abstract;

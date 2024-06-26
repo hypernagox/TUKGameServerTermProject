@@ -9,6 +9,11 @@
 
 using namespace ServerCore;
 
+const bool TimerNPC::IsValid() const noexcept
+{
+    return GetContentsEntity()->ObjectCast()->IsValid();
+}
+
 void TimerNPC::InitTimer(const uint64 tick_ms) noexcept
 {
     ServerCore::TimerObject::InitTimer(tick_ms);

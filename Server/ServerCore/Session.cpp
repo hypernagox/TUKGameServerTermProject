@@ -183,39 +183,35 @@ namespace ServerCore
 		}
 
 		if (false == m_pRecvBuffer->OnWrite(numofBytes_)) [[unlikely]]
-			{
-				Disconnect(L"OnWrite Overflow");
-				return;
-			}
-			const int32 dataSize = m_pRecvBuffer->DataSize(); // 더 읽어야할 데이터 w - r
-			// 컨텐츠 쪽에서 오버로딩 해야함
+		{
+			Disconnect(L"OnWrite Overflow");
+			return;
+		}
 
-			const RecvStatus recvStatus = static_cast<PacketSession* const>(this)->PacketSession::OnRecv(m_pRecvBuffer->ReadPos(), dataSize, pThisSessionPtr);
+		const int32 dataSize = m_pRecvBuffer->DataSize(); // 더 읽어야할 데이터 w - r
+		// 컨텐츠 쪽에서 오버로딩 해야함
 
-			if (false == recvStatus.bIsOK || recvStatus.processLen < 0 || dataSize < recvStatus.processLen || false == m_pRecvBuffer->OnRead(recvStatus.processLen))
-			{
-				Disconnect(L"OnRecv Overflow");
-				return;
-			}
+		const RecvStatus recvStatus = static_cast<PacketSession* const>(this)->PacketSession::OnRecv(m_pRecvBuffer->ReadPos(), dataSize, pThisSessionPtr);
 
-			m_pRecvBuffer->Clear(); // 커서 정리
+		if (false == recvStatus.bIsOK || recvStatus.processLen < 0 || dataSize < recvStatus.processLen || false == m_pRecvBuffer->OnRead(recvStatus.processLen))
+		{
+			Disconnect(L"OnRecv Overflow");
+			return;
+		}
 
-			RegisterRecv(pThisSessionPtr);
+		m_pRecvBuffer->Clear(); // 커서 정리
+
+		RegisterRecv(pThisSessionPtr);
 	}
 
 	void Session::RegisterSend(const S_ptr<PacketSession>& pThisSessionPtr)noexcept
 	{
-		thread_local Vector<WSABUF> wsaBufs;
-
 		if (false == IsConnected())
 		{
-			wsaBufs.clear();
 			Disconnect(L"");
 			return;
 		}
 
-		m_pSendEvent->Init();
-		m_pSendEvent->SetIocpObject(std::move(const_cast<S_ptr<PacketSession>&>(pThisSessionPtr)));
 		thread_local Vector<S_ptr<SendBuffer>> sendBuffer;
 		sendBuffer.clear();
 		m_sendQueue.try_flush_single(sendBuffer);
@@ -224,29 +220,30 @@ namespace ServerCore
 
 		if (0 == num)
 		{
-			wsaBufs.clear();
-			m_pSendEvent->ReleaseIocpObject();
 			m_bIsSendRegistered.store(false, std::memory_order_release);
 			return;
 		}
+
+		Vector<WSABUF> wsaBufs;
+		wsaBufs.reserve(num);
 
 		for (const auto& sb : sendBuffer)
 		{
 			wsaBufs.emplace_back(static_cast<const ULONG>(sb->WriteSize()), reinterpret_cast<char* const>(sb->Buffer()));
 		}
 	
+		m_pSendEvent->Init();
+		m_pSendEvent->SetIocpObject(std::move(const_cast<S_ptr<PacketSession>&>(pThisSessionPtr)));
+
 		if (SOCKET_ERROR == ::WSASend(m_sessionSocket, wsaBufs.data(), static_cast<const DWORD>(num), NULL, 0, m_pSendEvent.get(), nullptr))
 		{
 			const int32 errorCode = ::WSAGetLastError();
 			if (errorCode != WSA_IO_PENDING)
 			{
-				wsaBufs.clear();
 				HandleError(errorCode);
 				m_pSendEvent->ReleaseIocpObject();
 			}
 		}
-
-		wsaBufs.clear();
 	}
 
 	void Session::ProcessSend(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept

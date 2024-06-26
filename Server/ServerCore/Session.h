@@ -35,6 +35,7 @@ namespace ServerCore
 		template <typename T> requires std::convertible_to<T, S_ptr<PacketSession>>
 		static inline const uint64 GetID(const T& __restrict pSession_)noexcept { return pSession_->GetSessionID(); }
 	public:
+		virtual const bool IsValid()const noexcept override { return IsConnectedAtomic(); }
 		void SendAsync(S_ptr<SendBuffer> pSendBuff_)noexcept
 		{
 			m_sendQueue.emplace(std::move(pSendBuff_));

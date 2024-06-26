@@ -21,6 +21,7 @@ namespace ServerCore
 			:IocpEntity{ type_id }
 		{}
 	public:
+		virtual const bool IsValid()const noexcept override { return m_bStopFlag.load(std::memory_order_relaxed); }
 		virtual void ToAwaker(const IocpEntity* const awaker)noexcept abstract;
 		virtual void InitTimer(const uint64 tick_ms)noexcept;
 		const bool ExecuteTimer(const IocpEntity* const awaker)noexcept;

@@ -24,7 +24,7 @@ namespace ServerCore
 	public:
 		virtual HANDLE GetHandle()const noexcept { return nullptr; }
 		virtual void Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept abstract;
-
+		virtual const bool IsValid()const noexcept { return true; }
 		template<typename T = IocpObject>
 		S_ptr<T> SharedFromThis()const noexcept { return S_ptr<T>{this}; }
 	};
@@ -66,7 +66,7 @@ namespace ServerCore
 		template<typename T = IocpEntity>
 		S_ptr<T> SharedFromThis()const noexcept { return S_ptr<T>{this}; }
 		void SetEntity(S_ptr<ContentsEntity> pEntity_)noexcept { m_pContentsEntity.swap(pEntity_); }
-		MoveBroadcaster* const GetMoveBroadcaster()const noexcept { return m_broadCaster.get(); }
+		const U_Pptr<MoveBroadcaster>& GetMoveBroadcaster()const noexcept { return m_broadCaster; }
 		const ID_Ptr<Sector> GetCombinedSectorInfo()const noexcept { return m_CurrentSectorInfo.load(std::memory_order_acquire); }
 		void SetSectorInfo(const uint16_t prev_sector_id, const Sector* const cur_sector)noexcept {
 			m_CurrentSectorInfo.store(ID_Ptr<Sector>{ prev_sector_id, cur_sector }, std::memory_order_release);

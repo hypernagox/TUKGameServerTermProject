@@ -46,34 +46,31 @@ namespace ServerCore
 		thread_local HashSet<Session*> send_list;
 		send_list.clear();
 		thread_local Vector<IocpEntity*> entity_copy;
-		
+		entity_copy.clear();
+
 		for (const auto sector : *sectors)
 		{
-			sector->GetSRWLock().lock_shared();
+			sector->lock_shared();
 			for (const auto pEntity : sector->GetObjectList())
 			{
+				if (bIsNPC && !pEntity->IsSession())continue;
 				pEntity->IncRef();
 				entity_copy.emplace_back(pEntity);
 			}
-			sector->GetSRWLock().unlock_shared();
-			for (const auto& pEntity : entity_copy)
-			{
-				const bool bFlag = static_cast<const bool>(pEntity->IsSession());
-				if (bIsNPC && !bFlag)
-				{	
-					pEntity->DecRef();
-					continue;
-				}
-				if (g_huristic(cache_obj_ptr, pEntity))
-				{
-					new_view_list.emplace(pEntity);
-					sector_state |= (bFlag + 1);
-				}
-				pEntity->DecRef();
-			}
-			entity_copy.clear();
+			sector->unlock_shared();
 		}
 		
+		for (const auto pEntity : entity_copy)
+		{
+			if (g_huristic(cache_obj_ptr, pEntity))
+			{
+				const bool bFlag = static_cast<const bool>(pEntity->IsSession());
+				new_view_list.emplace(pEntity);
+				sector_state |= (bFlag + 1);
+			}
+			pEntity->DecRef();
+		}
+
 		new_view_list.erase(thisSession_);
 
 		for (const auto& pEntity : new_view_list)
@@ -103,15 +100,12 @@ namespace ServerCore
 			}
 		}
 
-		const auto e_iter = new_view_list.cend();
-		
 		for (auto iter = m_viewList.cbegin(); iter != m_viewList.cend();)
 		{
 			const auto& pEntity = *iter;
-			const auto target = new_view_list.find(pEntity);
-			const auto pSession = pEntity->IsSession();
-			if (e_iter == target)
+			if (false == new_view_list.contains(pEntity))
 			{
+				const auto pSession = pEntity->IsSession();
 				if (pSession) {
 					pSession->SendOnlyEnqueue(out_pkt);
 					send_list.emplace(pSession);
@@ -125,6 +119,7 @@ namespace ServerCore
 				++iter;
 			}
 		}
+
 		if (thisSession)
 			thisSession->TrySend();
 		for (const auto pSession : send_list)

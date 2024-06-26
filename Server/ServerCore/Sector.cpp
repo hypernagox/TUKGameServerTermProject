@@ -70,7 +70,7 @@ namespace ServerCore
 		if (const auto entity = m_linkedHashMapForIocpEntity.ExtractItemSafe(obj_id))
 		{
 			if (entity->IsSession())
-				m_linkedHashMapForSession.EraseItemSafe(obj_id);
+				m_linkedHashMapForSession.EraseItem(obj_id);
 			pOtherSector->EnqueueAsync([beforeSector = S_ptr<Sector>{this}, pOtherSector, entity]()mutable noexcept
 				{
 					entity->SetSectorInfo(beforeSector->GetSectorID(), pOtherSector.get());
@@ -80,7 +80,7 @@ namespace ServerCore
 		}
 		else
 		{
-			std::cout << "Cannot Find Session" << std::endl;
+			//std::cout << "Cannot Find Session" << std::endl;
 		}
 	}
 
@@ -150,6 +150,14 @@ namespace ServerCore
 				m_linkedHashMapForSession.AddItem(sessionID, temp_session_ptr);
 			}
 		}
+		else
+		{
+			if (false == pEntity_->IsValid())
+			{
+				pEntity_->DecRef();
+				return;
+			}
+		}
 		if (!m_linkedHashMapForIocpEntity.AddItem(sessionID, pEntity_))
 		{
 			// TODO: 이미 방에 있는데 또 들어오려한거임
@@ -189,7 +197,7 @@ namespace ServerCore
 			{
 				if (entity->IsSession())
 				{
-					m_linkedHashMapForSession.EraseItemSafe(obj_id);
+					m_linkedHashMapForSession.EraseItem(obj_id);
 				}
 				entity->DecRef();
 			}

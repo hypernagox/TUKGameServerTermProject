@@ -85,6 +85,7 @@ namespace ServerCore
 				EnqueueAsync(&TaskQueueable::clear);
 		}
 	public:
+		virtual const bool IsValid()const noexcept override { return m_bIsValid.load(std::memory_order_relaxed); }
 		virtual HANDLE GetHandle()const noexcept override { return nullptr; }
 		virtual void Dispatch(IocpEvent* const iocpEvent_, c_int32 numOfBytes)noexcept override;
 	private:

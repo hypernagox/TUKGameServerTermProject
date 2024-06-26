@@ -42,7 +42,6 @@ namespace ServerCore
 		{
 			m_timer_state = eCurState;
 			std::atomic_thread_fence(std::memory_order_acquire);
-			//reset_cache_shared();
 			m_timerEvent.ReleaseIocpObject();
 			return;
 		}
