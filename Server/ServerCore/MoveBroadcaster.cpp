@@ -26,9 +26,15 @@ namespace ServerCore
 		
 		const uint16 obj_type = thisSession_->GetObjectType();
 		const auto thisSession = thisSession_->IsSession();
+
 		if (thisSession)
 		{
 			if (false == thisSession->IsConnected())
+				return NONE;
+		}
+		else
+		{
+			if (false == thisSession_->IsValid())
 				return NONE;
 		}
 
@@ -39,8 +45,7 @@ namespace ServerCore
 
 		auto& m_viewList = *viewListPtr;
 		const auto cache_obj_ptr = thisSession_.get();
-		const bool bIsNPC = 0 != obj_type;
-
+		
 		thread_local HashSet<S_ptr<IocpEntity>> new_view_list;
 		new_view_list.clear();
 		thread_local HashSet<Session*> send_list;
@@ -48,16 +53,31 @@ namespace ServerCore
 		thread_local Vector<IocpEntity*> entity_copy;
 		entity_copy.clear();
 
-		for (const auto sector : *sectors)
+		if (thisSession)
 		{
-			sector->lock_shared();
-			for (const auto pEntity : sector->GetObjectList())
+			for (const auto sector : *sectors)
 			{
-				if (bIsNPC && !pEntity->IsSession())continue;
-				pEntity->IncRef();
-				entity_copy.emplace_back(pEntity);
+				sector->sector_lock_shared();
+				for (const auto pEntity : sector->GetEntityList())
+				{
+					pEntity->IncRef();
+					entity_copy.emplace_back(pEntity);
+				}
+				sector->sector_unlock_shared();
 			}
-			sector->unlock_shared();
+		}
+		else
+		{
+			for (const auto sector : *sectors)
+			{
+				sector->session_lock_shared();
+				for (const auto pSession : sector->GetSessionList())
+				{
+					pSession->IncRef();
+					entity_copy.emplace_back(pSession);
+				}
+				sector->session_unlock_shared();
+			}
 		}
 		
 		for (const auto pEntity : entity_copy)

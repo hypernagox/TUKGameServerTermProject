@@ -70,7 +70,7 @@ namespace ServerCore
 		if (const auto entity = m_linkedHashMapForIocpEntity.ExtractItemSafe(obj_id))
 		{
 			if (entity->IsSession())
-				m_linkedHashMapForSession.EraseItem(obj_id);
+				m_linkedHashMapForSession.EraseItemSafe(obj_id);
 			pOtherSector->EnqueueAsync([beforeSector = S_ptr<Sector>{this}, pOtherSector, entity]()mutable noexcept
 				{
 					entity->SetSectorInfo(beforeSector->GetSectorID(), pOtherSector.get());
@@ -180,7 +180,7 @@ namespace ServerCore
 		auto start_iter = m_linkedHashMapForSession.cbegin();
 		if (m_linkedHashMapForSession.HasItem(exceptSessionNumber))
 		{
-			m_linkedHashMapForIocpEntity.SwapElement((*start_iter)->GetSessionID(), exceptSessionNumber);
+			m_linkedHashMapForSession.SwapElement((*start_iter)->GetSessionID(), exceptSessionNumber);
 			++start_iter;
 		}
 		for (; start_iter != end_iter; ++start_iter)
@@ -197,7 +197,7 @@ namespace ServerCore
 			{
 				if (entity->IsSession())
 				{
-					m_linkedHashMapForSession.EraseItem(obj_id);
+					m_linkedHashMapForSession.EraseItemSafe(obj_id);
 				}
 				entity->DecRef();
 			}

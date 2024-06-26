@@ -15,21 +15,21 @@ namespace ServerCore
 	public:
 		Sector(const uint16_t sector_id)noexcept;
 		virtual ~Sector()noexcept;
-		constexpr inline auto& GetSRWLock()noexcept { return m_linkedHashMapForIocpEntity.GetSRWLock(); }
-		void lock()noexcept { GetSRWLock().lock(); }
-		void unlock()noexcept { GetSRWLock().unlock(); }
-		void lock_shared()noexcept { GetSRWLock().lock_shared(); }
-		void unlock_shared()noexcept { GetSRWLock().unlock_shared(); }
+		constexpr inline auto& GetSectorSRWLock()noexcept { return m_linkedHashMapForIocpEntity.GetSRWLock(); }
+		inline void sector_lock()noexcept { GetSectorSRWLock().lock(); }
+		inline void sector_unlock()noexcept { GetSectorSRWLock().unlock(); }
+		inline void sector_lock_shared()noexcept { GetSectorSRWLock().lock_shared(); }
+		inline void sector_unlock_shared()noexcept { GetSectorSRWLock().unlock_shared(); }
 
 		constexpr inline auto& GetSessionSRWLock()noexcept { return m_linkedHashMapForSession.GetSRWLock(); }
-		void session_lock()noexcept { GetSessionSRWLock().lock(); }
-		void session_unlock()noexcept { GetSessionSRWLock().unlock(); }
-		void session_lock_shared()noexcept { GetSessionSRWLock().lock_shared(); }
-		void session_unlock_shared()noexcept { GetSessionSRWLock().unlock_shared(); }
+		inline void session_lock()noexcept { GetSessionSRWLock().lock(); }
+		inline void session_unlock()noexcept { GetSessionSRWLock().unlock(); }
+		inline void session_lock_shared()noexcept { GetSessionSRWLock().lock_shared(); }
+		inline void session_unlock_shared()noexcept { GetSessionSRWLock().unlock_shared(); }
 		const uint16_t GetSectorID()const noexcept { return m_sectorID; }
 	public:
 		const auto& GetSessionList()const noexcept { return m_linkedHashMapForSession.GetItemListRef(); }
-		const auto& GetObjectList()const noexcept { return m_linkedHashMapForIocpEntity.GetItemListRef(); }
+		const auto& GetEntityList()const noexcept { return m_linkedHashMapForIocpEntity.GetItemListRef(); }
 		void EnterEnqueue(IocpEntity* const pEntity_)noexcept;
 		void LeaveAndDisconnectEnqueue(const uint64_t obj_id)noexcept;
 		void BroadCastEnqueue(S_ptr<SendBuffer> pSendBuffer)noexcept;
