@@ -12,7 +12,7 @@ namespace ServerCore
             if (const DeleterFunc deleter = reinterpret_cast<const DeleterFunc>(old_value & ((1ULL << 48) - 1)))
                 deleter(const_cast<RefCountable* const>(this));
             else
-                xdelete(const_cast<RefCountable* const>(this));
+                xdelete<RefCountable>(const_cast<RefCountable* const>(this));
         }
 	}
 }

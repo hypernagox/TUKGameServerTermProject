@@ -59,7 +59,7 @@ namespace ServerCore
 		const S_ptr<SendBuffer>& in_pkt,
 		const S_ptr<SendBuffer>& out_pkt,
 		const S_ptr<SendBuffer>& move_pkt,
-		const Vector<Sector*>* sectors
+		const Vector<Sector*>* const sectors
 	) noexcept
 	{
 		return move_session->GetMoveBroadcaster()->BroadcastMove(in_pkt, out_pkt, move_pkt, move_session, sectors);

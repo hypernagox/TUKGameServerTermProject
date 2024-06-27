@@ -48,7 +48,7 @@ int main()
 	//TRMgr(TRWorldMgr)->GetWorldChunk(CHUNK::CHUNK_0)->CreateWorld(10);
 	//TRMgr(TRWorldMgr)->GetWorldChunk(CHUNK::CHUNK_1)->CreateWorld(10 + 2024 * 2024);
 
-	ServerCore::MoveBroadcaster::RegisterHuristicFunc([](const IocpEntity* const a, const IocpEntity* const b)
+	ServerCore::MoveBroadcaster::RegisterHuristicFunc([](const IocpEntity* const a, const IocpEntity* const b)noexcept
 		{
 			const auto aobj = a->GetContentsEntity()->ObjectCast();
 			const auto bobj = b->GetContentsEntity()->ObjectCast();
@@ -78,7 +78,7 @@ int main()
 			
 		});
 
-	ServerCore::MoveBroadcaster::RegisterInPacketFunc([](const S_ptr<IocpEntity>& p)
+	ServerCore::MoveBroadcaster::RegisterInPacketFunc([](const S_ptr<IocpEntity>& p)noexcept
 		{
 			Protocol::s2c_APPEAR_NEW_OBJECT pkt;
 			*pkt.mutable_appear_pos() = ((Object*)p->GetContentsEntity().get())->GetPos();
@@ -95,7 +95,7 @@ int main()
 			return c2s_PacketHandler::MakeSendBuffer(pkt);
 		});
 
-	ServerCore::MoveBroadcaster::RegisterOutPacketFunc([](const S_ptr<IocpEntity>& p)
+	ServerCore::MoveBroadcaster::RegisterOutPacketFunc([](const S_ptr<IocpEntity>& p)noexcept
 		{
 			Protocol::s2c_LEAVE_OBJECT pkt;
 			pkt.set_is_player(p->IsSession());

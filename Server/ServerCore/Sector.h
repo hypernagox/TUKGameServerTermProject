@@ -41,7 +41,7 @@ namespace ServerCore
 			const S_ptr<SendBuffer>& in_pkt,
 			const S_ptr<SendBuffer>& out_pkt,
 			const S_ptr<SendBuffer>& move_pkt,
-			const Vector<Sector*>* sectors
+			const Vector<Sector*>* const sectors
 		)noexcept;
 	protected:
 		virtual void ImigrationAfterBehavior(const S_ptr<ServerCore::Sector> beforeSector, IocpEntity* const pEntity_)noexcept abstract;

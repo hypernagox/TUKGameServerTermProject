@@ -27,8 +27,8 @@ namespace ServerCore
 	public:
 		MoveBroadcaster();
 		~MoveBroadcaster();
-		using HuristicFunc = bool(*)(const IocpEntity* const, const IocpEntity* const);
-		using PacketFunc = S_ptr<SendBuffer>(*)(const S_ptr<IocpEntity>&);
+		using HuristicFunc = bool(*)(const IocpEntity* const, const IocpEntity* const)noexcept;
+		using PacketFunc = S_ptr<SendBuffer>(*)(const S_ptr<IocpEntity>&)noexcept;
 	public:
 		const int BroadcastMove(
 			const S_ptr<SendBuffer>& in_pkt,

@@ -24,7 +24,6 @@ namespace ServerCore
 	{
 		int sector_state = 0;
 		
-		const uint16 obj_type = thisSession_->GetObjectType();
 		const auto thisSession = thisSession_->IsSession();
 
 		if (thisSession)
@@ -48,7 +47,7 @@ namespace ServerCore
 		
 		thread_local HashSet<S_ptr<IocpEntity>> new_view_list;
 		new_view_list.clear();
-		thread_local HashSet<Session*> send_list;
+		thread_local Vector<Session*> send_list;
 		send_list.clear();
 		thread_local Vector<IocpEntity*> entity_copy;
 		entity_copy.clear();
@@ -101,7 +100,7 @@ namespace ServerCore
 				
 				if (pSession) {
 					pSession->SendOnlyEnqueue(in_pkt);
-					send_list.emplace(pSession);
+					send_list.emplace_back(pSession);
 				}
 
 				if (thisSession)
@@ -115,7 +114,7 @@ namespace ServerCore
 					thisSession->SendOnlyEnqueue(move_pkt);
 				if (pSession) {
 					pSession->SendOnlyEnqueue(move_pkt);
-					send_list.emplace(pSession);
+					send_list.emplace_back(pSession);
 				}
 			}
 		}
@@ -128,7 +127,7 @@ namespace ServerCore
 				const auto pSession = pEntity->IsSession();
 				if (pSession) {
 					pSession->SendOnlyEnqueue(out_pkt);
-					send_list.emplace(pSession);
+					send_list.emplace_back(pSession);
 				}
 				if (thisSession)
 					thisSession->SendOnlyEnqueue(g_create_out_pkt(pEntity));

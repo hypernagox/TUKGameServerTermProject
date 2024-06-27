@@ -166,7 +166,7 @@ void TRWorld::Update()
 void TRWorld::InitMonsters(const CHUNK eChunk)
 {
 	static std::default_random_engine dre;
-	constexpr int CNT = 5000;
+	constexpr int CNT = 1000;
 	std::vector<Vec2Int> arr;
 	for (int i = 0; i < CNT; ++i)
 	{
