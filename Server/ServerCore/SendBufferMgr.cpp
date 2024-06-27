@@ -55,11 +55,10 @@ namespace ServerCore
 	S_ptr<SendBufferChunk> SendBufferMgr::Pop()noexcept
 	{
 		const auto temp = std::construct_at(SendBufferAllocator<SendBufferChunk>::allocate(0));
-		SetDeleterExternal(temp,[](RefCountable* const p) {
+		SetDeleterExternal(temp,[](RefCountable* const p) noexcept{
 			std::destroy_at(static_cast<SendBufferChunk* const>(p));
 			SendBufferAllocator<SendBufferChunk>::deallocate(static_cast<SendBufferChunk* const>(p), 1);
 				});
 		return S_ptr<SendBufferChunk>{temp};
-		//return std::allocate_shared<SendBufferChunk>(SendBufferAllocator<SendBufferChunk>{});
 	}
 }

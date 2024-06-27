@@ -12,7 +12,7 @@ namespace ServerCore
 	class RefCountable
 	{
 	public:
-		using DeleterFunc = void(*)(RefCountable* const);
+		using DeleterFunc = void(*)(RefCountable* const)noexcept;
 		friend static inline RefCountable* const IncAndGetPtrExternal(const RefCountable* const ref_ptr)noexcept;
 		friend static inline void DecRefExternal(const RefCountable* const ref_ptr) noexcept;
 		friend static inline void SetDeleterExternal(RefCountable* const ptr, const DeleterFunc deleter) noexcept;
