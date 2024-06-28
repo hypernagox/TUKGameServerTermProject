@@ -69,7 +69,7 @@ const ServerCore::TIMER_STATE TimerNPC::TimerUpdate() noexcept
         , ServerCore::c2s_PacketHandler::MakeSendBuffer(add_pkt)
         , ServerCore::c2s_PacketHandler::MakeSendBuffer(remove_pkt)
         , ServerCore::c2s_PacketHandler::MakeSendBuffer(pkt)
-        , &sector->GetAdjSector8());
+        , sector->GetAdjSector8());
 
     auto next_sector = sector->GetWorldChunk()->GetWorldSector(pEntity->GetPos());
 

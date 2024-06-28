@@ -42,6 +42,9 @@ public:
 public:
 	auto& GetAdjSector8()noexcept { return m_adjSector8; }
 	auto& GetAdjSector4()noexcept { return m_adjSector4; }
+	const auto& GetAdjSector8()const noexcept { return m_adjSector8; }
+	const auto& GetAdjSector4()const noexcept { return m_adjSector4; }
+
 	void AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_);
 	void AddEnterEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_);
 	//void DeleteObjectEnqueue(const GROUP_TYPE eType_, const uint64 objID_);

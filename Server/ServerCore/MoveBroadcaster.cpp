@@ -19,7 +19,7 @@ namespace ServerCore
 		const S_ptr<SendBuffer>& out_pkt,
 		const S_ptr<SendBuffer>& move_pkt,
 		const S_ptr<IocpEntity>& thisSession_,
-		const Vector<Sector*>* const sectors
+		const Vector<Sector*>& sectors
 	)noexcept
 	{
 		int sector_state = 0;
@@ -54,7 +54,7 @@ namespace ServerCore
 
 		if (thisSession)
 		{
-			for (const auto sector : *sectors)
+			for (const auto sector : sectors)
 			{
 				sector->sector_lock_shared();
 				for (const auto pEntity : sector->GetEntityList())
@@ -67,7 +67,7 @@ namespace ServerCore
 		}
 		else
 		{
-			for (const auto sector : *sectors)
+			for (const auto sector : sectors)
 			{
 				sector->session_lock_shared();
 				for (const auto pSession : sector->GetSessionList())

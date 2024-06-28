@@ -13,7 +13,7 @@ namespace ServerCore
 
 		inline void delay()const noexcept
 		{
-			if (const int delay = rand() % limit)
+			if (const int delay = my_rand() % limit)
 			{
 				limit *= 2;
 				if (limit > maxDelay)limit = maxDelay;

@@ -324,7 +324,7 @@ namespace ServerCore
             , c2s_PacketHandler::MakeSendBuffer(add_pkt)
             , c2s_PacketHandler::MakeSendBuffer(remove_pkt)
             , c2s_PacketHandler::MakeSendBuffer(pkt)
-            , &session_room->GetAdjSector8());
+            , session_room->GetAdjSector8());
 
         const auto& pSector = session_room->GetWorldChunk()->GetWorldSector(player->GetPos());
         if (session_room != pSector.get() && session_room->GetWorldChunk() == pSector->GetWorldChunk())

@@ -53,7 +53,14 @@ namespace ServerCore
 			m_taskQueue.try_flush_single(taskVec);
 
 			const int32 taskCount = static_cast<c_int32>(taskVec.size());
-			for (const auto& task : taskVec)task.ExecuteTask();
+			const auto task_cache = &taskVec.back() - (taskCount - 1);
+
+			for (int i = taskCount - 1; i >= 0; --i)
+			{
+				task_cache[i].ExecuteTask();
+				taskVec.pop_back();
+			}
+		
 			// 남은 일감이 0개라면 종료
 			if (m_taskCount.fetch_sub(taskCount, std::memory_order_release) == taskCount)
 			{
@@ -70,6 +77,5 @@ namespace ServerCore
 			}
 		}
 		LCurTaskQueue = nullptr;
-		taskVec.clear();
 	}
 }

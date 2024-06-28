@@ -1,5 +1,6 @@
 #pragma once
 #include <stack>
+#include <random>
 #include "RefCountable.h"
 
 namespace ServerCore
@@ -10,4 +11,7 @@ namespace ServerCore
 	extern thread_local uint64				LEndTickCount;
 	extern thread_local class TaskQueueable* LCurTaskQueue;
 	extern thread_local uint64				LCurHandleSessionID;
+	extern thread_local uint32_t			LRandSeed;
 }
+
+extern std::mt19937 g_RandEngine;

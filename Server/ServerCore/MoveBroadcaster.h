@@ -35,7 +35,7 @@ namespace ServerCore
 			const S_ptr<SendBuffer>& out_pkt,
 			const S_ptr<SendBuffer>& move_pkt,
 			const S_ptr<IocpEntity>& thisSession,
-			const Vector<Sector*>* const sectors
+			const Vector<Sector*>& sectors
 		)noexcept;
 		
 		void ReleaseViewList()noexcept

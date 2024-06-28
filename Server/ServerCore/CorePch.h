@@ -30,6 +30,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <random>
 #include <DbgHelp.h>
 #include <winsock2.h>
 #include <mswsock.h>

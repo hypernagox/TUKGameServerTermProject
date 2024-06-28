@@ -153,6 +153,8 @@ namespace ServerCore
 
 		if (NUM_OF_THREADS >= LThreadId)
 			LSendBufferChunk = Mgr(SendBufferMgr)->Pop();
+
+		const volatile auto init_rand_seed = LRandSeed;
 	}
 
 	void ThreadMgr::DestroyTLS()
