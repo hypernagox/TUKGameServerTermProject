@@ -31,7 +31,7 @@ namespace ServerCore
 		void ProcessAccept(const S_ptr<class PacketSession>& pSession, AcceptEvent* const acceptEvent)noexcept;
 	protected:
 		SOCKET m_socket = INVALID_SOCKET; // 辑滚率 府郊家南
-		Vector<std::shared_ptr<AcceptEvent>> m_vecAcceptEvent;
+		std::vector<std::shared_ptr<AcceptEvent>> m_vecAcceptEvent;
 		ServerService* m_pServerService = nullptr;
 
 		std::atomic_bool m_bCanAccept = true;

@@ -13,8 +13,8 @@ namespace ServerCore
 		uint64 executeTime = 0;
 		mutable Task taskPtr;
 		TimerTask()noexcept = default;
-		//constexpr TimerTask()noexcept = default;
 		TimerTask(const TimerTask& other)noexcept :executeTime{ other.executeTime }, taskPtr{ std::move(other.taskPtr) } {}
+		TimerTask(TimerTask&& other)noexcept :executeTime{ other.executeTime }, taskPtr{ std::move(other.taskPtr) } {}
 		constexpr TimerTask& operator=(const TimerTask& other)noexcept
 		{
 			if (&other != this)

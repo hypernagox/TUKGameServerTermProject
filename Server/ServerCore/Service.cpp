@@ -25,7 +25,7 @@ namespace ServerCore
 
 	Service::~Service()
 	{
-		delete m_vecSession.data();
+		delete[] m_vecSession.data();
 	}
 
 	void Service::CloseService()

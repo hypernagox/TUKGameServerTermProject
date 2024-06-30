@@ -47,14 +47,9 @@ namespace ServerCore
 	public:
 		void IterateSession(std::function<void(const S_ptr<Session>&)> fpIterate_)noexcept;
 	protected:
-		tbb::concurrent_unordered_map<
-			uint32_t,
-			uint16_t,
-			std::hash<uint32_t>,
-			std::equal_to<uint32_t>,
-			StlAllocator<std::pair<const uint32_t, uint16_t>>> m_id2Index;
+		tbb::concurrent_unordered_map<uint32_t, uint16_t> m_id2Index;
 		const std::span<AtomicSessionPtr> m_vecSession;
-		tbb::concurrent_bounded_queue<int32, StlAllocator<int32>> m_idxQueue;
+		tbb::concurrent_bounded_queue<int32> m_idxQueue;
 		const std::shared_ptr<IocpCore> m_pIocpCore;
 		const SERVICE_TYPE m_eServiceType;
 		const NetAddress m_netAddr;

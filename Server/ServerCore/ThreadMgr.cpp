@@ -40,11 +40,13 @@ namespace ServerCore
 		Task task;
 		while (m_globalTask.try_dequeue(*LCon_tokenGlobalTask, task)) { std::destroy_at<Task>(&task); }
 
+		DestroyTLS();
+
 		//xdelete<moodycamel::ProducerToken>(LPro_token);
 		//xdelete<moodycamel::ConsumerToken>(LCon_token);
 
-		xdelete<moodycamel::ProducerToken>(LPro_tokenGlobalTask);
-		xdelete<moodycamel::ConsumerToken>(LCon_tokenGlobalTask);
+		//xdelete<moodycamel::ProducerToken>(LPro_tokenGlobalTask);
+		//xdelete<moodycamel::ConsumerToken>(LCon_tokenGlobalTask);
 	}
 
 	void ThreadMgr::Launch(S_ptr<Service> pService)
@@ -68,7 +70,6 @@ namespace ServerCore
 							this->TryGlobalQueueTask();
 						}
 					}
-
 					DestroyTLS();
 				});
 		}
@@ -110,17 +111,8 @@ namespace ServerCore
 						Join();
 					}
 				}
+
 				std::this_thread::sleep_for(std::chrono::seconds(5));
-				if (::GetAsyncKeyState(VK_END))
-				{
-					if (false == registerFinish.exchange(true))
-					{
-						pService->CloseService();
-						Mgr(Logger)->m_bStopRequest = true;
-						std::this_thread::sleep_for(std::chrono::seconds(5));
-						Join();
-					}
-				}
 			}
 		}
 	}
@@ -146,10 +138,10 @@ namespace ServerCore
 		LThreadId = g_threadID.fetch_add(1);
 
 		//LPro_token = xnew<moodycamel::ProducerToken>(m_globalTaskQueue);
-		LPro_tokenGlobalTask = xnew <moodycamel::ProducerToken>(m_globalTask);
+		LPro_tokenGlobalTask = new moodycamel::ProducerToken(m_globalTask);
 
 		//LCon_token = xnew <moodycamel::ConsumerToken>(m_globalTaskQueue);
-		LCon_tokenGlobalTask = xnew <moodycamel::ConsumerToken>(m_globalTask);
+		LCon_tokenGlobalTask = new moodycamel::ConsumerToken(m_globalTask);
 
 		if (NUM_OF_THREADS >= LThreadId)
 			LSendBufferChunk = Mgr(SendBufferMgr)->Pop();
@@ -159,6 +151,8 @@ namespace ServerCore
 
 	void ThreadMgr::DestroyTLS()
 	{
+		delete (LPro_tokenGlobalTask);
+		delete (LCon_tokenGlobalTask);
 	}
 
 	void ThreadMgr::TryGlobalQueueTask()noexcept

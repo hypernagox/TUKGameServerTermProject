@@ -46,7 +46,6 @@ namespace ServerCore
 		const auto cache_obj_ptr = thisSession_.get();
 		
 		thread_local HashSet<S_ptr<IocpEntity>> new_view_list;
-		new_view_list.clear();
 		thread_local Vector<Session*> send_list;
 		send_list.clear();
 		thread_local Vector<IocpEntity*> entity_copy;
@@ -78,46 +77,61 @@ namespace ServerCore
 				sector->session_unlock_shared();
 			}
 		}
-		
+
+		HashSet<const IocpEntity*> entity_copy_set;
+		entity_copy_set.reserve(entity_copy.size());
+
 		for (const auto pEntity : entity_copy)
 		{
+			RefCountable* dummy = pEntity;
+			S_ptr<IocpEntity> temp{ &dummy };
 			if (g_huristic(cache_obj_ptr, pEntity))
 			{
 				const bool bFlag = static_cast<const bool>(pEntity->IsSession());
-				new_view_list.emplace(pEntity);
+				entity_copy_set.emplace(pEntity);
+				new_view_list.emplace(std::move(temp));
 				sector_state |= (bFlag + 1);
 			}
-			pEntity->DecRef();
 		}
 
 		new_view_list.erase(thisSession_);
 
-		for (const auto& pEntity : new_view_list)
+		for (auto iter = new_view_list.cbegin(); iter != new_view_list.cend();)
 		{
-			const auto pSession = pEntity->IsSession();
-			if (!m_viewList.contains(pEntity))
+			const auto& pEntity = *iter;
+			if (entity_copy_set.contains(pEntity.get()))
 			{
-				
-				if (pSession) {
-					pSession->SendOnlyEnqueue(in_pkt);
-					send_list.emplace_back(pSession);
-				}
+				const auto pSession = pEntity->IsSession();
+				if (false == m_viewList.contains(pEntity))
+				{
 
-				if (thisSession)
-					thisSession->SendOnlyEnqueue(g_create_in_pkt(pEntity));
-				
-				m_viewList.emplace(pEntity);
+					if (pSession) {
+						pSession->SendOnlyEnqueue(in_pkt);
+						send_list.emplace_back(pSession);
+					}
+
+					if (thisSession)
+						thisSession->SendOnlyEnqueue(g_create_in_pkt(pEntity));
+
+					m_viewList.emplace(pEntity);
+				}
+				else
+				{
+					if (thisSession)
+						thisSession->SendOnlyEnqueue(move_pkt);
+					if (pSession) {
+						pSession->SendOnlyEnqueue(move_pkt);
+						send_list.emplace_back(pSession);
+					}
+				}
+				++iter;
 			}
 			else
 			{
-				if (thisSession)
-					thisSession->SendOnlyEnqueue(move_pkt);
-				if (pSession) {
-					pSession->SendOnlyEnqueue(move_pkt);
-					send_list.emplace_back(pSession);
-				}
+				iter = new_view_list.erase(iter);
 			}
 		}
+		
 
 		for (auto iter = m_viewList.cbegin(); iter != m_viewList.cend();)
 		{

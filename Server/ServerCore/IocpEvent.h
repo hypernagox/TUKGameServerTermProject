@@ -21,20 +21,10 @@ namespace ServerCore
 	public:
 		void Init()noexcept { ::memset(static_cast<OVERLAPPED* const>(this), NULL, sizeof(OVERLAPPED)); }
 		constexpr const EVENT_TYPE GetEventType()const noexcept { return m_eEVENT_TYPE; }
-		//void SetIocpObject(S_ptr<IocpObject>&& pIocp_)noexcept {
-		//	//std::construct_at(&m_pIocpObject, std::move(pIocp_));
-		////	m_pIocpObject.swap(pIocp_);
-		//	m_pIocpObject = std::move(pIocp_);
-		//}
-		//void SetIocpObject(S_ptr<class PacketSession>&& pSession_)noexcept {
-		//	//std::construct_at(&m_pIocpObject, std::move(pSession_), reinterpret_cast<IocpObject* const>(pSession_.get()));
-		//	//m_pIocpObject.swap(pSession_);
-		//	m_pIocpObject = std::move(pSession_);
-		//}
+		
 		template <typename T> //requires //std::convertible_to<T,S_ptr<IocpObject>>
 		void SetIocpObject(T&& pIocp_)noexcept {
 			std::construct_at(&m_pIocpObject, std::forward<T>(pIocp_));
-			//m_pIocpObject = std::forward<T>(pIocp_);
 		}
 		const S_ptr<IocpObject>& GetIocpObject()const noexcept { return m_pIocpObject; }
 		void ReleaseIocpObject()noexcept { m_pIocpObject.reset(); }
@@ -121,6 +111,7 @@ namespace ServerCore
 	public:
 		SendEvent() :IocpEvent{ EVENT_TYPE::SEND } {}
 		~SendEvent();
+		Vector<S_ptr<SendBuffer>> m_sendBuffer;
 		IocpEvent m_registerSendEvent{ EVENT_TYPE::REGISTER_SEND };
 	};
 }

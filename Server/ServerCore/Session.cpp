@@ -38,6 +38,7 @@ namespace ServerCore
 		if (false == m_bConnected.exchange(false, std::memory_order_relaxed))
 			return false;
 		m_bConnectedNonAtomicForRecv = m_bConnectedNonAtomic = false;
+		std::atomic_thread_fence(std::memory_order_release);
 		RegisterDisconnect();
 		return true;
 	}
@@ -92,8 +93,6 @@ namespace ServerCore
 		// 세선 등록
 		if (GetService()->AddSession(pThisSessionPtr))
 		{
-			//pThisSessionPtr->register_cache_shared_core(pThisSessionPtr);
-
 			m_bConnectedNonAtomic = m_bConnectedNonAtomicForRecv = true;
 			m_bConnected.store(true);
 			// 컨텐츠 코드에서 오버로딩 해야함
@@ -108,13 +107,6 @@ namespace ServerCore
 
 	bool Session::RegisterDisconnect()noexcept
 	{
-		//auto pValid = SharedFromThis<IocpObject>();
-		//if (nullptr == pValid)
-		//{
-		//	SocketUtils::Close(m_sessionSocket);
-		//	GetService()->ReleaseSession(this);
-		//	return false;
-		//}
 		m_pDisconnectEvent->Init();
 		m_pDisconnectEvent->SetIocpObject(SharedFromThis<IocpObject>());
 
@@ -203,7 +195,7 @@ namespace ServerCore
 
 		RegisterRecv(pThisSessionPtr);
 	}
-
+	
 	void Session::RegisterSend(const S_ptr<PacketSession>& pThisSessionPtr)noexcept
 	{
 		if (false == IsConnected())
@@ -212,8 +204,7 @@ namespace ServerCore
 			return;
 		}
 
-		thread_local Vector<S_ptr<SendBuffer>> sendBuffer;
-		sendBuffer.clear();
+		auto& sendBuffer = m_pSendEvent->m_sendBuffer;
 		m_sendQueue.try_flush_single(sendBuffer);
 
 		const auto num = sendBuffer.size();
@@ -234,6 +225,7 @@ namespace ServerCore
 	
 		m_pSendEvent->Init();
 		m_pSendEvent->SetIocpObject(std::move(const_cast<S_ptr<PacketSession>&>(pThisSessionPtr)));
+		
 
 		if (SOCKET_ERROR == ::WSASend(m_sessionSocket, wsaBufs.data(), static_cast<const DWORD>(num), NULL, 0, m_pSendEvent.get(), nullptr))
 		{
@@ -248,18 +240,27 @@ namespace ServerCore
 
 	void Session::ProcessSend(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept
 	{
+		auto& sendBuffer = m_pSendEvent->m_sendBuffer;
+		Vector<S_ptr<SendBuffer>> temp{ std::move(sendBuffer) };
+		
 		if (0 == numofBytes_)
 		{
 			Disconnect(L"Send 0");
 			return;
 		}
-		
+
+		sendBuffer.reserve(temp.size());
+
 		OnSend(numofBytes_);
 
 		m_bIsSendRegistered.store(false, std::memory_order_release);
 
 		if (!m_sendQueue.empty_single() && false == m_bIsSendRegistered.exchange(true, std::memory_order_relaxed))
+		{
+			temp.swap(sendBuffer);
+			sendBuffer.clear();
 			RegisterSend(pThisSessionPtr);
+		}
 	}
 
 	void Session::HandleError(c_int32 errorCode)

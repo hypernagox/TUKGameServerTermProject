@@ -20,12 +20,12 @@ namespace ServerCore
 	public:
 		template<typename T = RefCountable>
 		S_ptr<T> SharedFromThis()const noexcept { return S_ptr<T>{this}; }
-		inline const uint64_t UseCount()const noexcept { return m_refCount.load(std::memory_order_relaxed) >> 47; }
-		inline void IncRef()const noexcept { m_refCount.fetch_add(1ULL << 47, std::memory_order_relaxed); }
+		inline const uint64_t UseCount()const noexcept { return m_refCount.load(std::memory_order_relaxed) >> 48; }
+		inline void IncRef()const noexcept { m_refCount.fetch_add(1ULL << 48, std::memory_order_relaxed); }
 		void DecRef()const noexcept;
 	private:
 		inline void SetDeleter(const DeleterFunc deleter) noexcept {
-			m_refCount.store((m_refCount.load(std::memory_order_relaxed) & (0x1FFFFULL << 47)) | (reinterpret_cast<const uint64_t>(deleter) >> 1), std::memory_order_relaxed);
+			m_refCount.store((m_refCount.load(std::memory_order_relaxed) & (0xFFFFULL << 48)) | (reinterpret_cast<const uint64_t>(deleter) & ((1ULL << 48) - 1)), std::memory_order_relaxed);
 		}
 		inline const RefCountable* const IncAndGetPtrInternal()const noexcept { IncRef(); return this; }
 		inline RefCountable* const IncAndGetPtr()const noexcept {
@@ -176,6 +176,8 @@ namespace ServerCore
 			m_ptr.reset();
 			m_srwLock.unlock();
 		}
+		void store(std::nullptr_t)noexcept { reset(); }
+		operator S_ptr<T>()const noexcept { return load(); }
 	private:
 		mutable SRWLock m_srwLock;
 		S_ptr<T> m_ptr;

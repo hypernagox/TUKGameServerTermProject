@@ -112,7 +112,7 @@ void TRWorldRoom::AddObjectEnqueue(const GROUP_TYPE eType_, S_ptr<Object> pObj_)
 		return;
 	const uint64 threadID = Mgr(ThreadMgr)->GetCurThreadID() - 1;
 	const uint64 objID = pObj_->GetObjID();
-	m_worldObjectList[threadID][etoi(eType_)].AddItem(objID, pObj_);
+	//m_worldObjectList[threadID][etoi(eType_)].AddItem(objID, pObj_);
 	//const auto pIsSession = pObj_->GetComp("SESSIONOBJECT");
 	const auto pIsSession = pObj_->GetIocpEntity()->IsSession();
 	
@@ -246,7 +246,7 @@ void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_, const 
 		//m_pParentChunk->TransmitTileRecord(pSession->SharedCastThis<ClientSession>());
 		for (int i = 0; i < CONTAINER_SIZE; ++i)
 		{
-			if (exceptThreadID == i)continue;
+			//if (exceptThreadID == i)continue;
 			m_worldObjectList[i][etoi(eType_)].AddItem(obj_id, pObj_);
 			//g_allPlayers[i].AddItem_endLock(obj_id, pSession->SharedCastThis<ClientSession>());
 		}
@@ -258,7 +258,7 @@ void TRWorldRoom::AddObject(const GROUP_TYPE eType_, S_ptr<Object> pObj_, const 
 		//EnterEnqueue(pObj_->GetIocpEntity()->SharedCastThis<ServerCore::IocpEntity>());
 		for (int i = 0; i < CONTAINER_SIZE; ++i)
 		{
-			if (exceptThreadID == i)continue;
+			//if (exceptThreadID == i)continue;
 			m_worldObjectList[i][etoi(eType_)].AddItem(obj_id, pObj_);
 		}
 		//EnterEnqueue(pObj_->GetIocpEntity()->SharedCastThis<ServerCore::IocpEntity>());

@@ -47,7 +47,7 @@ namespace ServerCore
 			{
 				std::atomic_thread_fence(std::memory_order_acquire);
 				m_pSendEvent->m_registerSendEvent.SetIocpObject(SharedFromThis());
-				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, reinterpret_cast<IocpEvent* const>(reinterpret_cast<char* const>(m_pSendEvent.get()) + sizeof(IocpEvent)));
+				::PostQueuedCompletionStatus(Mgr(ThreadMgr)->GetIocpHandle(), 0, 0, reinterpret_cast<IocpEvent* const>(reinterpret_cast<char* const>(m_pSendEvent.get()) + sizeof(IocpEvent) + sizeof(Vector<S_ptr<SendBuffer>>)));
 			}
 		}
 		template <typename S_ptr_SendBuffer>

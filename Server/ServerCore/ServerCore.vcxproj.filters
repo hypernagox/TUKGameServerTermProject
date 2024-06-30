@@ -55,9 +55,6 @@
     <Filter Include="Task">
       <UniqueIdentifier>{50b481db-9cde-4d31-bc10-98611b158e03}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Network\SessionManageable">
-      <UniqueIdentifier>{d8a6d64d-66e6-40f4-bdc0-bc7066586ab7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Manager">
       <UniqueIdentifier>{19f43450-47de-4647-8c34-c6a45ea4e5ce}</UniqueIdentifier>
     </Filter>
@@ -130,6 +127,9 @@
     <Filter Include="Utils\struct\CustomDS">
       <UniqueIdentifier>{909a6c27-5e21-47f1-a3c4-144bf04f496b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network\Sector">
+      <UniqueIdentifier>{d8a6d64d-66e6-40f4-bdc0-bc7066586ab7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CorePch.h">
@@ -199,7 +199,7 @@
       <Filter>Memory\AtomicNonTemplate</Filter>
     </ClInclude>
     <ClInclude Include="Sector.h">
-      <Filter>Network\SessionManageable</Filter>
+      <Filter>Network\Sector</Filter>
     </ClInclude>
     <ClInclude Include="PacketSession.h">
       <Filter>Network\Session</Filter>
@@ -375,7 +375,7 @@
       <Filter>Memory\AtomicNonTemplate</Filter>
     </ClCompile>
     <ClCompile Include="Sector.cpp">
-      <Filter>Network\SessionManageable</Filter>
+      <Filter>Network\Sector</Filter>
     </ClCompile>
     <ClCompile Include="PacketSession.cpp">
       <Filter>Network\Session</Filter>

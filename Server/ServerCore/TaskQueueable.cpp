@@ -53,7 +53,7 @@ namespace ServerCore
 			m_taskQueue.try_flush_single(taskVec);
 
 			const int32 taskCount = static_cast<c_int32>(taskVec.size());
-			const auto task_cache = &taskVec.back() - (taskCount - 1);
+			const auto task_cache = taskVec.data();
 
 			for (int i = taskCount - 1; i >= 0; --i)
 			{
