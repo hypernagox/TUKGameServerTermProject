@@ -105,7 +105,7 @@ int main()
 			return c2s_PacketHandler::MakeSendBuffer(pkt);
 		});
 	
-	const auto pServerService = ServerCore::MakeShared<ServerCore::ServerService>
+	const auto pServerService = ServerCore::MakeSharedSTD<ServerCore::ServerService>
 		(
 			  Mgr(CoreGlobal)->GetIocpCore()
 			, ServerCore::NetAddress{ L"0.0.0.0",7777 }

@@ -36,7 +36,8 @@ namespace ServerCore
 
     void* const AtomicNonTemplate::allocateNewBlock()noexcept
     {
-        Block* const newBlock = std::construct_at<Block>(static_cast<Block* const>(::_aligned_malloc(blockSize, std::hardware_constructive_interference_size)));
+        //Block* const newBlock = std::construct_at<Block>(static_cast<Block* const>(::_aligned_malloc(blockSize, std::hardware_constructive_interference_size)));
+        Block* const newBlock = std::construct_at<Block>(static_cast<Block* const>(::_aligned_malloc(blockSize, 8)));
         BlockChaser* const newTop = std::construct_at<BlockChaser>(static_cast<BlockChaser* const>(::HeapAlloc(g_handle, NULL, sizeof(BlockChaser))), newBlock, poolTop.load(std::memory_order_relaxed));
         while (!poolTop.compare_exchange_weak(newTop->next, newTop,
             std::memory_order_relaxed, std::memory_order_relaxed))

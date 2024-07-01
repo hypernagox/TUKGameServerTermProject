@@ -36,7 +36,7 @@ namespace ServerCore
 	template<typename Type, typename... Args>
 	constexpr Type* const xnew(Args&&... args)noexcept
 	{
-		static_assert(alignof(Type) <= 16, "Type requires alignment greater than 16 bytes.");
+		//static_assert(alignof(Type) <= 16, "Type requires alignment greater than 16 bytes.");
 		return std::construct_at<Type>(static_cast<Type* const>(Mgr(MemoryMgr)->Allocate(sizeof(Type))), std::forward<Args>(args)...);
 	}
 

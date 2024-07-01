@@ -16,8 +16,8 @@ namespace ServerCore
 			template<typename... Args>
 			constexpr Node(Args&&... args)noexcept :data{ std::forward<Args>(args)... }, next{ nullptr } {}
 		};
-		std::atomic<Node*> head;
-		Node* volatile tail;
+		alignas(64) Node* volatile tail;
+		alignas(64) std::atomic<Node*> head;
 	private:
 		void reset()noexcept {
 			Node* curHead = head.load(std::memory_order_acquire);
@@ -32,8 +32,8 @@ namespace ServerCore
 		}
 	public:
 		MPSCQueue()noexcept
-			: head{ xnew<Node>() }
-			, tail{ head.load(std::memory_order_relaxed) }
+			: tail{ xnew<Node>() }
+			, head{ tail }
 		{
 		}
 		~MPSCQueue()noexcept {
@@ -108,6 +108,17 @@ namespace ServerCore
 			}
 			return false;
 		}
+		const bool try_pop_single(std::vector<T>& _targetForPushBack, Node*& head_temp)noexcept {
+			if (Node* const __restrict newHead = head_temp->next.load(std::memory_order_acquire))
+			{
+				Node* const oldHead = head_temp;
+				head_temp = newHead;
+				_targetForPushBack.emplace_back(std::move(newHead->data));
+				xdelete<Node>(oldHead);
+				return true;
+			}
+			return false;
+		}
 		Vector<T> try_flush_single()noexcept {
 			Node* head_temp = head.load(std::memory_order_acquire);
 			Vector<T> vec; vec.reserve(32); while (try_pop_single(vec, head_temp));
@@ -115,6 +126,11 @@ namespace ServerCore
 			return vec;
 		}
 		void try_flush_single(Vector<T>& vec_)noexcept {
+			Node* head_temp = head.load(std::memory_order_acquire);
+			while (try_pop_single(vec_, head_temp));
+			head.store(head_temp, std::memory_order_release);
+		}
+		void try_flush_single(std::vector<T>& vec_)noexcept {
 			Node* head_temp = head.load(std::memory_order_acquire);
 			while (try_pop_single(vec_, head_temp));
 			head.store(head_temp, std::memory_order_release);

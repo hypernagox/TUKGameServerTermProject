@@ -30,7 +30,7 @@ namespace ServerCore
 		};
 	public:
 		static constexpr const uint64 NUM_OF_THREADS = ServerCore::NUM_OF_THREADS;
-		void Launch(S_ptr<Service> pService);
+		void Launch(const std::shared_ptr<Service> pService);
 		static c_uint32 GetCurThreadID()noexcept { return LThreadId; }
 		static c_uint32 GetCurThreadIdx()noexcept { return LThreadId - 1; }
 		const bool IsServerFinish()const noexcept { return m_bStopRequest; }
@@ -109,7 +109,7 @@ namespace ServerCore
 		const HANDLE m_iocpHandle;
 		Service* m_pMainService;
 		bool m_bStopRequest = false;
-		Vector<std::jthread>	m_threads;
+		std::vector<std::jthread>	m_threads;
 		std::jthread m_timerThread;
 		//SpinLock m_heartBeatFuncLock;
 		static inline Atomic<uint32> g_threadID = 0;

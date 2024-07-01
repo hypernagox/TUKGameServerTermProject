@@ -115,8 +115,8 @@ namespace ServerCore
 
 	private:
 		MPSCQueue<S_ptr<SendBuffer>> m_sendQueue;
-		const U_Pptr<SendEvent> m_pSendEvent;
 		Atomic<bool> m_bIsSendRegistered = false;
+		const U_Pptr<SendEvent> m_pSendEvent;
 		volatile bool m_bConnectedNonAtomic = false;
 		SOCKET m_sessionSocket = INVALID_SOCKET;
 
@@ -145,4 +145,25 @@ namespace ServerCore
 			&Session::TryRegisterSend,
 		};
 	};
+}
+
+template <typename SESSION>
+static inline void operator <<(SESSION&& s, ServerCore::S_ptr<ServerCore::SendBuffer>& b)noexcept
+{
+	s->SendAsync(b);
+}
+template <typename SESSION>
+static inline void operator <<(SESSION&& s, ServerCore::S_ptr<ServerCore::SendBuffer>&& b)noexcept
+{
+	s->SendAsync(std::move(b));
+}
+template <typename SESSION>
+static inline void operator +=(SESSION&& s, ServerCore::S_ptr<ServerCore::SendBuffer>& b)noexcept
+{
+	s->SendOnlyEnqueue(b);
+}
+template <typename SESSION>
+static inline void operator +=(SESSION&& s, ServerCore::S_ptr<ServerCore::SendBuffer>&& b)noexcept
+{
+	s->SendOnlyEnqueue(std::move(b));
 }

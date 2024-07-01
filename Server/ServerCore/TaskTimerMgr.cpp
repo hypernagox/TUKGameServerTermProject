@@ -8,6 +8,11 @@ namespace ServerCore
 {
 	TaskTimerMgr::TaskTimerMgr()
 	{
+		for (int i = 0; i < 1024; ++i)
+		{
+			m_timerTaskQueue.emplace(TimerTask{});
+		}
+		m_timerTaskQueue.clear();
 	}
 
 	TaskTimerMgr::~TaskTimerMgr()

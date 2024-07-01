@@ -49,9 +49,10 @@ namespace ServerCore
 		//xdelete<moodycamel::ConsumerToken>(LCon_tokenGlobalTask);
 	}
 
-	void ThreadMgr::Launch(S_ptr<Service> pService)
+	void ThreadMgr::Launch(const std::shared_ptr<Service> pService)
 	{
 		m_pMainService = pService.get();
+		m_threads.reserve(NUM_OF_THREADS);
 		for (int i = 0; i < NUM_OF_THREADS; ++i)
 		{
 			m_threads.emplace_back([this, pService = pService.get()]()noexcept

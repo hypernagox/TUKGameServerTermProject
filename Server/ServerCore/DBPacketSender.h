@@ -10,7 +10,6 @@ namespace ServerCore
 		void Init()noexcept;
 		void Clear()noexcept
 		{
-			//reset_cache_shared();
 			m_iocpEvent.ReleaseIocpObject();
 		}
 		DBPacketSender(const SOCKET s)noexcept :m_queryServerSocket{ s } {}
@@ -33,6 +32,7 @@ namespace ServerCore
 	private:
 		MPSCQueue<S_ptr<SendBuffer>> m_sendQueue;
 		std::atomic_bool m_bRegisterSend = false;
+		std::vector<S_ptr<SendBuffer>> m_sendVec;
 		const SOCKET m_queryServerSocket;
 		IocpEvent m_iocpEvent{ EVENT_TYPE::DB };
 	};

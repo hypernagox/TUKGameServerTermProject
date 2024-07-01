@@ -241,7 +241,7 @@ namespace ServerCore
 	void Session::ProcessSend(const S_ptr<PacketSession>& pThisSessionPtr, c_int32 numofBytes_)noexcept
 	{
 		auto& sendBuffer = m_pSendEvent->m_sendBuffer;
-		Vector<S_ptr<SendBuffer>> temp{ std::move(sendBuffer) };
+		const Vector<S_ptr<SendBuffer>> temp{ std::move(sendBuffer) };
 		
 		if (0 == numofBytes_)
 		{
@@ -256,11 +256,7 @@ namespace ServerCore
 		m_bIsSendRegistered.store(false, std::memory_order_release);
 
 		if (!m_sendQueue.empty_single() && false == m_bIsSendRegistered.exchange(true, std::memory_order_relaxed))
-		{
-			temp.swap(sendBuffer);
-			sendBuffer.clear();
 			RegisterSend(pThisSessionPtr);
-		}
 	}
 
 	void Session::HandleError(c_int32 errorCode)
