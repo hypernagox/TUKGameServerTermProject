@@ -6,7 +6,7 @@
 namespace ServerCore
 {
     template<typename T>
-    class AtomicMemoryPool
+    class alignas(64) AtomicMemoryPool
     {
         //constinit static inline const uint8 CACHE_LINE_MINUS_ONE = static_cast<c_uint8>(std::hardware_constructive_interference_size - 1);
         constinit static inline const uint8 CACHE_LINE_MINUS_ONE = static_cast<c_uint8>(8 - 1);
@@ -24,11 +24,11 @@ namespace ServerCore
             BlockChaser() = default;
             BlockChaser(Block* const pBlock_, BlockChaser* const pNext_)noexcept :target{ pBlock_ }, next{ pNext_ } {}
         };
-        std::byte* blockStart;
-        std::atomic<BlockChaser*> poolTop = nullptr;
         std::atomic<uint64_t> head;
+        std::atomic<BlockChaser*> poolTop = nullptr;
         const size_t blockSize;
         const size_t maxBlockCount;
+        std::byte* const blockStart;
         static inline constinit const uint32_t maxTagValue = (1 << 19) - 1;
     private:
         static constexpr const uint64_t packPointerAndTag(const Block* const ptr, const uint32_t tag) noexcept {
@@ -79,9 +79,8 @@ namespace ServerCore
             : blockSize{ (sizeof(MemoryHeader) + sizeof(T) + sizeof(Block) + CACHE_LINE_MINUS_ONE) & ~CACHE_LINE_MINUS_ONE }
             , maxBlockCount{ count }
             , poolTop{ nullptr }
+            , blockStart{ static_cast<std::byte* const>(::_aligned_malloc(blockSize * maxBlockCount, std::hardware_constructive_interference_size)) }
         {
-            const size_t totalSize = blockSize * maxBlockCount;
-            blockStart = static_cast<std::byte* const>(::_aligned_malloc(totalSize, std::hardware_constructive_interference_size));
             initialize();
         }
 

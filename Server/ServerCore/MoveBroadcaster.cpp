@@ -6,7 +6,7 @@
 namespace ServerCore
 {
 	MoveBroadcaster::MoveBroadcaster()
-		: m_viewListPtr{ MakeSharedSTD<HashSet<S_ptr<IocpEntity>>>() }
+		: m_viewListPtr{ MakeShared<ViewListWrapper>() }
 	{
 	}
 
@@ -37,12 +37,14 @@ namespace ServerCore
 				return NONE;
 		}
 
-		const std::shared_ptr<HashSet<S_ptr<IocpEntity>>> viewListPtr = m_viewListPtr.load(std::memory_order_acquire);
+		m_spinLock.lock();
+		const S_ptr<ViewListWrapper> viewListPtr{ m_viewListPtr };
+		m_spinLock.unlock();
 
 		if (!viewListPtr)
 			return NONE;
 
-		auto& m_viewList = *viewListPtr;
+		auto& m_viewList = viewListPtr->view_list;
 		const auto cache_obj_ptr = thisSession_.get();
 		
 		thread_local HashSet<S_ptr<IocpEntity>> new_view_list;

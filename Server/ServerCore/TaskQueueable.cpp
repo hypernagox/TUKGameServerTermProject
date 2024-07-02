@@ -60,9 +60,19 @@ namespace ServerCore
 				break;
 			}
 
-			const auto task_cache = &taskVec.back() - (taskCount - 1);
+			const int32_t begin_half = taskCount / 2;
+			const int32_t end_half = taskCount - begin_half;
+			const auto task_cache = taskVec.data();
 
-			for (int i = taskCount - 1; i >= 0; --i)
+			for (int i = 0; i < begin_half; ++i)
+			{
+				auto& back_task = taskVec.back();
+				std::swap(task_cache[i], back_task);
+				back_task.ExecuteTask();
+				taskVec.pop_back();
+			}
+
+			for (int i = end_half - 1; i >= 0; --i)
 			{
 				task_cache[i].ExecuteTask();
 				taskVec.pop_back();

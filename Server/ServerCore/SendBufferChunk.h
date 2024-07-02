@@ -14,7 +14,7 @@ namespace ServerCore
 		friend class SendBufferMgr;
 		enum
 		{
-			SEND_BUFFER_CHUNK_SIZE = 0x10000 - 16 - 24
+			SEND_BUFFER_CHUNK_SIZE = 0x10000 - 32
 		};
 	public:
 		SendBufferChunk()noexcept = default;

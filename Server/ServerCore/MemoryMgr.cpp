@@ -13,7 +13,7 @@ namespace ServerCore
 		{
 			auto& pools = m_pools[i];
 
-			pools.reserve(64);
+			pools.reserve(POOL_COUNT);
 
 			int32 size = 0;
 			int32 tableIndex = 0;
@@ -42,7 +42,7 @@ namespace ServerCore
 				}
 			}
 			size -= 128;
-			for (; size <= 4096; size += 256)
+			for (; size <= 4096 + 256; size += 256)
 			{
 				AtomicNonTemplate* const pool = new (m_poolAllocator.allocate())AtomicNonTemplate(size);
 				pools.emplace_back(pool);

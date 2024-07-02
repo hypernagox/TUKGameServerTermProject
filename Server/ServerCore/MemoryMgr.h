@@ -19,8 +19,8 @@ namespace ServerCore
 		enum
 		{
 			// ~1024까지 32단위, ~2048까지 128단위, ~4096까지 256단위
-			POOL_COUNT = (1024 / 32) + (1024 / 128) + (2048 / 256),
-			MAX_ALLOC_SIZE = 4096
+			POOL_COUNT = (1024 / 32) + 1 + ((2048 - 1024) / 128) + 1 + ((4096 - 2048) / 256) + 1,
+			MAX_ALLOC_SIZE = 4096 + 256
 		};
 		MemoryMgr();
 		~MemoryMgr();
@@ -30,7 +30,7 @@ namespace ServerCore
 	private:
 		std::vector<AtomicNonTemplate*> m_pools[ServerCore::NUM_OF_THREADS];
 		AtomicNonTemplate* m_poolTable[ServerCore::NUM_OF_THREADS][MAX_ALLOC_SIZE + 1];
-		AtomicMemoryPool<AtomicNonTemplate> m_poolAllocator{ 64 * ServerCore::NUM_OF_THREADS };
+		AtomicMemoryPool<AtomicNonTemplate> m_poolAllocator{ POOL_COUNT * ServerCore::NUM_OF_THREADS };
 	};
 
 	template<typename Type, typename... Args>

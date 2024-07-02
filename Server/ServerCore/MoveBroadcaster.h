@@ -40,7 +40,9 @@ namespace ServerCore
 		
 		void ReleaseViewList()noexcept
 		{
-			m_viewListPtr.store(nullptr, std::memory_order_release);
+			m_spinLock.lock();
+			const S_ptr<ViewListWrapper> temp{ std::move(m_viewListPtr) };
+			m_spinLock.unlock();
 		}
 	public:
 		static void RegisterHuristicFunc(const HuristicFunc fp_)noexcept {
@@ -63,8 +65,13 @@ namespace ServerCore
 			return g_create_out_pkt(pEntity_);
 		}
 	private:
-		std::atomic<std::shared_ptr<HashSet<S_ptr<IocpEntity>>>> m_viewListPtr = MakeSharedSTD<HashSet<S_ptr<IocpEntity>>>();
-		
+		struct ViewListWrapper
+			:public RefCountable{
+			HashSet<S_ptr<IocpEntity>> view_list;
+		};
+	private:
+		SpinLock m_spinLock;
+		S_ptr<ViewListWrapper> m_viewListPtr = MakeShared<ViewListWrapper>();
 	private:
 		static inline HuristicFunc g_huristic = {};
 		static inline PacketFunc g_create_in_pkt = {};

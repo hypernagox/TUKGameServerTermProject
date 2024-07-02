@@ -108,6 +108,7 @@ namespace ServerCore
 	private:
 		const HANDLE m_iocpHandle;
 		Service* m_pMainService;
+		moodycamel::ConcurrentQueue<Task, LFQueueAllocator> m_globalTask{ 32 };
 		bool m_bStopRequest = false;
 		std::vector<std::jthread>	m_threads;
 		std::jthread m_timerThread;
@@ -115,7 +116,7 @@ namespace ServerCore
 		static inline Atomic<uint32> g_threadID = 0;
 
 		//moodycamel::ConcurrentQueue<S_ptr<TaskQueueable>, LFQueueAllocator> m_globalTaskQueue{ 32 };
-		moodycamel::ConcurrentQueue<Task, LFQueueAllocator> m_globalTask{ 32 };
+		
 
 		enum { WORKER_TICK = 64 };
 	};

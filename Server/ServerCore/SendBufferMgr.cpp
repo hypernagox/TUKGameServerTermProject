@@ -30,8 +30,9 @@ namespace ServerCore
 	};
 
 	SendBufferMgr::SendBufferMgr()
-		:m_pSendBufferPool{ sizeof(SendBufferChunk)}
 	{
+		for (auto& sendBufferPool : m_pSendBufferPool)
+			std::construct_at<AtomicNonTemplate>(reinterpret_cast<AtomicNonTemplate* const>(&sendBufferPool), sizeof(SendBufferChunk), 8);
 	}
 
 	SendBufferMgr::~SendBufferMgr()

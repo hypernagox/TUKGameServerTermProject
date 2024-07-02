@@ -79,21 +79,22 @@ namespace ServerCore
 		std::atomic_thread_fence(std::memory_order_seq_cst);
 
 		m_timerThread = std::jthread{ [this]()noexcept
-			{
-				InitTLS();
-				const bool& bStopRequest = m_bStopRequest;
-				const auto taskTimer = Mgr(TaskTimerMgr);
-				for (;;)
 				{
-					if (bStopRequest) [[unlikely]]
-						break;
+					InitTLS();
+					const bool& bStopRequest = m_bStopRequest;
+					const auto taskTimer = Mgr(TaskTimerMgr);
+					for (;;)
+					{
+						if (bStopRequest) [[unlikely]]
+							break;
 
-					taskTimer->DistributeTask();
+						taskTimer->DistributeTask();
 
-					std::this_thread::yield();
-				}
-				DestroyTLS();
-			} };
+						std::this_thread::yield();
+					}
+					DestroyTLS();
+				} };
+
 		std::string strFin(32, 0);
 		if (SERVICE_TYPE::SERVER == pService->GetServiceType())
 		{
@@ -131,7 +132,8 @@ namespace ServerCore
 			PostQueuedCompletionStatus(m_iocpHandle, 0, 0, 0);
 			t.join();
 		}
-		m_timerThread.join();
+		if (m_timerThread.joinable())
+			m_timerThread.join();
 	}
 
 	void ThreadMgr::InitTLS()
@@ -144,7 +146,7 @@ namespace ServerCore
 		//LCon_token = xnew <moodycamel::ConsumerToken>(m_globalTaskQueue);
 		LCon_tokenGlobalTask = new moodycamel::ConsumerToken(m_globalTask);
 
-		if (NUM_OF_THREADS >= LThreadId)
+		if (NUM_OF_THREADS >= LThreadId && 0 < LThreadId)
 			LSendBufferChunk = Mgr(SendBufferMgr)->Pop();
 
 		const volatile auto init_rand_seed = LRandSeed;

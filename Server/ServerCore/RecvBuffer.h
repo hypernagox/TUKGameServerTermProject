@@ -15,7 +15,7 @@ namespace ServerCore
 	public:
 		enum RECV_BUFFER_SIZE
 		{
-			BUFFER_SIZE = 0x2000 - (40 / BUFFER_COUNT), // 64KB
+			BUFFER_SIZE = 0x2000 - (24 / BUFFER_COUNT), // 64KB
 		};
 
 		void Clear()noexcept;

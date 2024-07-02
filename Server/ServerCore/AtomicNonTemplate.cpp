@@ -52,9 +52,8 @@ namespace ServerCore
         : blockSize{ (sizeof(Block) + size_ + CACHE_LINE_MINUS_ONE) & ~CACHE_LINE_MINUS_ONE }
         , maxBlockCount{ count }
         , poolTop{ nullptr }
+        , blockStart{ static_cast<std::byte* const>(::_aligned_malloc(blockSize * maxBlockCount, std::hardware_constructive_interference_size)) }
     {
-        const size_t totalSize = blockSize * maxBlockCount;
-        blockStart = static_cast<std::byte* const>(::_aligned_malloc(totalSize, std::hardware_constructive_interference_size));
         initialize();
     }
 

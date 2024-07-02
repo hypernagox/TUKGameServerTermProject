@@ -2,7 +2,7 @@
 
 namespace ServerCore
 {
-    class AtomicNonTemplate
+    class alignas(64) AtomicNonTemplate
     {
         static const inline HANDLE g_handle = GetProcessHeap();
     private:
@@ -18,11 +18,11 @@ namespace ServerCore
             BlockChaser() = default;
             BlockChaser(Block* const pBlock_, BlockChaser* const pNext_)noexcept :target{ pBlock_ }, next{ pNext_ } {}
         };
-        std::byte* blockStart;
-        std::atomic<BlockChaser*> poolTop = nullptr;
         std::atomic<uint64_t> head;
+        std::atomic<BlockChaser*> poolTop = nullptr;
         const size_t blockSize;
         const size_t maxBlockCount;
+        std::byte* const blockStart;
         static inline constinit const uint32_t maxTagValue = (1 << 19) - 1;
     private:
         static const uint64_t packPointerAndTag(const Block* const ptr, const uint32_t tag) noexcept;
