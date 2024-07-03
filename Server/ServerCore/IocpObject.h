@@ -39,7 +39,8 @@ namespace ServerCore
 		virtual ~IocpEntity()noexcept = default;
 	public:
 		const S_ptr<ContentsEntity>& GetContentsEntity()const noexcept { return m_pContentsEntity; }
-		const uint64_t GetObjectID()const noexcept { return ServerCore::GetObjectID(m_objectCombineID); }
+		const uint32_t GetObjectID()const noexcept { return static_cast<const uint32_t>(ServerCore::GetObjectID(m_objectCombineID)); }
+		const uint64_t GetObjectID64()const noexcept { return ServerCore::GetObjectID(m_objectCombineID); }
 		const uint16_t GetObjectType()const noexcept { return ServerCore::GetObjectType(m_objectCombineID); }
 		PacketSession* const IsSession()noexcept
 		{

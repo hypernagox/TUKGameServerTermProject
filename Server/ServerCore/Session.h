@@ -59,8 +59,8 @@ namespace ServerCore
 
 		bool Disconnect(const std::wstring_view cause)noexcept;
 
-		const uint64 GetSessionID()const noexcept { return GetObjectID(); }
-		const uint64 GetSessionIDAndAlive()const noexcept {
+		const uint32_t GetSessionID()const noexcept { return GetObjectID(); }
+		const uint32_t GetSessionIDAndAlive()const noexcept {
 			std::atomic_thread_fence(std::memory_order_acquire);
 			return GetObjectID() * m_bConnected;
 		}
